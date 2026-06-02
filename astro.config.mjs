@@ -4,6 +4,7 @@ import starlight from '@astrojs/starlight';
 
 export default defineConfig({
   site: 'https://sanketika-obsrv.github.io',
+  base: '/documentation',
   integrations: [
     starlight({
       title: 'Obsrv',
