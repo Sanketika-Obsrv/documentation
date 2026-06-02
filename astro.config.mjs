@@ -33,10 +33,7 @@ export default defineConfig({
         { icon: 'github', label: 'GitHub', href: 'https://github.com/Sunbird-Obsrv' },
         { icon: 'discord', label: 'Discord', href: 'https://discord.gg/Q5mvw2mGC8' },
       ],
-      editLink: {
-        baseUrl: 'https://github.com/Sanketika-Obsrv/Community/edit/main/',
-      },
-      lastUpdated: true,
+      lastUpdated: false,
       pagination: true,
       tableOfContents: { minHeadingLevel: 2, maxHeadingLevel: 3 },
       customCss: ['./src/styles/custom.css'],
