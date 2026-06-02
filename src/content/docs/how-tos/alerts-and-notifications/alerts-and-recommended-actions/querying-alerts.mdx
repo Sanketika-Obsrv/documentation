@@ -1,0 +1,293 @@
+---
+title: "Querying System Alerts and Recommended Actions"
+description: "This document details the various alert rules configured within the system, providing information on their impact, potential causes, and recommended actions."
+sidebar:
+  order: 4
+---
+
+### ALERT\_1301: [DRUID HISTORICAL]: High Disk Usage Detected
+
+**Severity:** `critical`
+
+**Affected System:** Druid Historical Nodes
+
+**Impact Summary:** High disk usage in Druid historical can prevent the querying of older data, potentially causing incomplete query results and affecting data availability.
+
+**Causes:**
+
+- The system is running out of disk space.
+- Volume autoscaling might be disabled.
+- Volume autoscaling may have failed due to threshold limits, subject to cloud provider limitations on scaling frequency.
+- A high volume of data is being written to the persistent storage.
+- A lot of old or unused data is accumulated in the PV.
+
+**Actions:**
+
+- Enable the auto scaling of volume.
+- Adjust the volume autoscaler to a higher threshold percentage. This proactive measure will increase volume at a greater utilization level, preventing frequent scaling.
+- Increase the PV size if needed.
+- For more assistance, contact the administrative support.
+
+**Component:** `Querying: Druid[Historicals]`
+
+---
+
+### ALERT\_1302: [DRUID INDEXER]: High Disk Usage Detected
+
+**Severity:** `critical`
+
+**Affected System:** Druid Indexer Nodes
+
+**Impact Summary:** High disk usage in Druid Indexer can interrupt data ingestion. As a result, real-time data is unavailable for querying.
+
+**Causes:**
+
+- The system is running out of disk space.
+- Volume autoscaling might be disabled.
+- Volume autoscaling may have failed due to threshold limits, subject to cloud provider limitations on scaling frequency.
+- A high volume of data is being written to the persistent storage.
+- A lot of old or unused data is accumulated in the PV.
+
+**Actions:**
+
+- Enable the auto scaling of volume.
+- Adjust the volume autoscaler to a higher threshold percentage. This proactive measure will increase volume at a greater utilization level, preventing frequent scaling.
+- Increase the PV size if needed.
+- For more assistance, contact the administrative support.
+
+**Component:** `Querying: Druid[Indexers]`
+
+---
+
+### QUERY\_DRUID\_INDEXER\_003: [DRUID INDEXER]: Detected a high impact on real-time querying performance.
+
+**Severity:** `critical`
+
+**Affected System:** Druid Indexer Nodes
+
+**Impact Summary:** Failure to query data disrupts access to real-time data, affecting downstream analytics that rely on timely insights.
+
+**Causes:**
+
+- Druid Indexer might be down.
+- The datasource might not be fully available for query.
+- Datasource is unavailable in druid.
+- Resources allocated are insufficient.
+
+**Actions:**
+
+- Restart the Druid Indexer and check logs for errors.
+- Check if the datasource segments are fully available and loaded.
+- Verify if the datasource exists in Druid and restart Druid supervisor if needed.
+- Enable auto scaling if not enabled.
+- For more assistance, contact the administrative support.
+
+**Component:** `Querying: Druid[Indexers]`
+
+---
+
+### QUERY\_DRUID\_HISTORICAL\_004: [DRUID HISTORICAL]: Detected a high impact on real-time querying performance.
+
+**Severity:** `critical`
+
+**Affected System:** Druid Historical Nodes
+
+**Impact Summary:** Failure to query data disrupts access to real-time data, affecting downstream analytics that rely on timely insights.
+
+**Causes:**
+
+- Historical Node might be down.
+- The datasource might not be fully available for query.
+- Datasource is unavailable in druid.
+- Resources allocated are insufficient.
+
+**Actions:**
+
+- Restart the Historical Node and verify segment loading status.
+- Check if the datasource segments are fully available and loaded.
+- Verify if the datasource exists in Druid and restart Druid supervisor if needed.
+- Enable auto scaling if not enabled.
+- For more assistance, contact the administrative support.
+
+**Component:** `Querying: Druid[Historicals]`
+
+---
+
+### ALERT\_1305: [API]: The Data Query API is encountering more failures to retrieve the data
+
+**Severity:** `critical`
+
+**Affected System:** API Querying
+
+**Impact Summary:** Query failures are preventing access to the dataset, resulting in an inability to retrieve data as expected.
+
+**Causes:**
+
+- An invalid API request might have been sent, resulting in increased failures.
+- The API service might be unable to handle the payload.
+- The API service might be down or experiencing frequent restarts.
+
+**Actions:**
+
+- Check the API service pod status to ensure it is running.
+- Check for the logs from the API service for any errors.
+- Check whether the datasource exists in Druid.
+- For more assistance, contact the administrative support.
+
+**Component:** `Querying: API[]`
+
+---
+
+### ALERT\_1306: [API]: The Data Query API is facing delays in retrieving data
+
+**Severity:** `warning`
+
+**Affected System:** API Querying
+
+**Impact Summary:** Delays in queries are affecting access to the dataset, leading to delayed data retrieval.
+
+**Causes:**
+
+- Too many concurrent queries might be affecting performance.
+- The Query API service is running low on CPU or memory.
+- Queries are queued due to excessive load and resource limitations.
+
+**Actions:**
+
+- Monitor the API service to ensure it is running and responding correctly.
+- Check service logs for errors or failures.
+- Increase CPU and memory resources if the service is experiencing high load.
+- For more assistance, contact the administrative support.
+
+**Component:** `Querying: API[]`
+
+---
+
+### ALERT\_1307: [DRUID HISTORICAL]: Detected higher amount of query lag than expected
+
+**Severity:** `warning`
+
+**Affected System:** Druid Indexer Nodes Querying
+
+**Impact Summary:** High indexer lag in the dataset indicates processing of new data is delayed. Because of this delay, new data isn't available when querying the dataset.
+
+**Causes:**
+
+- Detected high Druid Indexer Lag.
+- Too many query requests are executed simultaneously.
+- Queries are queuing due to excessive load and resource limitations.
+- Inefficient segment partitioning may lead to uneven query load balancing.
+
+**Actions:**
+
+- Monitor and investigate the cause for the lag.
+- Scale Broker and Historical nodes based on load.
+- Enable autoscaling if necessary.
+- Increase the number of partitions if query performance is impacted by large segment sizes.
+- For more assistance, contact the administrative support.
+
+**Component:** `Querying: Druid[Indexer]`
+
+---
+
+### ALERT\_1308: [DRUID INDEXER]: Detected higher amount of unparseable data.
+
+**Severity:** `warning`
+
+**Affected System:** Druid Indexer Nodes Querying
+
+**Impact Summary:** Unparseable data has been detected in the system, preventing it from being processed. Henceforth, queries on this dataset may not return accurate data until the issue is resolved.
+
+**Causes:**
+
+- Timestamp Parsing Errors — Incorrect or missing timestamp fields, or an unsupported date format.
+- Schema Mismatch — Required fields are missing, or field data types do not align with the ingestion schema.
+- Incorrect Data Format — The ingested data does not match the expected format (e.g., JSON, Avro, Parquet).
+- Incorrect JSON Path Expressions — Misconfigured JSON path in ingestion specifications.
+
+**Actions:**
+
+- Check the Druid ingestion task logs for specific error messages related to unparseable events.
+- Verify that the ingested data matches the expected format and schema, ensuring there are no missing fields, type mismatches, or encoding issues.
+- For more assistance, contact the administrative support.
+
+**Component:** `Querying: Druid[Indexer]`
+
+---
+
+### ALERT\_1309: [DRUID INDEXER]: Druid supervisor is in an unhealthy state
+
+**Severity:** `critical`
+
+**Affected System:** Druid Indexer Nodes Querying
+
+**Impact Summary:** The associated Druid Supervisor is in an unhealthy state, preventing druid ingestion tasks from running. As a result, real-time data cannot be queried.
+
+**Causes:**
+
+- Frequent task failures are causing the supervisor to become unhealthy.
+- Insufficient resources allocated.
+- Autoscaling is either disabled or has failed to scale up.
+
+**Actions:**
+
+- Ensure adequate resources are allocated.
+- Enable autoscaling if necessary.
+- Check task logs for detailed errors.
+- Restart the supervisor if necessary.
+- For more assistance, contact the administrative support.
+
+**Component:** `Querying: Druid[Indexer]`
+
+---
+
+### ALERT\_1310: [DRUID INDEXER]: Druid tasks are in an unhealthy state
+
+**Severity:** `critical`
+
+**Affected System:** Druid Indexer Nodes Querying
+
+**Impact Summary:** The Druid ingestion tasks are in an unhealthy state, causing data ingestion delays and failures. As a result, real-time data may not be available for querying.
+
+**Causes:**
+
+- Druid middle managers may be overloaded.
+- Druid task failures due to incorrect configurations, such as invalid ingestion.
+- The incoming data might not match the expected ingestion schema structure.
+- Might have encountered invalid or unparseable data.
+- Insufficient resources allocated.
+- Autoscaling is either disabled or has failed to scale up.
+
+**Actions:**
+
+- Check task logs for detailed errors.
+- Restart the failed supervisor if required.
+- Ensure enough system resources are available.
+- Enable autoscaling if necessary.
+- For more assistance, contact the administrative support.
+
+**Component:** `Querying: Druid[Indexer]`
+
+---
+
+### ALERT\_1311: [DRUID INDEXER]: Druid task slot utilization is out of expected range
+
+**Severity:** `critical`
+
+**Affected System:** Druid Indexer Nodes Querying
+
+**Impact Summary:** High Druid task slot utilization can delay new task assignments, causing ingestion bottlenecks and impacting data freshness for analytics.
+
+**Causes:**
+
+- Insufficient task slots configured in the system.
+- Stuck or failed tasks occupying task slots.
+
+**Actions:**
+
+- Review and adjust the task slot configuration.
+- Monitor resource usage (CPU, memory) to ensure adequate capacity.
+- Investigate and resolve any stuck or failed tasks.
+- For more assistance, contact the administrative support.
+
+**Component:** `Querying: Druid[Indexer]`

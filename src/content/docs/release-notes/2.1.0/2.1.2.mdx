@@ -1,0 +1,18 @@
+---
+title: "2.1.2"
+description: "Obsrv 2.1.2 release notes."
+sidebar:
+  order: 2
+---
+
+**Release Date:** 2025-10-10
+
+**Release Type:** Minor
+
+**Focus:** Added a new `flink-baseconfig` ConfigMap for the Master Data Indexer Cron Job. The Spark job now mounts this config via `extraVolumes` for centralized and manageable configuration.
+
+:::note
+a. While upgrading to **release 2.1.2**, please use the **2.0.1** version of **enterprise-automation/obsrv-scripts-infy**.
+
+b. While upgrading from previous releases of **v2.1.x to v2.1.2**, upgrade only the **en-bundles**.
+:::

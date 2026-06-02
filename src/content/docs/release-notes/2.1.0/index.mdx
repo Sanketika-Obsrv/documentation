@@ -1,0 +1,52 @@
+---
+title: "Obsrv 2.1.0"
+description: "Obsrv 2.1.0 Minor release notes"
+sidebar:
+  order: 1
+  label: "2.1.0"
+---
+
+Obsrv 2.1.0 Minor release notes
+
+**Release Date:** 2025-09-01
+
+**Release Type:** Minor
+
+**Focus:** Kubernetes platform upgrade and enhanced support for managed Kafka integration
+
+## 1. Overview
+
+The Obsrv 2.1.0 release introduces infrastructure upgrades and configuration enhancements to improve compatibility and operational flexibility. This version includes an upgrade of the underlying EKS platform from 1.32 to 1.33 and updates to automation scripts to streamline Obsrv deployments with any managed Kafka service, beyond AWS MSK.
+
+## 2. Tools Upgrades
+
+| Component | Version Change |
+|---|---|
+| AWS EKS | 1.32 → 1.33 |
+| Automation Scripts | Updated for Kafka 4.x managed services |
+
+## 3. Major Changes
+
+### 3.1 EKS Platform Upgrade
+
+- Upgraded AWS EKS version from **1.32** to **1.33** to maintain Kubernetes supportability and security compliance.
+- Validated all Obsrv services for compatibility with Kubernetes 1.33.
+
+### 3.2 Managed Kafka Integration Enhancements
+
+- Enhanced automation and configuration scripts to support **any cloud-managed Kafka service**, including but not limited to AWS MSK, Azure Event Hubs for Kafka, and Confluent Cloud.
+- Abstracted Kafka endpoint configuration to allow seamless integration via `global-values.yaml` without custom code changes.
+- Updated documentation and sanity checklist for validating Obsrv against external Kafka clusters.
+
+## 4. Migration & Upgrade Notes
+
+- For clusters running on **EKS 1.32**, upgrade to **EKS 1.33** before deploying Obsrv 2.1.0.
+- Perform this step **only if you are planning a platform upgrade**. If your primary goal is to **transition to a managed Kafka service (e.g., AWS MSK)** without upgrading EKS, refer to the Managed Kafka Integration Guide for installation steps compatible with existing cluster versions.
+- If transitioning from a self-managed Kafka setup to a managed Kafka service:
+  - Replace Kafka endpoints in `global-values.yaml`.
+  - Manually provision required topics in the new Kafka cluster.
+  - Uninstall the default Obsrv Kafka installation via:
+    ```bash
+    helm uninstall kafka40 -n obsrv
+    ```
+  - Refer to the Managed Kafka Integration Guide and Sanity Checklist for detailed validation steps post-migration.

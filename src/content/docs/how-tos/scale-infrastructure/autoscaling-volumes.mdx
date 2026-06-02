@@ -1,0 +1,50 @@
+---
+title: "Autoscaling Volumes"
+description: "This guide explains how to configure and manage autoscaling for Persistent Volumes"
+sidebar:
+  order: 2
+---
+
+Volume autoscaling automatically expands persistent volumes when usage exceeds defined thresholds. This is particularly important for Druid historical nodes and other stateful components.
+
+## Configuration
+
+```yaml
+volume-autoscaler:
+  # Trigger threshold - when disk is this % full, consider scaling
+  scale_above_percent: "75"
+  
+  # For Production environments:
+  scale_up_percent: "50"                  # Increase by 50%
+  scale_up_min_increment: "107374182400"  # Minimum 100GB increment
+  scale_up_max_increment: ""              # No maximum increment (uses max size)
+  scale_up_max_size: ""                   # Default 16TB on AWS EBS
+```
+
+## Production Recommendations
+
+1. Scaling Thresholds:
+   * Set `scale_above_percent: "75"` to trigger before disk is critically full
+   * Allow time for scaling operation to complete
+   * Consider monitoring trends to scale proactively
+
+2. Scaling Increments:
+   * Use `scale_up_percent: "50"` for percentage-based growth
+   * Set `scale_up_min_increment` to 100GB (107374182400 bytes)
+   * Choose whichever is larger: 50% or 100GB
+   * This balances cost with reducing scaling frequency
+
+3. Size Considerations:
+   * Do a proper sizing based on the data ingestion rate for services like Kafka, Druid
+   * Consider data growth rate and retention period
+   * Account for segment replication factor
+   * Plan for peak ingestion periods
+
+4. Provider Limits:
+   * AWS EBS: Max 16TB per volume
+   * Azure Disk: Varies by type (1TB–64TB)
+   * GCP PD: Up to 64TB
+
+:::caution
+Volume expansion is one-way — volumes cannot be shrunk after expansion. Some providers bill for allocated size, not used size. Consider cost implications of aggressive scaling thresholds.
+:::

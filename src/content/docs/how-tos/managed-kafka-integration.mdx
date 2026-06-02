@@ -1,0 +1,199 @@
+---
+title: "Integration with Managed Kafka Services"
+description: "Integrate Obsrv with managed Kafka services such as AWS MSK, Azure Event Hubs, and Confluent Cloud."
+sidebar:
+  order: 8
+---
+
+## Introduction
+
+Obsrv supports integration with **managed Kafka services** provided by various cloud platforms (e.g., AWS MSK, Azure Event Hubs for Kafka, Confluent Cloud, etc.).
+
+This guide outlines the setup process for integrating Obsrv with a managed Kafka service. While the example uses AWS MSK, the same steps apply to other providers by updating **Kafka broker endpoints**, **networking**, and **security configurations** accordingly.
+
+:::note
+This documentation is based on [**Obsrv v2.1.0**](https://github.com/Sanketika-Obsrv/obsrv-automation/releases/tag/2.1.0) and **Kafka v4.x**.
+:::
+
+---
+
+## Prerequisites
+
+Before starting, ensure you have the following:
+
+- A Kubernetes cluster (e.g., EKS, AKS, GKE) ready and running.
+- Access to a **managed Kafka service** in your cloud provider.
+- Basic understanding of your VPC/networking setup (VPC ID, Subnets, Security Groups/Firewall Rules).
+
+---
+
+## Networking Setup
+
+To ensure seamless connectivity between Obsrv services and Kafka, follow these guidelines:
+
+**1. Kafka and Kubernetes in the Same Network**
+
+- Deploy your Kafka cluster within the **same VPC (or equivalent network)** and **security group/firewall rules** as your Kubernetes cluster.
+- Ensure port `9092` (or appropriate port for plaintext/TLS communication) is **open between Kafka brokers and Kubernetes nodes/pods**.
+
+**2. Disable TLS (if applicable)**
+
+- If your managed Kafka service supports it, choose **plaintext communication** to simplify integration (e.g., no TLS certs or SASL auth).
+- This allows Obsrv to connect to Kafka brokers over **port `9092`** without additional setup.
+
+:::caution
+Modify this based on your provider's security policies. For stricter environments, TLS/SASL configuration will be needed.
+:::
+
+---
+
+## Kafka Broker Endpoints
+
+Once the Kafka service is deployed:
+
+- **Obtain the broker addresses** from your provider's console or CLI.
+- Example:
+
+```
+broker-1.example.kafka.cloudprovider.com
+broker-2.example.kafka.cloudprovider.com
+```
+
+These endpoints will be used in Obsrv's configuration.
+
+---
+
+## Update Obsrv Configuration
+
+Edit the `global-values.yaml` or your automation script to point Obsrv to the external Kafka cluster:
+
+```yaml
+kafka40: &kafka40
+  namespace: *kafka40-namespace
+  host: "broker-1.example.kafka.cloudprovider.com"
+  port: 9092
+  bootstrap-server: &kafka-bootstrap-server "broker-1.example.kafka.cloudprovider.com:9092,broker-2.example.kafka.cloudprovider.com:9092"
+```
+
+This ensures all Obsrv services connect to the managed Kafka cluster.
+
+---
+
+## Create Kafka Topics
+
+Most managed Kafka services **do not support automatic topic creation**. You must provision topics manually using a Kafka client.
+
+Use the following script (adjusted with your broker endpoint) to create required topics:
+
+```bash
+for topic in connectors.failed \
+             denorm \
+             failed \
+             hudi.connector.in \
+             ingest \
+             masterdata.ingest \
+             masterdata.stats \
+             obsrv-connectors-metrics \
+             raw \
+             spark.stats \
+             stats \
+             system.events \
+             system.telemetry.events \
+             telemetry \
+             transform \
+             unique
+do
+  ./kafka-topics.sh \
+    --create \
+    --bootstrap-server broker-1.example.kafka.cloudprovider.com:9092 \
+    --replication-factor 1 \
+    --partitions 4 \
+    --topic $topic
+done
+```
+
+:::note
+Use your preferred Kafka client tool compatible with your managed service. Configure `replication-factor` as 2 for production environments for backups.
+:::
+
+---
+
+## Deploy Obsrv Services
+
+After updating the configuration and provisioning topics:
+
+- Deploy or redeploy all Obsrv services.
+- They will now use the managed Kafka cluster.
+
+---
+
+## Update the Existing Datasets
+
+- By default, new datasources point to the managed Kafka version, so no manual update is needed after creation.
+- For existing datasources, you can manually update Postgres, use the Datasource Update API to modify the ingestion spec with the managed Kafka URL, or **simply edit and republish the datasets** — the dataset will then pick up the latest configured Kafka URL.
+
+---
+
+## Update Obsrv GA Rollups Spec
+
+- If the dataset contains any "Obsrv GA" versioned rollup data sources, update the rollup druid ingestion spec with the correct MSK URLs. Then, resubmit the updated ingestion spec to Druid.
+
+---
+
+## Resetting Druid Supervisors
+
+- After updating all supervisors to the new MSK URL, reset all the dataset/rollups supervisors to align Druid with the new offsets in MSK.
+- The MSK data is new and unprocessed, so resetting will not result in duplicates or errors.
+
+---
+
+## Remove Default Kafka Installation
+
+By default, Obsrv installation may deploy a self-managed Kafka service. **This must be removed** to avoid conflicts.
+
+**Option 1 — Uninstall using Helm:**
+
+```bash
+helm uninstall kafka40 -n obsrv
+```
+
+**Option 2 — Edit Installation Script:**
+
+- Locate the section that installs Kafka.
+- Comment out or remove the Kafka installation lines.
+
+---
+
+## Sanity Testing
+
+Once deployed, validate the integration across all layers:
+
+| Area | Sanity Validation |
+|---|---|
+| **1. Data Ingestion** | Create a sample dataset (JSON/CSV) and ingest into Obsrv via the ingestion API. Ensure the dataset is available for querying. |
+| **2. Processing Flow** | Validate that ingested data flows through Obsrv pipelines (`raw → transform → denorm → routing`). Confirm messages are visible in the corresponding Kafka topics in MSK. |
+| **3. Query Readiness** | Query the processed dataset through Obsrv query service (or connected engines like Druid/Hudi). Ensure ingested data is available for analytics. |
+| **4. Data Backup / Secor** | Verify Secor (or equivalent backup service) is consuming from MSK topics and storing data into the backup store (e.g., S3). Validate files are created and data matches the ingested events. |
+| **5. Connectors** | Test a connector (e.g., Kafka, Debezium, Neo4J). Confirm the dataset is written to the target system successfully. |
+| **6. Kafka Metrics** | Ensure Kafka-related metrics (producer/consumer lag, offsets, throughput) are exported and indexed into Prometheus. Check that Grafana dashboards show MSK metrics. |
+| **7. System Events** | Validate system topics (`system.events`, `system.telemetry.events`) are being populated and consumed by Obsrv services without errors. |
+| **8. Failure Handling** | Inject malformed/bad events and confirm they appear in `failed` or `connectors.failed` topics. Ensure retry or error-handling logic works. |
+| **9. Scalability Test** | Push a slightly higher load of events and confirm Obsrv services autoscale and continue processing without lag buildup. |
+| **10. Cleanup / Conflict Check** | Confirm default Kafka (self-managed) is uninstalled/disabled and only MSK brokers are being used. |
+| **11. Existing Datasets** | The existing (old) datasets should process the data and should start reading the data from the managed Kafka service. |
+
+---
+
+## Conclusion
+
+By following these steps, you can successfully integrate Obsrv with **any managed Kafka service**. This approach allows you to leverage the scalability and operational benefits of a cloud-managed Kafka while maintaining full compatibility with Obsrv services.
+
+:::caution
+Don't forget to remove the default Kafka installation using:
+
+```bash
+helm uninstall kafka40 -n obsrv
+```
+
+This ensures that Obsrv uses only your managed Kafka service and avoids unnecessary resource usage or conflicts.
+:::

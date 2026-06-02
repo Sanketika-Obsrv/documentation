@@ -1,0 +1,23 @@
+---
+title: "1.9.5"
+description: "Obsrv 1.9.5 release notes."
+sidebar:
+  order: 2
+---
+
+**Release Date:** 2026-03-12
+
+**Release Type:** Minor
+
+**Objective:** Migration Script Updates: GA to 1.0
+
+This document outlines necessary changes to PostgreSQL migration scripts intended to manage dataset datasource records, ensuring a clear distinction between primary datasources and rollup datasources during the transition from GA to 1.0.
+
+## Key Updates
+
+- **Set Primary Status:** Adjust datasets to establish a primary datasource status within records.
+- **Differentiate Datasources:** Implement logic to clearly differentiate between primary datasources and rollup datasources throughout the migration process.
+
+:::note
+a. While upgrading to release **1.9.5**, please use the **1.9.2** version of **enterprise-automation/obsrv-scripts-infy**.
+:::

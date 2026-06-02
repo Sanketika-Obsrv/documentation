@@ -1,0 +1,161 @@
+---
+title: "Obsrv Troubleshooting Guide"
+description: "Step-by-step guide for troubleshooting common Obsrv issues."
+sidebar:
+  order: 2
+---
+
+This document provides a comprehensive guide to the common issues encountered in Obsrv. Each issue is associated with a specific scenario, a descriptive message, and recommended resolutions.
+
+---
+
+### Invalid Redirect URL while logging in to Obsrv Web Console
+
+**Message:** Failed to redirect to the authentication callback URL during login.
+
+**Overview:** This issue occurs when the redirect URL used in the authentication flow is missing, invalid, or not registered in the Keycloak client configuration. During the login process, Obsrv relies on Keycloak to authenticate the user and redirect back to the web console. If the redirect URL does not match exactly with the allowed redirect URIs in Keycloak, authentication fails.
+
+**Troubleshooting Steps:**
+
+1. **Keycloak Client Redirect URI Configuration**
+   - **Issue:** The required redirect URL is not configured under the Valid Redirect URIs in Keycloak.
+   - **Solution:** Navigate to the Keycloak client settings and ensure the correct redirect URL is added under **Valid Redirect URIs**. The domain, protocol (`http/https`), and URL path must match exactly.
+
+2. **Incorrect or Misformatted Redirect URL**
+   - **Issue:** The redirect URL in the authentication request does not match the expected URL format.
+   - **Solution:** Verify the redirect URL configured in the Obsrv Web Console or environment variables. Update it to match the redirect URI registered in Keycloak.
+
+   **Example (Keycloak Configuration Reference):**
+
+   Valid Redirect URI Example: `https://your-domain.com/obsrv/console/*`
+
+   Ensure the pattern covers the exact login callback path.
+
+---
+
+### Dataset Publish Failure due to Authorization Issue
+
+**Message:** Facing issues while trying to publish a dataset.
+
+**Overview:** This failure occurs specifically during the **Dataset Publish API call**. The primary cause is often a missing or expired JWT token, or an authorization failure where the user's valid token is rejected by the Obsrv Gateway. The rejection most frequently happens because the token is missing the required **audience claim** when keycloak bundle is upgraded. This is usually caused by the `api-gw-audience` client scope being omitted from the **Keycloak client configuration**.
+
+**Troubleshooting Steps:**
+
+1. **Token Validity Check (Missing or Expired)**
+   - **Issue:** The publish request is rejected because the user's token is missing, expired, or invalid.
+   - **Solution:**
+     1. Log out of the **Obsrv Web Console** completely.
+     2. Log back into the Obsrv Web Console to generate a fresh, valid JWT token.
+     3. Re-attempt the **dataset publish action.**
+
+2. **Keycloak Client Scope Configuration (Missing Audience)**
+   - **Issue:** The token generated for the user is missing the required audience claims (defined by the `api-gw-audience` scope), causing the token to be considered unauthorized by the API Gateway during the publish call.
+   - **Solution:**
+     1. Log in to the **Keycloak Admin Console** as an administrator.
+     2. Select the `obsrv` realm from the dropdown.
+     3. In the sidebar, click on "**Clients**".
+     4. Select the `obsrv-console` client.
+     5. Navigate to the "**Client scopes**" tab.
+     6. Check if the `api-gw-audience` scope is listed under **Assigned Default Client Scopes**.
+     7. If missing, click "**Add client scope**" and select `api-gw-audience` to assign it.
+     8. After adding the scope, navigate to Obsrv Web Console, log out and log in again to obtain a new, correctly scoped token.
+
+3. **Further Authorization Failure Analysis**
+   - **Issue:** After verifying the `api-gw-audience` scope is present and the token is valid, the publish failure still persists.
+   - **Solution:**
+     1. Using browser developer tools, capture the JWT token from a request after logging in.
+     2. Decode the token using a standard online **JWT tool (like jwt.io).**
+     3. Verify that the `aud` (audience) claim in the token payload contains the necessary audience identifier for the Obsrv API Gateway. If the claim is missing or incorrect despite the Keycloak configuration, clear browser cache and re-login.
+     4. If the issue persists, delete the `keycloak-public-key` and `create-obsrv-user` jobs from the `keycloak` namespace, and delete the `keycloak-public-key` job from the `management-api` namespace. Then rerun the `oauth`, `additional`, and `en-bundles` bundles to recreate these jobs. After the jobs complete successfully, log out of the console, log back in, and try publishing the dataset again.
+     5. If the issue still persists, contact support for system-level configuration verification.
+
+---
+
+### Dataset APIs access issue [Unauthorised Access error]
+
+**Message:** Experiencing **unauthorized access** errors when accessing **dataset APIs** with **RBAC** enabled.
+
+**Overview:** This failure specifically occurs when accessing **dataset APIs with RBAC enabled**. The primary cause is often a missing or invalid user token, especially when executing APIs outside of the web console. When RBAC is enabled, the dataset API validates the user token before granting access.
+
+**Troubleshooting Steps:**
+
+1. **The request failed due to a missing or invalid user token**
+   - **Issue:** Dataset APIs returning **unauthorized access error** when **RBAC** is enabled.
+   - **Solution:**
+
+     To generate a user access token, execute the following `curl` command:
+
+     ```bash
+     curl --location --globoff '{{hostname}}/auth/realms/obsrv/protocol/openid-connect/token' \
+     --header 'Content-Type: application/x-www-form-urlencoded' \
+     --data-urlencode 'client_id=obsrv-console' \
+     --data-urlencode 'grant_type=password' \
+     --data-urlencode 'username={{username}}' \
+     --data-urlencode 'password={{password}}'
+     ```
+
+     Replace `{{hostname}}` with the valid hostname or IP used for the web console and use credentials of a user with dataset API access (e.g., **admin or dataset manager**).
+
+     To access the dataset APIs, include the token in your API request header:
+
+     ```bash
+     curl --location --globoff '{{hostname}}/v2/data/in/user-data' \
+     --header 'Content-Type: application/json' \
+     --header 'Authorization: Bearer {{user_access_token}}' \
+     --data '{
+       "id": "api.data.in",
+       "ver": "v2",
+       "ts": "1711966306164",
+       "params": { "msgid": "e180ecac-8f41-4f21-9a21-0b3a1a368917" },
+       "data": {
+         "eid": "AUDIT",
+         "ver": "1.0.0",
+         "mid": "04f936f7-30fb-480a-82b8-8b8ec08d3b903",
+         "actor": { "id": "user-001", "type": "User" }
+       }
+     }'
+     ```
+
+:::note
+If the issue persists, please contact the administrative support.
+:::
+
+---
+
+### Datasource not available for query error
+
+**Message:** The Data Query API is returning a "**datasource not available for querying**" error.
+
+**Overview:** This issue occurs specifically when accessing the **Data Query API**. The primary cause is usually the coordinator load status, where Druid tasks have not been completed, and segments have not been published.
+
+**Troubleshooting Steps:**
+
+1. **Verify if the datasource segments are published successfully or not.**
+   - **Issue:** The dataset you are trying to query is not loaded into the **metadata store**.
+   - **Solution:**
+     1. Check the load status of the Druid supervisor using the following curl command:
+
+        ```bash
+        curl --location --globoff '{{druid_host}}/druid/coordinator/v1/loadstatus'
+        ```
+
+     2. This command returns the load status for all supervisors. Verify if the load status of the querying dataset is 100. If it is 0 or less than 100, the segments have not been published yet.
+     3. Please note that it typically takes up to 4 hours for task completion and segment publishing. If the load status remains below 100 after 4 hours, review the task status for any failures or contact administrative support.
+
+---
+
+### Web console and related services redirection issue
+
+**Message:** After updating the new domain IP, the Web Console and other services still redirect to the old domain IP.
+
+**Overview:** This issue occurs after the domain IP is changed and you try to access the Web Console or related services. It usually happens because services such as Grafana, Keycloak, Obsrv Console, and Superset still point to the old IP.
+
+**Troubleshooting Steps:**
+
+1. **Verify whether the services open with the new IP.**
+   - **Issue:** One or more services still redirect to the old IP.
+   - **Solution:**
+     1. Upgrade the `monitoring`, `oauth`, `coreinfra`, `additional`, and `en-bundles` bundles from the Obsrv automation repository so the services pick up the new domain IP.
+     2. Log in to the **Keycloak Admin Console** and verify that the redirect URIs for all services use the new domain IP.
+     3. Verify that the **Obsrv Console** redirects to the new IP. If it does not, restart the Obsrv Console pod to clear any cached configuration.
+     4. If the issue persists, contact administrative support.

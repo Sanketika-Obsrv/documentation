@@ -1,0 +1,34 @@
+---
+title: "2.1.5"
+description: "Obsrv 2.1.5 release notes."
+sidebar:
+  order: 5
+---
+
+**Release Date:** 2026-05-19
+
+**Release Type:** Minor
+
+**Objective:** Obsrv Superset upgrade from version 4.1.1 to 6.1.0.
+
+## Migration Steps
+
+1. **Backup Superset PostgreSQL Data (Recommended):**
+
+   Creating a backup is highly recommended for safety. It's not used during the upgrade process but serves as a fallback if you encounter issues or need to revert to the previous version.
+
+   Reference commands to perform the backup:
+
+   ```bash
+   mkdir -p ~/superset-backups
+   kubectl -n postgresql exec <postgresql pod name> -- bash -c "PGPASSWORD=<postgresql password> pg_dump -U postgres -Fc superset" > ~/superset-backups/superset-$(date +%F-%H%M).dump
+   ```
+
+2. **Upgrade Core-Infra Bundle:**
+
+   Upgrade **core-infra** bundle and once Superset is up and running, access the upgraded version for dashboards and charts.
+
+:::note
+- When upgrading to release **2.1.5**, use version **2.0.3** of **enterprise-automation/obsrv-scripts-infy**.
+- For upgrades from **v2.1.x to v2.1.5**, only upgrade the **core-infra** bundle.
+:::

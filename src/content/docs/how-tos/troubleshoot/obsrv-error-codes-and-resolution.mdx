@@ -1,0 +1,418 @@
+---
+title: "Obsrv Error Codes and Resolution"
+description: "Reference guide for Obsrv error codes with descriptions and recommended resolutions."
+sidebar:
+  order: 1
+---
+
+This document provides a comprehensive guide to the error codes used in Obsrv. Each error code is associated with a specific error scenario, a descriptive message, and recommended resolutions.
+
+---
+
+### ERR\_EXT\_1001 - NO\_EXTRACTION\_DATA\_FOUND
+
+**Message:** Unable to extract the data from the extraction key.
+
+**Overview:** The ERR\_EXT\_1001 error occurs when the system fails to extract data using the specified extraction key.
+
+**Troubleshooting Steps:**
+
+1. **Dataset Extraction Key Configuration**
+   - **Issue:** The extraction key is not configured during dataset creation.
+   - **Solution:** Ensure proper configuration of the extraction key when creating the dataset.
+
+2. **Invalid Extraction Key in Ingested Event**
+   - **Issue:** An invalid extraction key is provided in the ingested event.
+   - **Solution:** Validate and correct the extraction key in the ingested event.
+
+**Examples:**
+
+For the batch event, the extraction key is `events`, and all events must be in a list format:
+
+```json
+{
+  "data": {
+    "id": "UUID",
+    "events": []
+  }
+}
+```
+
+For the non-batch event, the extraction key is `event`, and one event at a time can be ingested:
+
+```json
+{
+  "data": {
+    "id": "UUID",
+    "event": {}
+  }
+}
+```
+
+---
+
+### ERR\_EXT\_1002 - EXTRACTED\_DATA\_NOT\_A\_LIST
+
+**Message:** The extracted data is not a list.
+
+**Overview:** The ERR\_EXT\_1002 error arises when the system encounters difficulties extracting batch data using the specified extraction key, and the data does not adhere to the expected list format.
+
+**Troubleshooting Steps:**
+
+1. **Invalid Batch Data Format in Ingested Event**
+   - **Issue:** Ingested data contains an invalid batch structure.
+   - **Solution:** Ensure that if batch mode is configured with an extraction key, all events should be in a list format.
+
+```json
+{
+  "data": {
+    "id": "UUID",
+    "events": []
+  }
+}
+```
+
+---
+
+### ERR\_EXT\_1003 - EVENT\_SIZE\_EXCEEDED
+
+**Message:** The event size exceeds the maximum configured limit.
+
+**Overview:** The ERR\_EXT\_1003 error is triggered when the size of the ingested event surpasses the defined batch size.
+
+**Troubleshooting Steps:**
+
+1. **System Configuration**
+   - **Issue:** Batch size limit exceeded.
+   - **Solution:** The maximum supported batch size is **1048576** bytes (~1MB), and it is recommended not to ingest data exceeding the configured batch size.
+
+---
+
+### ERR\_EXT\_1004 - MISSING\_DATASET\_ID
+
+**Message:** The Dataset ID is not provided in the event.
+
+**Overview:** The ERR\_EXT\_1004 error arises when the required Dataset ID is not included in the event being processed. This omission hampers the normal processing of the event.
+
+**Troubleshooting Steps:**
+
+1. **Connectors Validation:**
+   - **Issue:** The Dataset ID is not stamped in the event.
+   - **Solution:** The processing system anticipates the presence of the `dataset` within the ingested event. Connectors such as API, Kafka, Database, Object store, etc., must ensure that the dataset ID is stamped at the root level of the event.
+
+```json
+{
+  "id": "UUID",
+  "dataset": "dataset_id",
+  "events": []
+}
+```
+
+---
+
+### ERR\_EXT\_1005 - MISSING\_DATASET\_CONFIGURATION
+
+**Message:** Dataset configuration is missing.
+
+**Overview:** The ERR\_EXT\_1005 error occurs when the system processes an event lacking the necessary dataset configuration.
+
+**Troubleshooting Steps:**
+
+1. **Dataset Validation:**
+   - **Issue:** Absence of dataset configuration in the table.
+   - **Solution:** Prior to ingesting the event, ensure the dataset is created, thoroughly reviewed, and published to a live status.
+
+2. **Event Validation:**
+   - **Issue:** The event contains an invalid dataset name.
+   - **Solution:** When ingesting events, ensure that the dataset id is accurately defined within the API or connectors.
+
+---
+
+### ERR\_EXT\_1006 - EVENT\_MISSING
+
+**Message:** The ERR\_EXT\_1006 error occurs when the system processes a non-batch event lacking the necessary "event" property.
+
+**Overview:** This error is triggered when the system encounters a non-batch event without the required "event" property in the dataset configuration.
+
+**Troubleshooting Steps:**
+
+1. **Event Validation:**
+   - **Issue:** The "event" property is not defined for non-batch events.
+   - **Solution:** Ensure that all non-batch events are encapsulated within the "event" property:
+
+```json
+{
+  "id": "UUID",
+  "event": {}
+}
+```
+
+---
+
+### ERR\_DEDUP\_1007 - NO\_DEDUP\_KEY\_FOUND
+
+**Message:** The ERR\_DEDUP\_1007 error occurs when no dedup key is found, leading to potential data discrepancies.
+
+**Overview:** This error happens when a dataset is configured with deduplication, but the dedup key is either missing or lacks data.
+
+**Troubleshooting Steps:**
+
+1. **Dataset Dedup Configuration:**
+   - **Issue:** Absence of the deduplication key in the dataset configuration.
+   - **Solution:** Ensure that the deduplication key is properly defined in the deduplication config object.
+
+2. **Event Dedupe Property:**
+   - **Issue:** Lack of dedupe property in the event.
+   - **Solution:** Include the dedupe property within the event, or mark it as a required property in the event schema while creating the dataset.
+
+---
+
+### ERR\_DEDUP\_1008 - DEDUP\_KEY\_NOT\_A\_STRING\_OR\_NUMBER
+
+**Message:** The ERR\_DEDUP\_1008 error occurs when the event dedup property contains a value other than a string or number.
+
+**Overview:** This error manifests when the dedup key value in the event is not a valid string or number.
+
+**Troubleshooting Steps:**
+
+1. **Event Dedup Property:**
+   - **Issue:** Invalid property value type of dedupe key.
+   - **Solution:** Ensure passing the right value type in the event dedup property and update the dataset schema of the dedup property to have the correct arrival format and data type format.
+
+---
+
+### ERR\_EXT\_1009 - DUPLICATE\_BATCH\_EVENT\_FOUND
+
+**Message:** The ERR\_EXT\_1009 error indicates the discovery of a duplicate batch event.
+
+**Overview:** When the source produces a duplicate batch event, the system identifies and filters out these occurrences.
+
+**Troubleshooting Steps:**
+
+1. **Batch Event Dedup Key:**
+   - **Issue:** Batch event dedupe property is not unique.
+   - **Solution:** Ensure generating a unique value for the dedup property or update the dataset configuration to choose the right dedup property with unique values.
+
+---
+
+### ERR\_PP\_1010 - DUPLICATE\_EVENT\_FOUND
+
+**Message:** The ERR\_PP\_1010 error indicates the identification of a duplicate event.
+
+**Overview:** When the source produces a duplicate event, the system identifies and filters out such occurrences.
+
+**Troubleshooting Steps:**
+
+1. **Event Dedup Key:**
+   - **Issue:** Event dedup property is not unique.
+   - **Solution:** Ensure generating a unique value for the dedup property or update the dataset configuration to choose the right dedup property with a unique value.
+
+---
+
+### ERR\_PP\_1011 - JSON\_SCHEMA\_NOT\_FOUND
+
+**Message:** The ERR\_PP\_1011 error signals that the JSON schema is not found for the dataset.
+
+**Overview:** This issue occurs when a dataset is created without any schema.
+
+**Troubleshooting Steps:**
+
+1. **Dataset Configuration:**
+   - **Issue:** When the schema is not defined in the table of the dataset.
+   - **Solution:** Update the dataset configuration with a schema object using the dataset update API (`/obsrv/v1/datasets/update`).
+
+---
+
+### ERR\_PP\_1012 - INVALID\_JSON\_SCHEMA
+
+**Message:** The ERR\_PP\_1012 error indicates an invalid JSON schema.
+
+**Overview:** This issue generally occurs when an invalid schema is manually crafted or created for a dataset, or if the API has generated an invalid schema.
+
+**Troubleshooting Steps:**
+
+1. **Dataset Configurations:**
+   - **Issue:** When the dataset is created with an invalid schema structure.
+   - **Solution:** Generate the correct schema and create the dataset. If the dataset is already created, update the schema using the `obsrv/v1/datasets/update` API.
+
+---
+
+### ERR\_PP\_1013 - SCHEMA\_VALIDATION\_FAILED
+
+**Message:** The ERR\_PP\_1013 error indicates that the event has failed schema validation.
+
+**Overview:** This error occurs when events do not conform to the correct structure as defined in the configured schema.
+
+**Troubleshooting Steps:**
+
+1. **Event Correction:**
+   - **Issue:** Invalid event structure.
+   - **Solution:** Thoroughly examine and rectify the event generated by the source to ensure it generates the correct structure in alignment with the expected schema.
+
+2. **Dataset Schema Configuration:**
+   - **Issue:** Incorrect schema.
+   - **Solution:** Review the schema's required fields, data types, and other properties. If any property requires an update, perform the necessary changes using the `obsrv/v1/datasets/update` endpoint.
+
+---
+
+### ERR\_DENORM\_1014 - DENORM\_KEY\_MISSING
+
+**Message:** The ERR\_DENORM\_1014 error signifies the absence of a denorm key or missing data for the specified key.
+
+**Overview:** This error occurs when a dataset is configured with denorm but lacks a denorm key.
+
+**Troubleshooting Steps:**
+
+1. **Event Correction:**
+   - **Issue:** When the event doesn't contain the denorm key.
+   - **Solution:** Ensure the source consistently generates the denorm key and update the dataset property schema to consider the denorm key as a required property.
+
+2. **Dataset Denorm Configuration:**
+   - **Issue:** Empty denorm key value in the dataset denorm configurations.
+   - **Solution:** Update the dataset denorm configuration using the `obsrv/v1/datasets/update` API.
+
+---
+
+### ERR\_DENORM\_1015 - DENORM\_KEY\_NOT\_A\_STRING\_OR\_NUMBER
+
+**Message:** The ERR\_DENORM\_1015 error occurs when the denorm key value is not a String or Number.
+
+**Overview:** This error manifests when the denorm key value is not a valid string or number.
+
+**Troubleshooting Steps:**
+
+1. **Event Correction:**
+   - **Issue:** The ingested event's denorm key value might have a type other than string or number.
+   - **Solution:** Ensure the source produces an event with a denorm key value of the correct data type.
+
+2. **Dataset Schema Update:**
+   - **Issue:** Invalid data type or format of the event's denorm key value.
+   - **Solution:** Update the schema of the denorm property to string or number type.
+
+3. **Dataset Denorm Configuration:**
+   - **Issue:** Invalid denorm key has been configured.
+   - **Solution:** Update the dataset denorm configuration using an API or edit through the Obsrv console.
+
+---
+
+### ERR\_DENORM\_1016 - DENORM\_DATA\_NOT\_FOUND
+
+**Message:** The ERR\_DENORM\_1016 error occurs when denorm data is not found for the given key.
+
+**Overview:** This error happens when denorm data for the specified key is not found in the master dataset.
+
+**Troubleshooting Steps:**
+
+1. **Review Master Dataset:**
+   - **Issue:** The master dataset might not have denorm value for the given denorm key value.
+   - **Solution:** Re-populate the master dataset using the master dataset indexer job or reindex the data using the `data/in` API.
+
+2. **Review the Dataset Denorm Configuration:**
+   - **Issue:** An invalid denorm key might have been chosen.
+   - **Solution:** Review the denorm key that can correctly join with the master dataset. If the denorm key is invalid, update the configurations using the update API.
+
+---
+
+### ERR\_EXT\_1018 - ERR\_INVALID\_EVENT
+
+**Message:** The ERR\_EXT\_1018 error signals an invalid JSON event, indicating an error while deserializing the event.
+
+**Overview:** This issue occurs when an unparsable event is found.
+
+**Troubleshooting Steps:**
+
+1. **Review the Source Event Producer:**
+   - **Issue:** Unparsable event produced by the source.
+   - **Solution:** Correct the source to produce parsable events.
+
+---
+
+### ERR\_ROUTER\_1019 - INDEX\_KEY\_MISSING\_OR\_BLANK
+
+**Message:** The ERR\_ROUTER\_1019 error states an inability to index data as the timestamp key is missing, blank, or not a date-time value.
+
+**Overview:** This issue occurs when an invalid timestamp is configured.
+
+**Troubleshooting Steps:**
+
+1. **Update the Dataset Index Key Configuration:**
+   - **Issue:** Index key value might be invalid.
+   - **Solution:** Update the dataset configuration to use the right timestamp key or default to the event arrival time.
+
+2. **Update the Schema Configuration:**
+   - **Issue:** Schema configuration could be invalid.
+   - **Solution:** Mark the index key (timestamp) property as a required property and choose the right arrival and data type format.
+
+3. **Source Correction:**
+   - **Issue:** Source might be producing an invalid structure of the timestamp key.
+   - **Solution:** Correct the source to produce the right value for the index property or timestamp key.
+
+---
+
+### ERR\_TRANSFORM\_1020 - INVALID\_EXPR\_FUNCTION
+
+**Message:** The error (ERR\_TRANSFORM\_1020) indicates that the transformation expression function provided is not valid.
+
+**Overview:** This functional error typically occurs when an invalid transformation expression is supplied.
+
+**Troubleshooting Steps:**
+
+1. **Validate the Expression:**
+   - **Issue:** Execution of an invalid expression.
+   - **Solution:** Utilize the jsonat tool or the Obsrv console's expression tryout feature to thoroughly validate and correct the expression. Once validated, update the dataset transformation configuration using the `obsrv/v1/datasets/update` API.
+
+---
+
+### ERR\_TRANSFORM\_1021 - ERR\_EVAL\_EXPR\_FUNCTION
+
+**Message:** The error (ERR\_TRANSFORM\_1021) signifies an inability to evaluate the transformation expression function.
+
+**Overview:** This functional error occurs when the expression is deemed correct, but the values within it might be incorrect, leading to the failure of the expression evaluation.
+
+**Troubleshooting Steps:**
+
+1. **Validate the Expression Values and Source Correction:**
+   - **Issue:** Invalid attributes in the expression.
+   - **Solution:** Verify that the system generates accurate values for the properties used in the expression. Validate the sample event against the expression using the jsonat tool or the Obsrv expression tryout tool.
+
+---
+
+### ERR\_TRANSFORM\_1022 - ERR\_UNKNOWN\_TRANSFORM\_EXCEPTION
+
+**Message:** The error (ERR\_TRANSFORM\_1022) indicates an inability to evaluate the transformation expression function during execution.
+
+**Overview:** This functional error occurs during the execution of the expression.
+
+**Troubleshooting Steps:**
+
+1. **Validate the Expression:**
+   - **Issue:** Execution of an invalid expression.
+   - **Solution:** Employ the jsonat tool or the Obsrv console's tryout option to validate and correct the expression. Post-validation, update the dataset transformation configuration using the `obsrv/v1/datasets/update` API.
+
+---
+
+### ERR\_TRANSFORM\_1023 - ERR\_TRANSFORMATION\_FAILED
+
+**Message:** The error (ERR\_TRANSFORM\_1023) occurs when at least one mandatory transformation has failed.
+
+**Overview:** This issue arises when the system encounters difficulties in applying the transformation.
+
+**Troubleshooting Steps:**
+
+1. **Validate the Expression and Event:**
+   - **Issue:** Failure to apply the expression on the event.
+   - **Solution:** This issue often surfaces when encountering related errors such as `ERR_EVAL_EXPR_FUNCTION`, `ERR_UNKNOWN_TRANSFORM_EXCEPTION`, or `TRANSFORMATION_FIELD_MISSING`. Addressing these underlying error codes is crucial for resolving the core issue.
+
+---
+
+### ERR\_TRANSFORM\_1024 - TRANSFORMATION\_FIELD\_MISSING
+
+**Message:** The error (ERR\_TRANSFORM\_1024) highlights that a transformation field is either missing or blank.
+
+**Overview:** This functional error is triggered when the transformation field is not defined or lacks necessary information.
+
+**Troubleshooting Steps:**
+
+1. **Validate the Expression Values and Source Correction:**
+   - **Issue:** Attributes of the expression are not defined.
+   - **Solution:** Ensure that the system produces the required properties with accurate values for the expression. Validate the sample event against the expression using the jsonat tool or the Obsrv expression tryout tool.

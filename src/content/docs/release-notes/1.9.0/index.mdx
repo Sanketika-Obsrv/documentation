@@ -1,0 +1,22 @@
+---
+title: "Obsrv 1.9.0"
+description: "Obsrv 1.9.0 release notes."
+sidebar:
+  order: 3
+  label: "1.9.0"
+---
+
+**Release Date:** 2025-07-11
+
+**Release Type:** Minor
+
+**Focus:** Infra auto scaling, AWS EKS upgrade, and stability improvements.
+
+| # | Category | Title | Summary |
+|---|---|---|---|
+| 1 | 🛠️ Improvements | Druid Historical & Broker Scaling | Enabled support for auto-scaling to improve query performance under varying workloads. |
+| 2 | 🛠️ Improvements | Flink Auto-Scaling Support | Added support for auto-scaling to dynamically manage resources based on workload, ensuring timely event processing and minimizing backpressure. Auto-scaling is disabled by default and can be enabled during installation or later. |
+| 3 | 🐞 Bug Fixes | Connectors Filter Issue | Fixed an issue where the Connectors filter in the web console was not working. |
+| 4 | 🐞 Bug Fixes | Tags Filter Issue | Fixed an issue where the Tags filter in the web console was not working. |
+| 5 | 🐞 Bug Fixes | Incorrect Double Type Mapping | Fixed a bug where the ingestion spec created the wrong data type for double input fields. |
+| 6 | 🔄 Upgrade/Changes | AWS Kubernetes Upgrade | Upgraded AWS Kubernetes version to 1.32 for better support, performance, and security. |

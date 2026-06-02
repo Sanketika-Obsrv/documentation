@@ -1,0 +1,89 @@
+---
+title: "Sample Notification Templates"
+description: "This section provides ready-to-use examples of notification templates to help you quickly format alert messages."
+sidebar:
+  order: 5
+---
+
+## Important Template Fields
+
+| Label | Description |
+|---|---|
+| `alert_code` | Custom code representing the alert for easy tracking. |
+| `alertname` | Full name or title describing the alert situation. |
+| `dataset` | Dataset is a collection of data within the data source associated with the alert. |
+| `table` | Table name related to the dataset triggering the alert. |
+| `severity` | Severity level of the alert (e.g., critical, warning). |
+| `description` | Provides a brief, high-level overview of the alert rule for quick identification. |
+| `summary` | Offers detailed context and explanation of the alert, helping users understand its cause and impact. |
+
+## Notification Template Examples — Code Snippets and Email Previews
+
+### Example 1
+
+Example snippet for the email body:
+
+```go
+{{ define "Notification-email" -}}
+{{ range .Alerts -}}
+  {{- $alertCode := index .Labels "alert_code" -}}
+  {{- $alertName := index .Labels "alertname" -}}
+  {{- $dataset := index .Labels "dataset" -}}
+  {{- $summary := index .Annotations "summary" -}}
+  {{- $table := index .Labels "table" -}}
+  {{- $severity := index .Labels "severity" -}}
+  {{- $name := index .Labels "alertName" -}}
+  {{- $description := index .Annotations "description" -}}
+  {{- if and $alertCode $alertName $description $severity -}}
+    {{- if not (or (match "DatasourceNoData" $alertName) (match "DatasourceError" $alertName)) }}
+      {{- if eq $severity "critical" }}
+        🚨 {{ title $severity }} Alert: {{ $alertName }}
+      {{- else if eq $severity "warning" }}
+        ⚠️ {{ title $severity }} Alert: {{ $alertName }}
+      {{- end }}
+      {{- if and $dataset (ne $dataset "all") }}
+        📦 Dataset: "{{ $dataset }}"
+      {{- end }}
+      {{- if $table }}
+        📊 Table: "{{ $table }}"
+      {{- end }}
+      📛 Alert Code: {{ $alertCode }}
+      📌 Impact Summary: {{ $summary }}
+      🔗 For more assistance reach out to administrative support or refer https://docs.obsrv.ai/how-tos/alerts-and-notifications/alerts-and-recommended-actions
+    {{- end }}
+  {{- end -}}
+{{ end -}}
+{{ end }}
+```
+
+Below is an example of how the email notification looks when triggered:
+
+![Email notification example showing critical alert with dataset, alert code and impact summary](/assets/notifications/template-email-example1.png)
+
+---
+
+### Example 2
+
+Example snippet for the email body:
+
+```go
+{{ define "Simple-Notification-Template" -}}
+{{ range .Alerts -}}
+📛 Alert Code: {{ index .Labels "alert_code" }}
+🏷️ Alert Name: {{ index .Labels "alertname" }}
+⚠️ Severity: {{ index .Labels "severity" }}
+📝 Summary: {{ index .Annotations "description" }}
+🖥️ Alert Source: {{ index .Labels "alertSource" }}
+📊 Dataset: {{ index .Labels "dataset" }}
+🔗 For more assistance reach out to administrative support or refer https://obsrv.sunbird.org/
+{{ end -}}
+{{ end }}
+```
+
+Below is an example of how the email notification looks when triggered:
+
+![Simple email notification example showing alert name, severity and summary fields](/assets/notifications/template-email-example2.png)
+
+:::note
+For a basic guide on creating a custom notification template, refer to the [Notification Template Setup Guide](/how-tos/alerts-and-notifications/notification-template-setup/).
+:::

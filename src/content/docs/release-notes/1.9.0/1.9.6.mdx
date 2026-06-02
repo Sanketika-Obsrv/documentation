@@ -1,0 +1,29 @@
+---
+title: "1.9.6"
+description: "Obsrv 1.9.6 release notes."
+sidebar:
+  order: 3
+  badge:
+    text: latest
+    variant: tip
+---
+
+**Release Date:** 2026-05-06
+
+**Release Type:** Minor
+
+**Objective:** Performance optimization enhancement for dataset list page, Postgres migration script update.
+
+This document outlines improvements in the dataset list page within the Obsrv console, addressing performance issues caused by synchronous fetching of metrics and health data. Additionally, it includes updates to PostgreSQL migration script for GA dataset transformation draft delete for a smooth transition of Obsrv datasets from GA to version 1.0.
+
+## Key Updates
+
+- **Batching of APIs:** Metrics and health APIs have been batched to mitigate delays caused by synchronous calls. These data are now integrated with the dataset list API to minimize multiple API calls in the Obsrv console.
+- **Postgres Migration Script Update:** The deletion script has been revised to successfully remove all GA transformation draft records, streamlining the transition process.
+- **Enhancements:** Implemented checks to ensure that dataset alerts are not recreated and duplicated in case of a failed publish attempt and subsequent republish.
+
+:::note
+a. While upgrading to release **1.9.6**, please use the **1.9.3** version of **enterprise-automation/obsrv-scripts-infy**.
+
+b. While upgrading from release **1.9.5 to 1.9.6**, please upgrade only **obsrvapis and en-bundles**.
+:::

@@ -1,0 +1,45 @@
+---
+title: "1.1.0-Beta"
+description: "Release notes for Obsrv 1.1.0 Beta."
+sidebar:
+  order: 1
+---
+
+## Obsrv 1.1.0 Beta Release
+
+**📅 Release Date:** _31st August 2024_
+
+---
+
+### 🌟 What's New?
+
+#### 🚀 Core Innovations
+
+- **Transaction Data Lake Platform** — Supercharged with Apache Hudi (v0.15.0).
+- **Data Connector Framework** — Easy connector setup, flexible framework, batch and stream connectors. New source connectors: Kafka, Object Store, JDBC, Knowlg.
+- **Real-Time Data Transformation** — Encryption, data masking, and JSONata transformations.
+- **Cache Indexing** — Redis Cache indexing via a streaming Flink job for faster denormalization.
+- **Schema Validation Enhancement** — Upgraded validator supporting Draft-12 of the JSON Schema specification.
+- **Enhanced Security** — Fixes for critical security vulnerabilities including SQL injection.
+
+#### 🌐 API Enhancements
+
+- **Dataset Management APIs** — Full CRUD, status transitions, health monitoring, export/import, copy/reset, schema generation, dataset listing.
+- **Connector APIs** — Read and list connectors.
+- **Schema and Event Validation API** — Validate schemas and events against established standards.
+- **Template APIs** — Full CRUD for templates, plus template query API.
+- **Data APIs** — Data query (SQL/native), data ingestion, data exhaust.
+- **Alert and Notification APIs** — Custom alerts, notification channels (Slack, email, Discord).
+
+#### 🔧 Obsrv Management Console
+
+Full-featured console for dataset and connector lifecycle management, export/import, automatic schema generation, proactive alerts, resource monitoring, and data querying.
+
+#### 🔧 Automation Upgrades
+
+- Expanded support for AWS, GCP, Azure, and on-premises environments.
+- Simplified installation scripts.
+
+#### 🚫 Deprecation Notice
+
+APIs from version 1.0.x are no longer supported. Transition to the new APIs.

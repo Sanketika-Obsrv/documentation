@@ -1,0 +1,40 @@
+---
+title: "FY2025-26"
+description: "Obsrv feature roadmap for the financial year 2025-26."
+sidebar:
+  order: 1
+---
+
+## 🔧 Ongoing Priorities (Engineering in Motion)
+
+These are active or continuous engineering efforts focused on the reliability, maintainability, modularity, and security of the Obsrv platform. They ensure smooth operations, up-to-date software components, observability, and responsiveness to support needs.
+
+| # | Feature | 🔍 Focus Area | 🚧 Status | 📝 Notes |
+|---|---------|--------------|-----------|----------|
+| 1 | 🔧 Software Upgrades | Regular version upgrades for core stack components | In Progress | Includes Flink, Druid, Trino, Hudi, Superset, Kafka, Kubernetes etc. |
+| 2 | 🛡️ Vulnerability Fixes | Regular OSS upgrades & CVE patches | In Progress | Part of monthly security hygiene |
+| 3 | 👀 Dataset Observability | Track freshness, volume, schema drift | In Progress | Adds alerting + insights into ingestion health |
+| 4 | 🔁 Data Replay | Reprocess historical data from the backup files | In Progress | API's are implemented only the UI workflows pending |
+| 4 | 🐞 Bug Fixes & Support | Ongoing issue triaging, regression fixes, and L2 support | In Progress | Includes community and internal issue handling |
+| 5 | 🧠 Rule-based Auto Scaling (Pipeline & Query) | Auto-scale ingestion and query pods based on custom usage rules or schedules | Completed | Enables threshold-based scaling, cost control |
+
+## 🔮 Planned Features (Next-Level Enhancements)
+
+This section outlines upcoming features and architectural enhancements for Obsrv. These initiatives are either on the roadmap for near-term development. The goal is to improve platform scalability, usability, extensibility, and performance.
+
+| # | Feature | 💡 What's Coming | 🧭 Status | 📝 Notes |
+|---|---------|-----------------|-----------|----------|
+| 1 | ⏸️ Pause/Resume Dataset | Temporarily stop/resume ingestion for maintenance or testing | Planned | Helps in minimizing compute during low-activity |
+| 2 | 🗄️ Archival & Purge | Automate data archival and cleanup per retention policies | Planned | Retain only relevant data efficiently |
+| 3 | 🔐 Vault Integration | Manage encryption keys using Vault or similar tools | Planned | Supports enterprise-grade security (BYOK) |
+| 4 | ☁️ Azure & GCP Stability | Strengthen automation and deployment scripts for cloud | In Progress | Better parity with AWS experience |
+| 5 | 📦 Druid Compaction | Manual/scheduled compaction of Druid segments | Planned | Optimize segment size, improve query performance |
+| 6 | 🧩 Connector Icon Refactor | Standardize icons for better UI consistency | Planned | Componentized for scalability and clarity |
+| 7 | 📈 Smart/AI Autoscaling | Smart pod scaling using K8s Metrics API | Planned | Respond to real-time load dynamically |
+| 8 | ⚙️ System Config via Console | Manage environment-level settings from UI | Planned | Will include RBAC and audit support |
+| 9 | 🧠 LedisDB Exploration | Assess LedisDB as persistent metadata store | Exploration | Compare performance vs Redis |
+| 10 | 🪶 Small / Tiny Obsrv | Minimal deployment footprint for dev/edge/PoC | Planned | Ideal for constrained infra & demos |
+| 11 | 🗑️ Right to be Forgotten (RTBF) | Delete subject-related data for compliance with privacy regulations | Planned | Activate only if privacy compliance is required |
+| 12 | System Configuration | Control CPU, memory, storage volume allocations per service for cost and performance | Planned | Enables cost-aware infra tuning during setup |
+| 13 | 📦 Parquet, Avro, Protobuf Format Support | Allow dataset ingestion in multiple data formats beyond JSON | Planned | Driven by connector/data source needs |
+| 14 | 🧩 Sink Connector Support | Build sink connectors (e.g., S3, PostgreSQL, GCS) on top of existing framework | Planned | Will be implemented case-by-case based on need |

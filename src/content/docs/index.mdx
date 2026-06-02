@@ -1,0 +1,67 @@
+---
+title: Welcome to Obsrv
+description: Obsrv is the open-source real-time data platform built to handle billions of events per day with bare minimum operations effort.
+tableOfContents:
+  minHeadingLevel: 2
+  maxHeadingLevel: 2
+---
+
+import CardGrid from '../../components/CardGrid.astro';
+
+Obsrv was conceived and incubated within the open-source initiative [Sunbird](https://sunbird.org/) in 2016. Obsrv is built to operate with highest levels of reliability with bare minimum operations effort at scale.
+
+One of the early and significant applications of Obsrv is within **DIKSHA**, the national platform for schools and teachers in India. In the DIKSHA environment, Obsrv handled data volumes ranging from a few million events per day to **2 billion events per day** at peak. The current average volume is 500 million events per day and the system has not experienced any downtime in the past 2 years.
+
+This microsite provides a comprehensive overview and guides to understand and use Obsrv for various data use cases.
+
+## Getting Started
+
+<CardGrid cards={[
+  {
+    title: "Introduction",
+    description: "Why Obsrv exists and the problems it solves",
+    href: "/introduction/the-value-of-data",
+    gradient: "linear-gradient(135deg, #f59e0b, #ef4444)",
+    icon: "book"
+  },
+  {
+    title: "Core Concepts",
+    description: "Datasets, connectors, pipelines and the tech stack",
+    href: "/core-concepts",
+    gradient: "linear-gradient(135deg, #8b5cf6, #3b82f6)",
+    icon: "layers"
+  },
+  {
+    title: "Case Studies",
+    description: "Real-world deployments at population scale",
+    href: "/explore/case-studies",
+    gradient: "linear-gradient(135deg, #10b981, #0ea5e9)",
+    icon: "chart"
+  }
+]} />
+
+## Guides
+
+<CardGrid cards={[
+  {
+    title: "Installation",
+    description: "Deploy Obsrv on AWS, Azure, GCP, OCI or on-prem",
+    href: "/guides/installation",
+    gradient: "linear-gradient(135deg, #f97316, #ec4899)",
+    icon: "server"
+  },
+  {
+    title: "API Reference",
+    description: "Dataset management, connectors and data APIs",
+    href: "/guides/api-specification",
+    gradient: "linear-gradient(135deg, #6366f1, #06b6d4)",
+    icon: "api"
+  },
+  {
+    title: "Developer Guide",
+    description: "Set up your environment and contribute to Obsrv",
+    href: "/guides/developer-guide",
+    gradient: "linear-gradient(135deg, #10b981, #3b82f6)",
+    icon: "terminal"
+  }
+]} />

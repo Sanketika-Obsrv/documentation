@@ -1,0 +1,439 @@
+---
+title: "Autoscaling Components"
+description: "This guide explains how to configure and manage autoscaling for Obsrv components"
+sidebar:
+  order: 1
+---
+
+## Overview
+
+Obsrv components can be scaled using KEDA (Kubernetes Event-driven Autoscaling). The default configuration supports autoscaling for Flink Task Managers and Druid components based on various metrics like CPU usage, query latency, and Kafka lag.
+
+## Understanding Scaling Scenarios
+
+### Flink Autoscaling
+
+Flink Task Managers need to scale when:
+
+* Kafka consumer lag grows beyond acceptable thresholds
+* Processing backpressure increases
+* Event processing latency rises
+
+Key considerations:
+
+* Scale up quickly to handle sudden data bursts
+* Match scaling with Kafka partition count for optimal parallelism
+* Scale down conservatively to avoid job restarts
+* Consider checkpoint completion times during scaling
+
+### Druid Autoscaling
+
+Druid components scale for different reasons:
+
+#### Historical Nodes
+
+* Query response times exceed thresholds
+* Segment load times increase
+* Available capacity for new segments decreases
+* High CPU utilization impacts query performance
+
+#### Broker Nodes
+
+* High query queuing or wait times
+* Increased number of concurrent queries
+* CPU utilization affects query routing efficiency
+
+#### Key considerations
+
+* Historical scaling impacts data availability
+* Broker scaling affects query routing and caching
+* Both require careful monitoring of query patterns
+* Consider time of day and workload patterns
+
+## Enabling Autoscaling
+
+1. Enable autoscaling in [`autoscaling.yaml`](https://github.com/Sanketika-Obsrv/enterprise-automation/blob/main/helmcharts/autoscaling.yaml):
+
+```yaml
+global:
+  enable_autoscaling: &autoscaling_enabled true
+```
+
+2. Install the autoscaling rules:
+
+```bash
+# From enterprise-automation/helmcharts directory
+cd helmcharts/kitchen
+bash enterprise.sh autoscaling
+```
+
+## Configuration Components
+
+### Common Parameters
+
+* `enabled`: Enable/disable autoscaling for the component
+* `kind`: Kubernetes resource type (Deployment/StatefulSet)
+* `minReplicaCount`: Minimum number of replicas
+* `maxReplicaCount`: Maximum number of replicas
+* `pollingInterval`: How often to check metrics (in seconds)
+* `cooldownPeriod`: Minimum time between scaling operations (in seconds)
+
+### HorizontalPodAutoscalerConfig
+
+The `horizontalPodAutoscalerConfig` section controls scaling behavior:
+
+```yaml
+horizontalPodAutoscalerConfig:
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 180   # Time window to evaluate metrics before scaling up
+      policies:
+        - type: Pods/Percent            # Scale by number of pods or percentage
+          value: 1                      # Amount to scale by
+          periodSeconds: 180            # How often to apply the scaling
+    scaleDown:
+      stabilizationWindowSeconds: 300   # Time window to evaluate metrics before scaling down
+      policies:
+        - type: Pods/Percent
+          value: 1
+          periodSeconds: 300
+```
+
+#### Key Timing Parameters
+
+1. `stabilizationWindowSeconds`:
+   * Duration the metrics should be in scaling range before scaling occurs
+   * Longer windows prevent oscillation but reduce responsiveness
+   * Typically longer for scale-down than scale-up
+2. `periodSeconds`:
+   * Minimum time between scaling operations for a specific policy
+   * Should be >= `stabilizationWindowSeconds`
+   * Longer periods provide more stability
+3. `cooldownPeriod`:
+   * Global cooldown between any scaling operations
+   * Prevents rapid scaling changes
+   * Should be longer than `periodSeconds`
+
+## Example Configurations
+
+### 1. Flink Task Manager (Unified Pipeline)
+
+```yaml
+unified-pipeline-taskmanager:
+  enabled: true
+  kind: Deployment
+  minReplicaCount: 1
+  maxReplicaCount: "{{.Values.global.kafka.numPartitions}}"
+  pollingInterval: 15        # Check every 15s
+  cooldownPeriod: 900        # 15 min between operations
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleUp:
+          stabilizationWindowSeconds: 30
+          policies:
+            - type: Percent
+              value: 100     # Double pods
+              periodSeconds: 30
+        scaleDown:
+          stabilizationWindowSeconds: 300
+          policies:
+            - type: Percent
+              value: 50      # Halve pods
+              periodSeconds: 120
+```
+
+Explanation:
+
+* Uses percentage-based scaling for exponential growth
+* Quick scale-up (30s) for responsive lag handling
+* Conservative scale-down (5m) to prevent oscillation
+* Matches Kafka partitions for maximum parallelism
+
+### 2. Druid Historicals
+
+```yaml
+druid-raw-historicals:
+  enabled: true
+  kind: StatefulSet
+  minReplicaCount: 1
+  maxReplicaCount: 4
+  pollingInterval: 60                        # Check every 1m
+  cooldownPeriod: 900                        # 15 min between operations
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleUp:
+          stabilizationWindowSeconds: 180    # 3m confirmation
+          policies:
+            - type: Pods
+              value: 1                       # Add 1 pod
+              periodSeconds: 180
+        scaleDown:
+          stabilizationWindowSeconds: 7200   # 2h retention
+          policies:
+            - type: Pods
+              value: 1                       # Remove 1 pod
+              periodSeconds: 7200
+```
+
+Explanation:
+
+* Conservative scaling due to stateful nature
+* Long pod retention (2h) for stability
+* Pod-based scaling for precise control
+* Considers segment loading time
+
+### 3. Druid Brokers
+
+```yaml
+druid-raw-brokers:
+  enabled: true
+  kind: Deployment
+  minReplicaCount: 1
+  maxReplicaCount: 2
+  pollingInterval: 30                        # Check every 30s
+  cooldownPeriod: 600                        # 10 min between operations
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleUp:
+          stabilizationWindowSeconds: 600   # 10m confirmation
+          policies:
+            - type: Pods
+              value: 1                      # Add 1 pod
+              periodSeconds: 600
+        scaleDown:
+          stabilizationWindowSeconds: 3600  # 1h retention
+          policies:
+            - type: Pods
+              value: 1                      # Remove 1 pod
+              periodSeconds: 3600
+```
+
+Explanation:
+
+* Moderate scaling speed (faster than historicals, slower than Flink)
+* 1-hour pod retention for query stability
+* Pod-based scaling for controlled growth
+* Balances query routing and cache warmup needs
+
+## KEDA Triggers
+
+KEDA supports various trigger types. In our configuration, we use:
+
+1. Prometheus Triggers:
+
+```yaml
+triggers:
+- type: prometheus
+  metadata:
+    serverAddress: http://prometheus-operated...
+    metricName: druid_historical_scaling_condition
+    query: |
+      # Scaling query
+    threshold: "90"
+```
+
+2. Cron Triggers (for night-time scaling):
+
+```yaml
+- type: cron
+  metadata:
+    timezone: UTC
+    start: "30 19 * * *"    # 19:30 UTC
+    end: "30 3 * * *"       # 03:30 UTC
+    desiredReplicas: "1"
+```
+
+For more trigger types and configurations, refer to [KEDA Documentation](https://keda.sh/docs/2.10/concepts/scaling-deployments/).
+
+## Important Notes
+
+### Druid Component Cleanup
+
+#### Historical Nodes
+
+When scaling down Druid historicals, manual cleanup may be required:
+
+1. Delete PVCs for unused replicas:
+
+```bash
+kubectl delete pvc historical-volume-druid-raw-historicals-{replica} -n <namespace>
+```
+
+2. Delete corresponding PVs:
+
+```bash
+kubectl delete pv <pv-name>
+```
+
+3. Delete cloud provider disks:
+
+* AWS: Delete EBS volumes
+* Azure: Delete Azure Disks
+* GCP: Delete Persistent Disks
+
+:::caution
+Always verify that the historical node is not in use and data is replicated before cleanup.
+:::
+
+#### Broker Nodes
+
+When scaling down Druid brokers:
+
+1. Ensure query drain:
+   * Monitor active queries on the broker
+   * Wait for existing queries to complete
+   * Verify no new queries are being routed
+2. Cache considerations:
+   * Be aware that scaling down brokers will lose their query cache
+   * New brokers will need time to warm up their cache
+   * Consider gradual scale-down during off-peak hours
+
+:::caution
+Sudden broker scale-down may temporarily impact query performance until cache is rebuilt.
+:::
+
+## Infrastructure Requirements
+
+### Node and IP Requirements
+
+Before enabling autoscaling, ensure your cluster has:
+
+1. Sufficient Nodes:
+   * Available nodes with required resources (CPU/Memory)
+   * Node autoscaling enabled if using cloud providers
+   * Appropriate node labels/taints if using node affinity
+2. IP Address Availability:
+   * Enough free IPs in the subnet
+   * Consider IP per pod requirements
+   * Reserve IPs for maximum scale scenario
+3. Resource Quotas:
+   * Namespace resource quotas allow for max pods
+   * Cluster-wide limits accommodate scaling
+   * Storage class has sufficient quota (for Historicals)
+
+:::caution
+Scaling operations will fail if infrastructure requirements are not met.
+:::
+
+## Troubleshooting
+
+### Checking Scaling Status
+
+1. View KEDA ScaledObject status:
+
+```bash
+kubectl get scaledobject -n <namespace>
+kubectl describe scaledobject <scaledobject-name> -n <namespace>
+```
+
+2. Check HPA status:
+
+```bash
+kubectl get hpa -n <namespace>
+kubectl describe hpa <hpa-name> -n <namespace>
+```
+
+3. Monitor Kubernetes Events:
+
+```bash
+# Get events for the scaled resource
+kubectl get events -n <namespace> --field-selector involvedObject.name=<pod-name>
+
+# Watch events in real-time
+kubectl get events -n <namespace> --watch
+```
+
+### Common Scaling Issues
+
+1. Scaling Not Triggered:
+   * Verify KEDA metrics:
+
+     ```bash
+     kubectl get --raw '/apis/external.metrics.k8s.io/v1beta1/namespaces/<namespace>/druid_historical_scaling_condition' | jq
+     ```
+   * Check Prometheus query results directly
+   * Verify trigger thresholds are appropriate
+
+2. Scaling Fails:
+   * Check for resource constraints:
+
+     ```bash
+     kubectl describe nodes | grep -A 5 "Allocated resources"
+     ```
+   * Verify IP availability:
+
+     ```bash
+     kubectl get nodes -o jsonpath='{.items[*].spec.podCIDR}'
+     ```
+   * Look for PVC/Storage issues (for Historicals):
+
+     ```bash
+     kubectl get pvc -n <namespace>
+     kubectl describe pvc <pvc-name> -n <namespace>
+     ```
+
+3. Pods Stuck in Pending:
+   * Check node resources:
+
+     ```bash
+     kubectl describe pod <pod-name> -n <namespace>
+     ```
+   * Verify node affinity rules
+   * Check for PVC binding issues
+
+4. Unexpected Scaling Behavior:
+   * Review KEDA logs:
+
+     ```bash
+     kubectl logs -n keda -l app=keda-operator
+     ```
+   * Check stabilization windows and cooldown periods
+   * Verify metric values over time in Prometheus
+
+### Using Events for Monitoring
+
+1. Set up event monitoring:
+
+```bash
+# Watch scaling events
+kubectl get events -n <namespace> --field-selector reason=SuccessfulRescale,type=Normal
+```
+
+2. Important event types to monitor:
+   * `SuccessfulRescale`: Successful scaling operations
+   * `FailedRescale`: Failed scaling attempts
+   * `FailedGetMetrics`: Metric collection issues
+   * `FailedComputeMetricsReplicas`: Scaling computation issues
+
+3. Event patterns to watch for:
+   * Repeated scaling attempts
+   * Resource constraint messages
+   * Metric collection failures
+   * PVC/PV binding issues
+
+## Best Practices
+
+1. Start Conservative:
+   * Begin with longer stabilization windows
+   * Use pod-based scaling for precise control
+   * Gradually reduce timing as you understand patterns
+2. Monitor Metrics:
+   * Watch for scaling oscillations
+   * Monitor resource usage patterns
+   * Track query performance impact
+3. Resource Planning:
+   * Ensure cluster has capacity for max replicas
+   * Consider node affinity rules
+   * Plan for storage requirements
+4. Testing:
+   * Test scaling behavior in non-production first
+   * Verify cleanup procedures
+   * Monitor data consistency during scaling
+
+## References
+
+* https://keda.sh
+* https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#scaling-policies

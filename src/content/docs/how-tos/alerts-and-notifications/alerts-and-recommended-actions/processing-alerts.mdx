@@ -1,0 +1,410 @@
+---
+title: "Processing System Alerts and Recommended Actions"
+description: "This document details the various alert rules configured within the system, providing information on their impact, potential causes, and recommended actions."
+sidebar:
+  order: 3
+---
+
+### ALERT\_1201: [VALKEY DENORM]: High Disk Usage Detected
+
+**Severity:** `critical`
+
+**Affected System:** Valkey Caching Service
+
+**Impact Summary:** High disk usage in Valkey may delay the enrichment of the data, causing delays in processing real-time data and potentially causing inaccurate data to be returned in queries.
+
+**Causes:**
+
+- The system is running out of disk space.
+- Volume autoscaling might be disabled.
+- Volume autoscaling may have failed due to threshold limits, subject to cloud provider limitations on scaling frequency.
+- A high volume of data is being written to the persistent storage.
+- A lot of old or unused data is accumulated in the PV.
+
+**Actions:**
+
+- Enable the auto scaling of volume.
+- Increase the volume size of the valkey.
+- Adjust the volume autoscaler to a higher threshold percentage. This proactive measure will increase volume at a greater utilization level, preventing frequent scaling.
+- Increase the PV size if needed.
+- For more assistance, contact the administrative support.
+
+**Component:** `Processing: Valkey[]`
+
+---
+
+### ALERT\_1202: [VALKEY DEDUPE]: High Disk Usage Detected
+
+**Severity:** `critical`
+
+**Affected System:** Valkey Caching Service
+
+**Impact Summary:** High disk usage in Valkey may lead to duplicate data being processed, resulting in inaccurate query results.
+
+**Causes:**
+
+- The system is running out of disk space.
+- Volume autoscaling might be disabled.
+- Volume autoscaling may have failed due to threshold limits, subject to cloud provider limitations on scaling frequency.
+- A high volume of data is being written to the persistent storage.
+- A lot of old or unused data is accumulated in the PV.
+
+**Actions:**
+
+- Enable the auto scaling of volume.
+- Increase the volume size of the valkey.
+- Adjust the volume autoscaler to a higher threshold percentage. This proactive measure will increase volume at a greater utilization level, preventing frequent scaling.
+- Increase the PV size if needed.
+- For more assistance, contact the administrative support.
+
+**Component:** `Processing: Valkey[]`
+
+---
+
+### ALERT\_1203: [DATASET]: Detected high rate of invalid data than expected
+
+**Severity:** `critical`
+
+**Affected System:** Dataset Processing
+
+**Impact Summary:** Invalid data has been ingested in the system, preventing it from being processed. Henceforth, queries on this dataset may not return accurate data.
+
+**Causes:**
+
+- Source system might have been producing invalid data and might be failing with dataset schema evaluation.
+- If the data is failing during extraction, then the extraction configuration could be invalid.
+- An invalid data schema might have been configured.
+
+**Actions:**
+
+- Check the Kafka backups to find out why the data failed to process.
+- Review the schema and modify if necessary.
+- Correct the source system to generate the data as per the expected schema format.
+- If data processing failed during extraction, update the extraction configuration if it has been overwritten by the admin.
+- For more assistance, contact the administrative support.
+
+**Component:** `Processing: Dataset[]`
+
+---
+
+### PROCESS\_VALKEY\_003: Duplicate events found during extraction
+
+**Severity:** `warning`
+
+**Affected System:** Dataset Processing
+
+**Impact Summary:** Duplicate events during extraction can lead to inflated processing and storage.
+
+**Causes:**
+
+- Check logs in Kafka for errors related to the extractor job failure.
+
+**Actions:**
+
+- Check the logs in Kafka for errors related to the extractor job failure.
+
+**Component:** `Processing: Unified pipeline[]`
+
+---
+
+### ALERT\_1204: [DATASET]: Detected higher rate of duplicate data than expected
+
+**Severity:** `warning`
+
+**Affected System:** Dataset Processing
+
+**Impact Summary:** Duplicate data has been ingested in the system, preventing it from being processed. Henceforth, queries on this dataset may not return accurate data.
+
+**Causes:**
+
+- The source system may be generating duplicate data, causing multiple records with the same deduplication key (unique identifier) to be ingested.
+- If consumer offsets are not saved and the system restarts, data may be reprocessed, leading to a high rate of duplicate records.
+- If cache keys expire and the same data is processed again after expiration, an increased number of duplicates may be detected.
+
+**Actions:**
+
+- Check Kafka backups to identify duplicate records that were ingested.
+- Ensure the source system generates unique data records if it is producing correct data.
+- Extend the retention period of the deduplication storage system to prevent duplicates.
+- Lower the checkpoint commit frequency if it is set too high (useful when the system restarts).
+- For further assistance, contact the administrative support team.
+
+**Component:** `Processing: Dataset[]`
+
+---
+
+### PROCESS\_DATASET\_004: Failed to validate the ingested data
+
+**Severity:** `warning`
+
+**Affected System:** Dataset Processing
+
+**Impact Summary:** Data validation failures can lead to data processing errors and inconsistencies.
+
+**Actions:**
+
+- Check whether the ingested events are failing to validate against the provided data schema.
+
+**Component:** `Processing: Unified pipeline[]`
+
+---
+
+### ALERT\_1205: [DATASET]: Detected higher incidence of failures during data enrichment.
+
+**Severity:** `critical`
+
+**Affected System:** Dataset Processing
+
+**Impact Summary:** The data ingested into the system is failing the enrichment process, which may cause queries on this dataset to return inaccurate data.
+
+**Causes:**
+
+- The ingested data may be missing the primary key required for enrichment.
+- The primary key to enrich the data might be unavailable in the cache system.
+
+**Actions:**
+
+- Check the Kafka backups to find out why enrichment of the data failed.
+- Extend the retention period of the denormalization storage system to ensure primary keys are available for enrichment.
+- For more assistance, contact the administrative support.
+
+**Component:** `Processing: Dataset[]`
+
+---
+
+### ALERT\_1206: [DATASET]: Detected higher incidence of failures during data transformations.
+
+**Severity:** `critical`
+
+**Affected System:** Dataset Processing
+
+**Impact Summary:** The data ingested into the system is failing the data transformation process, which may cause queries on this dataset to return inaccurate data.
+
+**Causes:**
+
+- The ingested data may be missing the required key for transformations.
+- Invalid transformation logic might have been configured.
+
+**Actions:**
+
+- Check the Kafka backups to find out why the transformation on the data failed.
+- For more assistance, contact the administrative support.
+
+**Component:** `Processing: Dataset[]`
+
+---
+
+### PROCESS\_DATASET\_006: The keys are expiring in redis
+
+**Severity:** `warning`
+
+**Affected System:** Valkey Caching Service
+
+**Impact Summary:** Key expirations can lead to cache misses and increased latency.
+
+**Causes:**
+
+- Keys are having a short TTL (Time-To-Live) set.
+- Redis memory limit might have been reached.
+- Expiration policy is misconfigured.
+
+**Actions:**
+
+- Check and adjust TTL values using `TTL <key>`.
+- Increase Redis memory allocation if needed.
+- For more assistance, contact the administrative support.
+
+**Component:** `Processing: Valkey[Redis]`
+
+---
+
+### PROCESS\_DATASET\_007: There is high number of connections open to redis
+
+**Severity:** `critical`
+
+**Affected System:** Valkey Caching Service
+
+**Impact Summary:** A high number of open connections can exhaust Redis resources and impact performance.
+
+**Causes:**
+
+- Connections might not be closing properly.
+- Redis is reaching resource limits, affecting performance.
+
+**Actions:**
+
+- Monitor the connection count.
+- Restart Redis if stuck connections persist.
+- Scale Redis by increasing resources.
+- For more assistance, contact the administrative support.
+
+**Component:** `Processing: Valkey[Redis]`
+
+---
+
+### ALERT\_1207: [RDBMS]: A high number of open connections to PostgreSQL has been detected.
+
+**Severity:** `critical`
+
+**Affected System:** PostgreSQL Database Service
+
+**Impact Summary:** High number of open connections to PostgreSQL can disrupt dataset management, affecting read/write operations and potentially leading to failed dataset transactions.
+
+**Causes:**
+
+- Open connections may not have been closed.
+- Functional issues may be present.
+- The external system may have accessed the metadata storage.
+
+**Actions:**
+
+- Monitor the connection count in the database.
+- Restart PostgreSQL service if connections remain stuck.
+- For more assistance, contact the administrative support.
+
+**Component:** `Processing: RDBMS[]`
+
+---
+
+### PROCESS\_RDBMS\_007: [RDBMS]: Metadata queries are running slower than expected
+
+**Severity:** `warning`
+
+**Affected System:** PostgreSQL Database Service
+
+**Impact Summary:** Slow queries can delay data retrieval and impact API responsiveness.
+
+**Causes:**
+
+- Queries are stuck in a wait state due to locks held by other transactions.
+- An excessive number of simultaneous transactions is slowing down the system.
+- The database server is experiencing CPU or memory shortages, impacting performance.
+
+**Actions:**
+
+- Monitor the database for long-running queries.
+- Identify and resolve blocked queries.
+- For more assistance, contact the administrative support.
+
+**Component:** `Processing: RDBMS[]`
+
+---
+
+### PROCESSS\_UNIFIED\_PIPELINE\_008: [UNIFIED PIPELINE]: Detected delays in data processing than expected
+
+**Severity:** `warning`
+
+**Affected System:** Unified Data Processing Pipeline
+
+**Impact Summary:** Delays in data processing can result in late data availability for enrichment, storage, or triggering downstream workflows.
+
+**Causes:**
+
+- System might have received a higher volume of data.
+- Errors during data processing are causing retries and slowdowns.
+- Allocated resources might be insufficient.
+- Expensive transformation logic may be causing delays.
+- Autoscaling is either disabled or has failed to scale up.
+
+**Actions:**
+
+- Check the pipeline job pod logs for any errors.
+- Restart the pipeline job pods.
+- Increase CPU and memory resources if necessary.
+- Enable auto scaling if it is not enabled.
+- For further assistance, contact administrative support.
+
+**Component:** `Processing: Unified pipeline[Preprocessor job, Extractor job, Transformation job, Denormalizer job]`
+
+---
+
+### ALERT\_1208: [UNIFIED PIPELINE]: Detected higher amount of processing lag than expected
+
+**Severity:** `warning`
+
+**Affected System:** Unified Data Processing Pipeline
+
+**Impact Summary:** High pipeline lag in the dataset indicates processing of new data is delayed. Because of this delay, new data isn't available when querying the dataset.
+
+**Causes:**
+
+- System might have received a higher volume of data.
+- Resources allocated are insufficient.
+- Autoscaling is either disabled or has failed to scale up.
+
+**Actions:**
+
+- Monitor the processing lag closely.
+- Allocate resources if required.
+- Enable auto scaling if it is not enabled.
+- For further assistance, contact administrative support.
+
+**Component:** `Processing: Unified pipeline[]`
+
+---
+
+### ALERT\_1209: [UNIFIED PIPELINE]: No data has been received for past hour.
+
+**Severity:** `warning`
+
+**Affected System:** Unified Data Processing Pipeline
+
+**Impact Summary:** The dataset has not received any new data, which will impact real-time data processing.
+
+**Causes:**
+
+- The source system may not be generating or sending data.
+- The connector may have failed to receive data from the connector source.
+- Connector might have ignored or failed to process the data.
+
+**Actions:**
+
+- Check the health status of the source connector.
+- Review the connector logs to determine if it is running and failing to process the received data.
+- For further assistance, contact administrative support.
+
+**Component:** `Processing: Unified pipeline[]`
+
+---
+
+### PROCESS\_UNIFIED\_PIPELINE\_011: [UNIFIED PIPELINE]: Detected unexpected load in the system
+
+**Severity:** `warning`
+
+**Affected System:** Unified Data Processing Pipeline
+
+**Impact Summary:** Unexpected load can slow down data processing, increase latency, and potentially lead to job failures or restarts.
+
+**Causes:**
+
+- There is a sudden spike in incoming data from connectors detected.
+- There are multiple or incorrect connector sources sending data.
+
+**Actions:**
+
+- Monitor and validate the data received from connectors.
+- Remove any unnecessary or misconfigured data sources.
+- For further assistance, contact administrative support.
+
+**Component:** `Processing: Unified pipeline[]`
+
+---
+
+### ALERT\_1210: [VALKEY]: Detected higher memory usage than expected
+
+**Severity:** `critical`
+
+**Affected System:** Valkey Caching Service (Master datasets)
+
+**Impact Summary:** High memory usage in Valkey can cause the data processing system to pause. As a result, no new data will be processed or available for querying.
+
+**Causes:**
+
+- There might be a large number of keys stored in the valkey.
+
+**Actions:**
+
+- Allocate more memory to Valkey to accommodate the increased data load.
+- For further assistance, contact administrative support.
+
+**Component:** `Processing: Valkey[]`

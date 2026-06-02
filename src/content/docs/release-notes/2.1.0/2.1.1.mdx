@@ -1,0 +1,53 @@
+---
+title: "2.1.1"
+description: "Obsrv 2.1.1 release notes."
+sidebar:
+  order: 1
+---
+
+**Release Date:** 2025-09-23
+
+**Release Type:** Minor
+
+**Focus:** Migration of deprecated Bitnami container images to the sanketikahub repository to ensure stability, maintainability, and long-term support.
+
+---
+
+## 1. Overview
+
+The Obsrv 2.1.1 release standardizes container images across all deployments by migrating deprecated Bitnami and Bitnamilegacy images to the sanketikahub repository. This update ensures consistent image availability, simplifies future automation workflows, and improves operational reliability for Obsrv deployments.
+
+---
+
+## 2. Updated Images
+
+| Image | Source/Previous Version | Source/Updated Version |
+|---|---|---|
+| valkey | bitnami/valkey:8.1.3-debian-12-r2 | sanketikahub/valkey:8.1.3-debian-12-r2 |
+| kafka | bitnami/kafka:4.0.0 | sanketikahub/kafka:4.0.0 |
+| kafka | bitnami/kafka:3.6.0 | sanketikahub/kafka:3.6.0 |
+| minio | bitnamilegacy/minio:2024.11.7-debian-12-r0 | sanketikahub/minio:2024.11.7-debian-12-r0 |
+| keycloak | bitnami/keycloak:26.0.5-debian-12-r2 | sanketikahub/keycloak:26.0.5-debian-12-r2 |
+| keycloak-config-cli | bitnami/keycloak-config-cli:6.2.0-debian-12-r0 | sanketikahub/keycloak-config-cli:6.2.0-debian-12-r0 |
+| postgresql | bitnamilegacy/postgresql:17.5.0 | sanketikahub/postgresql:17.5.0 |
+| kubectl | bitnami/kubectl:1.26.14-debian-11-r6 | sanketikahub/kubectl:1.26.14-debian-11-r6 |
+| zookeeper | bitnami/zookeeper:3.8.0-debian-11-r6 | sanketikahub/zookeeper:3.8.0-debian-11-r6 |
+| zookeeper | bitnami/zookeeper:3.6-debian-10 | sanketikahub/zookeeper:3.6 |
+| zookeeper | bitnami/zookeeper:3.8.0-debian-11-r65 | sanketikahub/zookeeper:3.8.0-debian-11-r65 |
+| os-shell | bitnami/bitnami-shell:11-debian-11-r4 | sanketikahub/os-shell:11-debian-11-r4 |
+| os-shell | bitnami/bitnami-shell:11-debian-11-r60 | sanketikahub/os-shell:11-debian-11-r60 |
+| os-shell | bitnami/bitnami-shell:11-debian-11-r63 | sanketikahub/os-shell:11-debian-11-r63 |
+| os-shell | bitnami/os-shell:12-debian-12-r33 | sanketikahub/os-shell:12-debian-12-r33 |
+| os-shell | bitnami/bitnami-shell:11-debian-11-r102 | sanketikahub/os-shell:11-debian-11-r102 |
+| valkey-sentinel | bitnami/valkey-sentinel:8.0.1-debian-12-r3 | sanketikahub/valkey-sentinel:8.0.1-debian-12-r3 |
+| redis-exporter | bitnami/redis-exporter:1.66.0-debian-12-r2 | sanketikahub/redis-exporter:1.66.0-debian-12-r2 |
+| minio-client | bitnami/minio-client:2024.10.29-debian-12-r1 | sanketikahub/minio-client:2024.10.29-debian-12-r1 |
+| jmx-exporter | bitnami/jmx-exporter:0.17.2-debian-11-r29 | sanketikahub/jmx-exporter:0.17.2-debian-11-r29 |
+| jmx-exporter | bitnami/jmx-exporter:1.3.0-debian-12-r3 | sanketikahub/jmx-exporter:1.3.0-debian-12-r3 |
+| kubectl | bitnami/kubectl:1.31.3-debian-12-r0 | sanketikahub/kubectl:1.31.3-debian-12-r0 |
+
+---
+
+:::note
+While upgrading to **release 2.1.1**, please use the **2.0.1** version of **enterprise-automation/obsrv-scripts-infy**. Upgrade en-bundles from this version.
+:::

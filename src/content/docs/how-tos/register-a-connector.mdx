@@ -1,0 +1,90 @@
+---
+title: "Register a Connector"
+description: "This documentation provides a detailed overview of how to add a source connector to pull the data from the external systems"
+sidebar:
+  order: 2
+---
+
+## Introduction
+
+Connectors are key to automating the ingestion of data into Obsrv; they connect external datasources to your **Obsrv Datasets.** This guide details the process of adding your first connector. You'll learn how to add and configure your first Kafka connector and connect it in a dataset.
+
+**Prerequisites:**
+
+- You will require a zipped connector with the **.gz** file format.
+
+## 1. Navigate to Connectors
+
+![Obsrv Dashboard showing navigation menu with Connectors option](/assets/portal_images/Connector/01_homepage.png)
+
+- Log in to your Obsrv instance.
+- From the main **Dashboard**, locate the left-hand navigation menu.
+- Click on the **Connectors** in the menu. This will take you to the Connectors List page.
+
+## 2. Initiate Connector Addition
+
+![Connectors list page with + Add Connector button](/assets/portal_images/Connector/02_connector_list.png)
+
+- On the Connectors List page, click the **+ Add Connector** button, typically located in the top-right corner.
+
+## 3. Upload Your Connector
+
+![New Connector page showing Drag & Drop or Choose a ZIP File upload area](/assets/portal_images/Connector/03_upload_connector.png)
+
+- You will be redirected to the New Connector page.
+- This page presents a designated area prompting you to "Drag & Drop or Choose a ZIP File". Note: **Only .gz files are supported**.
+- You can either:
+  - Drag your connector's `.gz` file from your computer and drop it onto the designated area.
+  - Click on the designated area to open your system's file browser, navigate to your connector's `.gz` file, and select it.
+- Once selected, the file name (e.g., `kafka-connector-1.0.0-distribution.gz`), its size, and an upload progress bar will appear.
+- Wait for the upload to complete (progress bar reaches 100%).
+- Click the **Proceed** button.
+
+## 4. Wait for Processing
+
+![Loading screen showing "Please wait while we process your request"](/assets/portal_images/Connector/04_processing.png)
+
+- The system will now process the uploaded connector file. A loading screen will appear displaying a message "Loading... Please wait while we process your request".
+- This step may take a few moments depending on the connector size and system resources.
+
+## 5. Verify Connector Addition
+
+![Connectors list showing the newly added connector with Live status](/assets/portal_images/Connector/05_verify_connector.png)
+
+- Once processing is complete, you will be automatically redirected back to the Connectors List page.
+- Your newly added connector should now appear in the list.
+- Verify that the connector details (e.g., Name: "Kafka Connector", Version, Language, Status **"Live"**, Created On date) are displayed correctly.
+
+---
+
+**Now let us use your connector to create a dataset!**
+
+## 6. Navigate to Dataset Creation
+
+![Dataset Creation landing page](/assets/portal_images/Connector/create_dataset.png)
+
+- From the **Connectors** page, locate the left-hand navigation menu.
+- Click on the **Dataset Creation** option.
+
+## 7. Initiate New Dataset
+
+![New Dataset page with Create New Dataset button](/assets/portal_images/create_dataset.png)
+
+- You will land on the "New Dataset" page.
+- Click the **Create New Dataset** button to begin the setup wizard.
+
+## 8. Connector Selection
+
+![Connector selection step in the dataset wizard showing the registered connector](/assets/portal_images/Connector/select_connector.png)
+
+- The wizard starts at the **Connector** Step (Step 1).
+- This step allows you to choose a specific data connector for your dataset.
+- Select the **Kafka Connector** that you added earlier and click **Proceed**.
+
+## 9. Connector Configuration
+
+![Kafka Connector configuration page showing fields to fill in](/assets/portal_images/Connector/configure_connector.png)
+
+- You will now enter the **Connector Configuration** page.
+- Each connector will have a unique set of details you will need to fill in. Follow the setup guide provided on the right-hand side to fill all the details.
+- Upon completing the setup, the Proceed button will activate. Click the button to continue, follow this document to learn more about how you can .

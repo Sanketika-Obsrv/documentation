@@ -1,0 +1,382 @@
+---
+title: "Ingestion System Alerts and Recommended Actions"
+description: "This document details the various alert rules configured within the system, providing information on their impact, potential causes, and recommended actions."
+sidebar:
+  order: 2
+---
+
+### ALERT\_1101: [API]: Failed to ingest data into the system
+
+**Severity:** `critical`
+
+**Affected System:** API Ingestion
+
+**Impact Summary:** Failed to add new data to the dataset, impacting real-time data availability.
+
+**Causes:**
+
+- The service hosting the API for ingestion of data is down, preventing requests from being processed.
+- The API request is incorrect.
+- Streaming Kafka might be unhealthy.
+- Could be functional errors.
+
+**Actions:**
+
+- Check the API service pod status to ensure it is running.
+- Check for the logs from the API service for any errors.
+- Ensure the streaming Kafka service is up and running.
+- For more assistance, contact the administrative support.
+
+**Component:** `Ingestion: API[]`
+
+---
+
+### INGEST\_KAFKA\_CONNECTOR\_002: [KAFKA CONNECTORS]: Failed to ingest data into the system
+
+**Severity:** `critical`
+
+**Affected System:** Kafka Connectors Ingestion
+
+**Impact Summary:** Failed data ingestion can halt real-time data flow, resulting in delayed or missing data for analytics.
+
+**Causes:**
+
+- The Kafka brokers are down or unreachable.
+- Invalid data might have been received.
+- The Kafka pod is down.
+- Could be functional errors.
+
+**Actions:**
+
+- Verify if the Kafka brokers are running and reachable by using Kafka commands.
+- Try restarting the Kafka pods.
+- Consider increasing the partition count across brokers to improve load distribution.
+- Review and adjust the retention policies if data is expiring.
+- For more assistance, contact the administrative support.
+
+**Component:** `Ingestion: Stream Connectors[Kafka, debezium]`
+
+---
+
+### INGEST\_JDBC\_CONNECTOR\_003: [JDBC CONNECTORS]: Failed to ingest data into the system
+
+**Severity:** `critical`
+
+**Affected System:** JDBC Connectors Ingestion
+
+**Impact Summary:** Failed data ingestion can halt real-time data flow, resulting in delayed or missing data for analytics.
+
+**Causes:**
+
+- Misconfigured paths, missing credentials, or incorrect access permissions for data sources.
+- External dependencies like databases or file storage are unavailable.
+- The batch job is not triggered due to scheduling errors or misconfigurations.
+- Could be functional errors.
+
+**Actions:**
+
+- Ensure that batch jobs are scheduled correctly and are not missed due to cron or scheduling issues.
+- Ensure that all dependent services like databases, file storage, and authentication services are accessible.
+- For more assistance, contact the administrative support.
+
+**Component:** `Ingestion: Batch Connectors[S3, JDBC]`
+
+---
+
+### INGEST\_KAFKA\_CONNECTOR\_004: [KAFKA CONNECTORS]: There is a lag while processing the ingested data
+
+**Severity:** `critical`
+
+**Affected System:** Any stream connectors Ingestion
+
+**Impact Summary:** Lag in processing ingested data can delay real-time analytics and disrupt downstream data pipelines.
+
+**Causes:**
+
+- Connector source might be producing more data than expected.
+- Insufficient resources allocated to Kafka service.
+- Scaling configuration could be invalid.
+- Auto scaling could be disabled.
+- Service failed to scale up despite auto-scaling being enabled.
+- Offsets might have been lost, leading to reprocessing of all data.
+
+**Actions:**
+
+- Check for the Kafka consumer group lag.
+- Scale consumers if needed to reduce the lag.
+- Enable auto-scaling and ensure additional resources are available before scaling.
+- Investigate offset loss and reprocessing behavior; check for retention policy issues.
+- For more assistance, contact the administrative support.
+
+**Component:** `Ingestion: Any stream connectors[Kafka, Debezium, neo4j]`
+
+---
+
+### INGEST\_BATCH\_CONNECTOR\_005: There is high number of connections to kafka
+
+**Severity:** `critical`
+
+**Affected System:** Kafka Ingestion
+
+**Impact Summary:** A high number of connections can overwhelm Kafka brokers and impact performance.
+
+**Causes:**
+
+- There is a large number of consumers connecting to the broker.
+- Brokers may be provided with low resources in terms of CPU, memory, or network bandwidth.
+
+**Actions:**
+
+- Monitor and Scale Kafka Brokers.
+- Check if an unexpected increase in producers or consumers is causing excessive connections.
+- For more assistance, contact the administrative support.
+
+**Component:** `Ingestion: Kafka[]`
+
+---
+
+### INGEST\_BATCH\_CONNECTOR\_006: Failed to ingest data into the system
+
+**Severity:** `critical`
+
+**Affected System:** API Ingestion
+
+**Impact Summary:** Failed data ingestion can halt real-time data flow.
+
+**Causes:**
+
+- The service hosting the API for ingestion of data is down, preventing requests from being processed.
+- The API request is incorrect or invalid.
+- The Kafka pod is down, or the topic being ingested may be missing or incorrectly configured.
+
+**Actions:**
+
+- Check the API service pod status to ensure it is running.
+- Check for the logs from the API service for any errors.
+- Check the Kafka pod status to ensure it is running.
+- For more assistance, contact the administrative support.
+
+**Component:** `Ingestion: API[]`
+
+---
+
+### INGEST\_BATCH\_CONNECTOR\_007: Failed to ingest data into the system
+
+**Severity:** `critical`
+
+**Affected System:** Any connector Ingestion
+
+**Impact Summary:** Data ingestion failure prevents data from being processed.
+
+**Causes:**
+
+- There is a validation failure while processing data.
+
+**Actions:**
+
+- Check the error logs from the connector's pod.
+- For more assistance, contact the administrative support.
+
+**Component:** `Ingestion: Any connector[Debezium, neo4j, etc]`
+
+---
+
+### INGEST\_KAFKA\_CONNECTOR\_005: [KAFKA CONNECTORS]: Data processing via connectors is slower than usual.
+
+**Severity:** `warning`
+
+**Affected System:** Any connector Ingestion
+
+**Impact Summary:** Slower data processing can lead to pipeline bottlenecks, impacting data availability for downstream systems.
+
+**Causes:**
+
+- High Data Throughput: The system is experiencing a large volume of data, potentially exceeding its processing capacity.
+- Data Processing Failures: Errors are causing connector jobs to retry, leading to increased processing time.
+- Insufficient Resource Allocation: The connector jobs lack the required resources for optimal performance.
+- Autoscaling Disabled: The system's ability to dynamically adjust resources is currently inactive, resulting in slower processing.
+
+**Actions:**
+
+- Check the connector job logs for any errors.
+- Restart the connector job pods.
+- Enable auto-scaling if it is not enabled.
+- Increase CPU and memory resources if the connector is experiencing performance issues.
+- For more assistance, contact the administrative support.
+
+**Component:** `Ingestion: Any connector[]`
+
+---
+
+### INGEST\_KAFKA\_CONNECTOR\_006: [KAFKA CONNECTORS]: Connector is not active.
+
+**Severity:** `critical`
+
+**Affected System:** Any connector Ingestion
+
+**Impact Summary:** An inactive connector can halt data movement, disrupting ingestion pipelines and causing data unavailability for processing and analysis.
+
+**Causes:**
+
+- The connector job is not running.
+- The connection to the connector has failed.
+
+**Actions:**
+
+- Verify if the connectors are registered successfully.
+- Ensure the connection details are correct.
+- Check the error logs from the connector job pod.
+- For more assistance, contact the administrative support.
+
+**Component:** `Ingestion: Any connector[]`
+
+---
+
+### INGEST\_KAFKA\_CONNECTOR\_007: [KAFKA CONNECTOR]: The system is receiving less data than expected from the connectors.
+
+**Severity:** `warning`
+
+**Affected System:** Any connector Ingestion
+
+**Impact Summary:** A drop in data volume from connectors can reduce data availability, impacting the accuracy and timeliness of downstream analytics and processing.
+
+**Causes:**
+
+- The connector is unavailable.
+- The connector job might be experiencing restarts.
+- The connector could be experiencing low CPU resources.
+
+**Actions:**
+
+- Check the connector job pod status to ensure it is running.
+- Check connector logs for any errors.
+- Increase CPU resources if the connector is experiencing performance issues.
+- For more assistance, contact the administrative support.
+
+**Component:** `Ingestion: Any connector[]`
+
+---
+
+### INGEST\_JDBC\_CONNECTOR\_008: [JDBC CONNECTORS]: The scheduled job for source connectors did not run at the expected time.
+
+**Severity:** `warning`
+
+**Affected System:** Batch connectors Ingestion
+
+**Impact Summary:** Delayed execution of the batch connector job may result in ingestion lag, affecting data freshness.
+
+**Causes:**
+
+- Could be an issue with the invalid cron scheduler.
+- The connector is experiencing low resource constraints and the pod might have gone to a pending state.
+- The scheduler might have been disabled or deleted in the backend.
+
+**Actions:**
+
+- Check the job scheduler logs to see if the job was triggered.
+- Review the cron schedule and job configuration for any misconfigurations.
+- Monitor CPU and memory usage, and allocate more resources if needed.
+- For further assistance, contact administrative support.
+
+**Component:** `Ingestion: Batch connectors[jdbc, s3]`
+
+---
+
+### INGEST\_BATCH\_CONNECTOR\_012: No data is available for ingestion
+
+**Severity:** `warning`
+
+**Affected System:** Any connectors Ingestion
+
+**Impact Summary:** No data for ingestion indicates a problem with the data source or connector.
+
+**Causes:**
+
+- The data ingested is invalid.
+
+**Actions:**
+
+- Check for any error logs in the connectors while processing the data.
+- For further assistance, contact administrative support.
+
+**Component:** `Ingestion: Any connectors[]`
+
+---
+
+### INGEST\_BATCH\_CONNECTOR\_013: Failed to ingest data into the system
+
+**Severity:** `critical`
+
+**Affected System:** Druid Ingestion
+
+**Impact Summary:** Failed data ingestion into Druid prevents data from being available for querying.
+
+**Causes:**
+
+- Ingestion tasks are failing.
+- Ingestion task is in a pending state.
+- The ingestion spec may have an incorrect data schema, missing timestamps, or incompatible data formats.
+- The consumer properties in the schema are invalid.
+- Kafka is down.
+
+**Actions:**
+
+- Check Druid Overlord logs for errors related to pending and failed tasks.
+- Verify the ingestion schema provided to Druid to ensure it matches the incoming data format.
+- Verify the Kafka consumer properties (e.g., topic name, bootstrap servers, group ID) to ensure they are correct.
+- Check Kafka error logs or try restarting the Kafka pod if it's down.
+- For more assistance, contact the administrative support.
+
+**Component:** `Ingestion: Druid[]`
+
+---
+
+### INGEST\_KAFKA\_CONNECTOR\_009: [KAFKA CONNECTORS]: Detected unexpected load in the system
+
+**Severity:** `critical`
+
+**Affected System:** Any connector Ingestion
+
+**Impact Summary:** Unexpected load in the connector may delay data ingestion.
+
+**Causes:**
+
+- A sudden surge in incoming data from connectors has been detected.
+- Unexpected traffic from multiple or misconfigured data sources is increasing the load.
+- If the source has not produced any messages and the service is restarted, the system may read all messages from the earliest offset instead of the last committed offset, if the offsets were not committed.
+
+**Actions:**
+
+- Continuously monitor and validate incoming data from connectors.
+- Remove any unnecessary or misconfigured data sources.
+- For further assistance, contact administrative support.
+
+**Component:** `Ingestion: Any connector[]`
+
+---
+
+### ALERT\_1110: [KAFKA]: High Disk Usage Detected
+
+**Severity:** `critical`
+
+**Affected System:** Kafka Ingestion
+
+**Impact Summary:** High disk usage in Kafka may prevent new data from being written to the dataset, resulting in delays in real-time ingestion.
+
+**Causes:**
+
+- The system is running out of disk space.
+- Volume autoscaling might be disabled.
+- Volume autoscaling may have failed due to threshold limits, subject to cloud provider limitations on scaling frequency.
+- A high volume of data is being written to the persistent storage.
+- A lot of old or unused data is accumulated in the PV.
+
+**Actions:**
+
+- Enable the auto scaling of volume.
+- Increase the volume size of the Kafka system.
+- Adjust the volume autoscaler to a higher threshold percentage. This proactive measure will increase volume at a greater utilization level, preventing frequent scaling.
+- Increase the PV size if needed.
+- For more assistance, contact the administrative support.
+
+**Component:** `Ingestion: Kafka[]`

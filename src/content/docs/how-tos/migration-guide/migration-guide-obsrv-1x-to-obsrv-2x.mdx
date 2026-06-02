@@ -1,0 +1,278 @@
+---
+title: "Migration Guide: Obsrv 1.x to Obsrv 2.x"
+description: "This documentation provides detailed steps to perform the obsrv migration from the 1.x version to the 2.x version."
+sidebar:
+  order: 2
+---
+
+## Overview
+
+This document outlines the migration strategy from **Obsrv 1.x** to **Obsrv 2.x**, with a focus on **data integrity**, **minimal downtime**, and **operational continuity**.
+
+You have **two migration options**:
+
+- **Method 1:** Stop the 1.x ingestion system and upgrade everything in one go (downtime is required).
+
+  **When to choose this method:**
+  - If a few hours of downtime is acceptable (real-time data won't be available for querying during that period, but historical data will still be accessible).
+  - If you want the simplest upgrade process — the go-to option for a quick, no-complex migration.
+
+- **Method 2:** Using the Kafka Metadata Sync tool to replicate metadata (topics, consumer offsets, etc.) live between the old and new Kafka clusters (minimal downtime).
+
+  **When to choose this method:**
+  - The downtime for real-time querying should not exceed a few minutes.
+  - If you are comfortable with the setup of a tool that synchronizes Kafka metadata between two systems.
+
+---
+
+## Method 1 — Stop Ingestion & Upgrade
+
+### 1. Stop data ingestion
+
+- Identify all ingestion jobs/connectors that send data to Obsrv (e.g., Kafka Connect, Debezium, Neo4j, API jobs, etc.).
+- Scale down all the connectors to prevent any new events from entering.
+
+```bash
+kubectl -n <namespace> scale deployment/<connector-name> --replicas=0
+```
+
+### 2. Clear processing lag
+
+- Allow services to clear all the lags:
+  - Flink jobs
+  - Druid ingestion tasks
+  - Hudi writers
+- Monitor the consumer lag until all groups display a value of 0.
+
+### 3. Take a backup (for disaster recovery)
+
+- Create a Velero backup of the Obsrv namespace:
+
+```bash
+velero backup create obsrv-pre-migration --include-namespaces obsrv
+```
+
+### 4. Verify Kafka 3.6 consumer groups have zero lag
+
+```bash
+BOOTSTRAP="kafka-headless.kafka.svc.cluster.local:9092"
+kafka-consumer-groups.sh \
+  --bootstrap-server "$BOOTSTRAP" \
+  --all-groups --describe | grep -v "LAG *0"
+```
+
+- **No output** → all lags are cleared.
+- If any number is displayed, it indicates that there is still lag; wait until the number reaches 0.
+
+### 5. Deploy Obsrv 2.0
+
+- Update environment values in the **2.0.0** manifests (secrets, resource configuration, etc.).
+- Apply the changes and verify health of the pods.
+
+### 6. Support of Existing Datasets
+
+- By default, new datasources point to the managed Kafka version, so no manual update is needed after creation.
+- For existing datasources, you can manually update Postgres, use the Datasource Update API to modify the ingestion spec with the latest Kafka URL, or **simply edit and republish the datasets** — the dataset will then pick up the latest configured Kafka URL.
+
+### 7. Update Obsrv GA Rollups Spec
+
+- If the dataset contains any "Obsrv GA" versioned rollup data sources, update the rollup druid ingestion spec with the latest Kafka URLs. Then, resubmit the updated ingestion spec to Druid.
+
+### 8. Sanity
+
+- Keep ingestion disabled at first.
+- Run sanity tests:
+  - Open the Obsrv console UI and verify the health of datasets.
+  - Run basic queries either in Druid or using Query APIs.
+  - Check Druid, Hudi, and Pipeline health status.
+- Once verified, **gradually enable ingestion connectors** and monitor logs for errors to ensure the data is ingested in the database.
+- More details of sanity checklists are defined in the [Sanity Checklist](#sanity-checklist) section below.
+
+---
+
+## Method 2 — Live Kafka Sync (Low Downtime)
+
+### 1. Upgrade to Obsrv 2.0.0-GA (pre-release)
+
+- Upgrade the existing Obsrv deployment from **1.x** to **2.0.0-GA**.
+- This version supports syncing metadata from the old Kafka cluster to the new Kafka 4.0 cluster.
+- Before upgrading, **update all environment-specific configurations**.
+
+### 2. Install the Kafka Sync Operator Tool
+
+- Create a namespace for MM2:
+
+```bash
+kubectl create namespace kafka-mirror
+```
+
+- Install Strimzi:
+
+```bash
+kubectl create -f "https://strimzi.io/install/latest?namespace=kafka-mirror" -n kafka-mirror
+```
+
+### 3. Prepare MirrorMaker 2 config
+
+- Create `mm2.yaml` with the source and target Kafka clusters defined:
+  - **source:** old Kafka 3.6 cluster
+  - **target:** new Kafka 4.0 cluster
+- Ensure the `topicsPattern` and `groupsPattern` are configured to replicate everything (`.*`).
+- Use **IdentityReplicationPolicy** to keep topic names unchanged.
+
+```yaml
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaMirrorMaker2
+metadata:
+  name: mm2
+  namespace: kafka-mirror
+spec:
+  version: 4.0.0
+  replicas: 1
+  connectCluster: "target"
+
+  clusters:
+    - alias: "source"
+      bootstrapServers: "kafka-headless.kafka.svc.cluster.local:9092"
+      config:
+        consumer.request.timeout.ms: 60000
+        admin.request.timeout.ms: 60000
+        retries: 10
+        retry.backoff.ms: 500
+
+    - alias: "target"
+      bootstrapServers: "kafka40-controller-headless.kafka40.svc.cluster.local:9092"
+      config:
+        request.timeout.ms: 60000
+        retries: 10
+        retry.backoff.ms: 500
+
+  mirrors:
+    - sourceCluster: "source"
+      targetCluster: "target"
+      topicsPattern: ".*"
+      groupsPattern: ".*"
+
+      sourceConnector:
+        config:
+          replication.policy.class: "org.apache.kafka.connect.mirror.IdentityReplicationPolicy"
+          refresh.topics.interval.seconds: 60
+          refresh.groups.interval.seconds: 60
+          emit.offset.syncs.enabled: true
+          emit.offset.syncs.interval.seconds: 10
+          offset-syncs.topic.location: "target"
+          key.converter: "org.apache.kafka.connect.converters.ByteArrayConverter"
+          value.converter: "org.apache.kafka.connect.converters.ByteArrayConverter"
+          header.converter: "org.apache.kafka.connect.converters.ByteArrayConverter"
+          heartbeats.topic.replication.factor: 2
+          offset.syncs.topic.replication.factor: 2
+          checkpoints.topic.replication.factor: 2
+          sync.topic.acls.enabled: false
+          sync.topic.configs.enabled: false
+
+      checkpointConnector:
+        config:
+          replication.policy.class: "org.apache.kafka.connect.mirror.IdentityReplicationPolicy"
+          emit.checkpoints.enabled: true
+          emit.checkpoints.interval.seconds: 10
+          sync.group.offsets.enabled: true
+          offset-syncs.topic.location: "target"
+          key.converter: "org.apache.kafka.connect.converters.ByteArrayConverter"
+          value.converter: "org.apache.kafka.connect.converters.ByteArrayConverter"
+          header.converter: "org.apache.kafka.connect.converters.ByteArrayConverter"
+          heartbeats.topic.replication.factor: 2
+          offset.syncs.topic.replication.factor: 2
+          checkpoints.topic.replication.factor: 2
+          admin.request.timeout.ms: 60000
+          retries: 10
+          retry.backoff.ms: 500
+
+      heartbeatConnector:
+        config:
+          replication.policy.class: "org.apache.kafka.connect.mirror.IdentityReplicationPolicy"
+          emit.heartbeats.enabled: true
+```
+
+### 4. Deploy MirrorMaker 2
+
+```bash
+kubectl apply -f mm2.yaml -n kafka-mirror
+```
+
+This will start:
+- **SourceConnector** → copies data from old to new topics.
+- **CheckpointConnector** → copies consumer offsets.
+- **HeartbeatConnector** → keeps track of connectivity.
+
+### 5. Verify topic and offset sync
+
+This process generally takes approximately 15 to 30 minutes to sync all the data.
+
+On the **target** cluster:
+
+```bash
+kafka-topics.sh --bootstrap-server <target-bootstrap> --list
+```
+
+You should see all topics from the source. Check consumer groups:
+
+```bash
+kafka-consumer-groups.sh --bootstrap-server <target-bootstrap> --describe --group <group-name>
+```
+
+Offsets should match or be close to the source.
+
+### 6. Test data flow
+
+- If any messages are flowing to the source Kafka topic (3.6), they should get synced to the newer version of Kafka (4.0).
+- Consume the messages from the same topic in the target cluster. If the messages are available, the sync is working.
+
+### 7. Upgrade to Obsrv 2.0
+
+- Update environment configs, resource configurations, etc. before performing the upgrade.
+- Deploy Obsrv 2.0.0.
+- Once the system is upgraded, all the data will flow to the newer version of Kafka (4.0).
+
+### 8. Upgrade to Obsrv 2.0.1
+
+Once data is fully flowing into the target Kafka (4.0) and verified, decommission the source Kafka (3.x) by upgrading Obsrv to version 2.0.1. Ensure all required configurations are in place and validated before initiating the 2.0.1 upgrade.
+
+---
+
+## Sanity Checklist
+
+| Category | Check Item | Status |
+|---|---|---|
+| **Ingestion** | All ingestion connectors running with expected replicas | (✔/✘) |
+| | Data flowing from all expected upstream sources | (✔/✘) |
+| | No ingestion backlog in Kafka topics | (✔/✘) |
+| | Schema validation passing for incoming messages | (✔/✘) |
+| | No ingestion error messages from the connector pods | (✔/✘) |
+| | The resource configurations are correct as per the environment and load | (✔/✘) |
+| **Processing** | The unified pipeline, cache-indexer and lakehouse-connector jobs in `RUNNING` state with expected replica configurations | (✔/✘) |
+| | Checkpointing active and stable | (✔/✘) |
+| | 0% failed events (No schema and deduplicate events) and no higher lag | (✔/✘) |
+| | Kafka partitions match Flink job configs and are correct as per the load and environment | (✔/✘) |
+| | No errors in the pod logs | (✔/✘) |
+| **Querying** | Druid ingestion tasks running and segments published | (✔/✘) |
+| | Hudi datasets up-to-date and queryable | (✔/✘) |
+| | Query APIs responding within acceptable latency | (✔/✘) |
+| | Able to query realtime and historical data from both Hudi and Druid | (✔/✘) |
+| | Spot checks return correct and fresh data | (✔/✘) |
+| **Storage** | Velero backups completed successfully | (✔/✘) |
+| | Kafka/Druid/Hudi backups available | (✔/✘) |
+| | Secor backup service is running healthy | (✔/✘) |
+| | Dataset events Secor backup files are available in the blob storage | (✔/✘) |
+| | No error or higher amount of lag in the Secor service | (✔/✘) |
+| | Restore test performed in staging (optional) | (✔/✘) |
+| **Monitoring** | All key metrics collected (Kafka, Flink, Druid, Hudi, APIs) | (✔/✘) |
+| | Grafana dashboards rendering without gaps | (✔/✘) |
+| | No abnormal spikes in error rates, latency, or usage | (✔/✘) |
+| **Alerts** | All alerting rules enabled and targeting correct channels | (✔/✘) |
+| | Test alerts sent and acknowledged | (✔/✘) |
+| | Critical alert thresholds correctly configured | (✔/✘) |
+| **Management Console** | Management console is accessible | (✔/✘) |
+| | All the datasets are healthy | (✔/✘) |
+| | CPU, Memory, Volume usages are not abnormal | (✔/✘) |
+| | All service pods in `Running` state with expected restarts | (✔/✘) |
+| **Final** | End-to-end data flow verified (Ingestion → Processing → Storage → Query) | (✔/✘) |

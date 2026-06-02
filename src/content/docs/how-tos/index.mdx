@@ -1,0 +1,22 @@
+---
+title: "How-Tos"
+description: Step-by-step guides for common Obsrv tasks
+sidebar:
+  order: 0
+  hidden: true
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+<CardGrid>
+  <LinkCard title="Data Backup and Restoration" href="/how-tos/data-backup-and-restoration/" description="Restore Obsrv from backups" />
+  <LinkCard title="Create a Dataset" href="/how-tos/create-a-dataset/" description="Step-by-step guide to creating a dataset" />
+  <LinkCard title="Register a Connector" href="/how-tos/register-a-connector/" description="Add a source connector to pull data from external systems" />
+  <LinkCard title="Scale Infrastructure" href="/how-tos/scale-infrastructure/" description="Scale up/down critical infrastructure services (Pro Feature)" />
+  <LinkCard title="Troubleshoot" href="/how-tos/troubleshoot/" description="Diagnose and fix common infrastructure issues" />
+  <LinkCard title="Alerts and Notifications" href="/how-tos/alerts-and-notifications/alerts-and-recommended-actions/" description="Configure alerts, notification channels, and recommended actions" />
+  <LinkCard title="Migration Guide" href="/how-tos/migration-guide/migration-plan-obsrv-ga-to-obsrv-1-0/" description="Migrate between Obsrv versions" />
+  <LinkCard title="Integration with Managed Kafka Services" href="/how-tos/managed-kafka-integration/" description="Connect Obsrv with managed Kafka services" />
+  <LinkCard title="Sanity Checklist" href="/how-tos/sanity-checklist/" description="Validate your deployment after installation" />
+  <LinkCard title="Configure Lakehouse Store" href="/how-tos/configure-lakehouse-store/" description="Configure Apache Hudi lakehouse data storage for datasets" />
+</CardGrid>

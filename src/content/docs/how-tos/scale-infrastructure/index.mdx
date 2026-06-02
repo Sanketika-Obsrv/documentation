@@ -1,0 +1,23 @@
+---
+title: "Scale Infrastructure"
+description: "Instruction on how to scale up/down of the infrastructure critical services. This feature is available for Pro version only."
+sidebar:
+  order: 0
+  badge:
+    text: Pro Feature
+    variant: tip
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Obsrv provides comprehensive autoscaling capabilities through Horizontal Pod Autoscaling (HPA) and Volume Autoscaling, enabling dynamic resource management that adapts to your workload demands. These features ensure:
+
+* **High Availability**: Automatically scale components like Druid and Flink to handle increased query loads and data processing demands
+* **Resource Optimization**: Efficiently manage cluster resources by scaling up during peak times and down during quiet periods
+* **Storage Management**: Automatic volume expansion for components like Druid Historicals to handle growing data volumes
+* **Cost Efficiency**: Balance between performance and resource utilization through configurable thresholds and scaling policies
+
+<CardGrid>
+  <LinkCard title="Autoscaling Components" href="/how-tos/scale-infrastructure/autoscaling-components/" description="Configure HPA for Flink and Druid using KEDA" />
+  <LinkCard title="Autoscaling Volumes" href="/how-tos/scale-infrastructure/autoscaling-volumes/" description="Automatically expand persistent volumes as data grows" />
+</CardGrid>

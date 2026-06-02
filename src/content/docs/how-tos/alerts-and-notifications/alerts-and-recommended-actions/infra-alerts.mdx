@@ -1,0 +1,1358 @@
+---
+title: "Infra Alerts and Recommended Actions"
+description: "This document details the various alert rules configured within the system, providing information on their impact, potential causes, and recommended actions."
+sidebar:
+  order: 1
+---
+
+### ALERT\_1001: [KAFKA]: High CPU Usage Detected. System Under Heavy Load.
+
+**Severity:** `warning`
+
+**Affected System:** Kafka Data Processing
+
+**Impact Summary:** High CPU usage in Kafka may disrupt the data ingestion process, causing delays in data being processed and affecting the real-time flow of data into the dataset.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Manually allocate more CPU if necessary.
+- Enable auto-scaling if it is not enabled.
+- Identify the root cause of why the service is consuming high CPU.
+- Monitor CPU usage closely.
+- For further assistance, contact administrative support.
+
+**Component:** `Infra: Kafka[]`
+
+---
+
+### ALERT\_1002: [VALKEY DENORM]: High CPU Usage Detected. System Under Heavy Load.
+
+**Severity:** `warning`
+
+**Affected System:** Valkey Caching Service
+
+**Impact Summary:** High CPU usage in Valkey may stop the caching of new data, causing delays in processing real-time data and preventing new data from being queried.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Manually allocate more CPU if necessary.
+- Enable auto-scaling if it is not enabled.
+- Identify the root cause of why the service is consuming high CPU.
+- Monitor CPU usage closely.
+- For further assistance, contact administrative support.
+
+**Component:** `Infra: Valkey[]`
+
+---
+
+### ALERT\_1003: [VALKEY DEDUPE]: High CPU Usage Detected. System Under Heavy Load.
+
+**Severity:** `warning`
+
+**Affected System:** Valkey Caching Service
+
+**Impact Summary:** High CPU usage in Valkey may stop the caching of new data, causing delays in processing real-time data and preventing new data from being queried.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Manually allocate more CPU if necessary.
+- Enable auto-scaling if it is not enabled.
+- Identify the root cause of why the service is consuming high CPU.
+- Monitor CPU usage closely.
+- For further assistance, contact administrative support.
+
+**Component:** `Infra: Valkey[]`
+
+---
+
+### ALERT\_1004: [DRUID HISTORICAL]: High CPU Usage Detected. System Under Heavy Load.
+
+**Severity:** `warning`
+
+**Affected System:** Druid Historical Nodes
+
+**Impact Summary:** High CPU usage in Druid Historicals can affect the ability to access old segments, leading to delayed or incomplete query results.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Manually allocate more CPU if necessary.
+- Enable auto-scaling if it is not enabled.
+- Identify the root cause of why the service is consuming high CPU.
+- Monitor CPU usage closely.
+- For further assistance, contact administrative support.
+
+**Component:** `Infra: Druid[Historicals]`
+
+---
+
+### ALERT\_1005: [DRUID INDEXER]: High CPU Usage Detected. System Under Heavy Load.
+
+**Severity:** `warning`
+
+**Affected System:** Druid Indexer Nodes
+
+**Impact Summary:** High CPU usage in Druid Indexer can interrupt data ingestion, making real-time data unavailable for querying.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Manually allocate more CPU if necessary.
+- Enable auto-scaling if it is not enabled.
+- Identify the root cause of why the service is consuming high CPU.
+- Monitor CPU usage closely.
+- For further assistance, contact administrative support.
+
+**Component:** `Infra: Druid[Indexer]`
+
+---
+
+### ALERT\_1006: [DRUID OVERLORD]: High CPU Usage Detected. System Under Heavy Load.
+
+**Severity:** `warning`
+
+**Affected System:** Druid Overlord Node
+
+**Impact Summary:** High CPU usage in Druid Overlord can interrupt the handling of ingestion tasks, leading to delays or loss of new data, and impacting real-time data querying.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Manually allocate more CPU if necessary.
+- Enable auto-scaling if it is not enabled.
+- Identify the root cause of why the service is consuming high CPU.
+- Monitor CPU usage closely.
+- For further assistance, contact administrative support.
+
+**Component:** `Infra: Druid[Overlord]`
+
+---
+
+### ALERT\_1007: [DRUID BROKER]: High CPU Usage Detected. System Under Heavy Load.
+
+**Severity:** `warning`
+
+**Affected System:** Druid Broker Nodes
+
+**Impact Summary:** High CPU usage in Druid Broker can cause query routing issues, leading to delays while querying the data.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Manually allocate more CPU if necessary.
+- Enable auto-scaling if it is not enabled.
+- Identify the root cause of why the service is consuming high CPU.
+- Monitor CPU usage closely.
+- For further assistance, contact administrative support.
+
+**Component:** `Infra: Druid[Broker]`
+
+---
+
+### ALERT\_1008: [PROMETHEUS]: High CPU Usage Detected. System Under Heavy Load.
+
+**Severity:** `warning`
+
+**Affected System:** Prometheus Monitoring Service
+
+**Impact Summary:** High CPU usage in Prometheus can cause delays in collecting and processing metrics, potentially leading to slower response times for queries and incomplete data for monitoring and alerting.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Manually allocate more CPU if necessary.
+- Enable auto-scaling if it is not enabled.
+- Identify the root cause of why the service is consuming high CPU.
+- Monitor CPU usage closely.
+- For further assistance, contact administrative support.
+
+**Component:** `Infra: Prometheus[]`
+
+---
+
+### ALERT\_1009: [GRAFANA]: High CPU Usage Detected. System Under Heavy Load.
+
+**Severity:** `warning`
+
+**Affected System:** Grafana Visualization Service
+
+**Impact Summary:** High CPU usage in Grafana can lead to delayed alerting, affecting the monitoring and analysis of system metrics.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Manually allocate more CPU if necessary.
+- Enable auto-scaling if it is not enabled.
+- Identify the root cause of why the service is consuming high CPU.
+- Monitor CPU usage closely.
+- For further assistance, contact administrative support.
+
+**Component:** `Infra: Grafana[]`
+
+---
+
+### [LOKI]: High CPU Usage Detected. System Under Heavy Load.
+
+**Severity:** `warning`
+
+**Affected System:** Loki Logging Service
+
+**Impact Summary:** High CPU usage in Loki can delay log ingestion and querying, impacting real-time log visibility and troubleshooting.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Manually allocate more CPU if necessary.
+- Enable auto-scaling if it is not enabled.
+- Identify the root cause of why the service is consuming high CPU.
+- Monitor CPU usage closely.
+- For further assistance, contact administrative support.
+
+**Component:** `Infra: Loki[]`
+
+---
+
+### [POSTGRES]: High CPU Usage Detected. System Under Heavy Load.
+
+**Severity:** `warning`
+
+**Affected System:** PostgreSQL Database Service
+
+**Impact Summary:** High CPU usage in PostgreSQL can lead to slow query performance and potential application timeouts, affecting data access and overall system responsiveness.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Manually allocate more CPU if necessary.
+- Enable auto-scaling if it is not enabled.
+- Identify the root cause of why the service is consuming high CPU.
+- Monitor CPU usage closely.
+- For further assistance, contact administrative support.
+
+**Component:** `Infra: Postgres[]`
+
+---
+
+### [API SERVICE]: High CPU Usage Detected. System Under Heavy Load.
+
+**Severity:** `warning`
+
+**Affected System:** API Service
+
+**Impact Summary:** High CPU usage in API service can cause slower response times, failed requests, potentially affecting service availability.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Manually allocate more CPU if necessary.
+- Enable auto-scaling if it is not enabled.
+- Identify the root cause of why the service is consuming high CPU.
+- Monitor CPU usage closely.
+- For further assistance, contact administrative support.
+
+**Component:** `Infra: API Service[]`
+
+---
+
+### INFRA\_SECOR\_012: [SECOR BACKUP]: High CPU Usage Detected. System Under Heavy Load.
+
+**Severity:** `warning`
+
+**Affected System:** Secor Backup Service
+
+**Impact Summary:** High CPU usage in Secor can delay Kafka topic backups to cloud storage, increasing the risk of data loss during outages or failures.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Manually allocate more CPU if necessary.
+- Enable auto-scaling if it is not enabled.
+- Identify the root cause of why the service is consuming high CPU.
+- Monitor CPU usage closely.
+- For further assistance, contact administrative support.
+
+**Component:** `Infra: Secor[]`
+
+---
+
+### INFRA\_KAFKA\_MSG\_EXPORTER\_013: [KAFKA MESSAGE EXPORTER]: High CPU Usage Detected. System Under Heavy Load.
+
+**Severity:** `warning`
+
+**Affected System:** Kafka Message Exporter Service
+
+**Impact Summary:** High CPU usage in Kafka Message Exporter can result in delayed or missing metric exports to Prometheus, impacting monitoring accuracy.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Manually allocate more CPU if necessary.
+- Enable auto-scaling if it is not enabled.
+- Identify the root cause of why the service is consuming high CPU.
+- Monitor CPU usage closely.
+- For further assistance, contact administrative support.
+
+**Component:** `Infra: Kafka message exporter[]`
+
+---
+
+### ALERT\_1010: [UNIFIED PIPELINE]: High CPU Usage Detected. System Under Heavy Load.
+
+**Severity:** `warning`
+
+**Affected System:** Unified Data Processing Pipeline
+
+**Impact Summary:** High CPU usage in the Unified pipeline can interrupt the processing of real-time data, making it unavailable for querying.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Manually allocate more CPU if necessary.
+- Enable auto-scaling if it is not enabled.
+- Identify the root cause of why the service is consuming high CPU.
+- Monitor CPU usage closely.
+- For further assistance, contact administrative support.
+
+**Component:** `Infra: Unified pipeline[]`
+
+---
+
+### ALERT\_1011: [KAFKA]: High Memory Usage Detected. System Could Become Unstable.
+
+**Severity:** `warning`
+
+**Affected System:** Kafka Data Processing
+
+**Impact Summary:** High Memory usage in Kafka may disrupt the data ingestion process, causing delays in data being processed and affecting the real-time flow of data into the dataset.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Allocate more memory if necessary or enable auto-scaling if it is not enabled.
+- Monitor the memory usage closely.
+- Identify the root cause of why the service is consuming high memory.
+- For more assistance, contact the administrative support.
+
+**Component:** `Infra: Kafka[]`
+
+---
+
+### ALERT\_1012: [VALKEY DENORM]: High Memory Usage Detected. System Could Become Unstable.
+
+**Severity:** `warning`
+
+**Affected System:** Valkey Caching Service
+
+**Impact Summary:** High Memory usage in Valkey may stop the caching of new data, causing delays in processing real-time data and preventing new data from being queried.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Allocate more memory if necessary or enable auto-scaling if it is not enabled.
+- Monitor the memory usage closely.
+- Identify the root cause of why the service is consuming high memory.
+- For more assistance, contact the administrative support.
+
+**Component:** `Infra: Valkey[]`
+
+---
+
+### ALERT\_1013: [VALKEY DEDUPE]: High Memory Usage Detected. System Could Become Unstable.
+
+**Severity:** `warning`
+
+**Affected System:** Valkey Caching Service
+
+**Impact Summary:** High Memory usage in Valkey may stop the caching of new data, causing delays in processing real-time data and preventing new data from being queried.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Allocate more memory if necessary or enable auto-scaling if it is not enabled.
+- Monitor the memory usage closely.
+- Identify the root cause of why the service is consuming high memory.
+- For more assistance, contact the administrative support.
+
+**Component:** `Infra: Valkey[]`
+
+---
+
+### ALERT\_1014: [DRUID\_HISTORICAL]: High Memory Usage Detected. System Could Become Unstable.
+
+**Severity:** `warning`
+
+**Affected System:** Druid Historical Nodes
+
+**Impact Summary:** High Memory usage in Druid Historicals can affect the ability to access old segments, leading to delayed or incomplete query results.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Allocate more memory if necessary or enable auto-scaling if it is not enabled.
+- Monitor the memory usage closely.
+- Identify the root cause of why the service is consuming high memory.
+- For more assistance, contact the administrative support.
+
+**Component:** `Infra: Druid[Historicals]`
+
+---
+
+### ALERT\_1015: [DRUID INDEXER]: High Memory Usage Detected. System Could Become Unstable.
+
+**Severity:** `warning`
+
+**Affected System:** Druid Indexer Nodes
+
+**Impact Summary:** High Memory usage in Druid Indexer can interrupt data ingestion, making real-time data unavailable for querying.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Allocate more memory if necessary or enable auto-scaling if it is not enabled.
+- Monitor the memory usage closely.
+- Identify the root cause of why the service is consuming high memory.
+- For more assistance, contact the administrative support.
+
+**Component:** `Infra: Druid[Indexer]`
+
+---
+
+### ALERT\_1016: [DRUID OVERLORD]: High Memory Usage Detected. System Could Become Unstable.
+
+**Severity:** `warning`
+
+**Affected System:** Druid Overlord Node
+
+**Impact Summary:** High memory usage in Druid Overlord can interrupt the handling of ingestion tasks, leading to delays or loss of new data, and impacting real-time data querying.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Allocate more memory if necessary or enable auto-scaling if it is not enabled.
+- Monitor the memory usage closely.
+- Identify the root cause of why the service is consuming high memory.
+- For more assistance, contact the administrative support.
+
+**Component:** `Infra: Druid[Overlord]`
+
+---
+
+### ALERT\_1017: [DRUID BROKER]: High Memory Usage Detected. System Could Become Unstable.
+
+**Severity:** `warning`
+
+**Affected System:** Druid Broker Nodes
+
+**Impact Summary:** High memory usage in Druid Broker can cause query routing issues, leading to delays while querying the data.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Allocate more memory if necessary or enable auto-scaling if it is not enabled.
+- Monitor the memory usage closely.
+- Identify the root cause of why the service is consuming high memory.
+- For more assistance, contact the administrative support.
+
+**Component:** `Infra: Druid[Broker]`
+
+---
+
+### ALERT\_1018: [PROMETHEUS]: High Memory Usage Detected. System Could Become Unstable.
+
+**Severity:** `warning`
+
+**Affected System:** Prometheus Monitoring Service
+
+**Impact Summary:** High Memory usage in Prometheus can cause delays in collecting and processing metrics, potentially leading to slower response times for queries and incomplete data for monitoring and alerting.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Allocate more memory if necessary or enable auto-scaling if it is not enabled.
+- Monitor the memory usage closely.
+- Identify the root cause of why the service is consuming high memory.
+- For more assistance, contact the administrative support.
+
+**Component:** `Infra: Prometheus[]`
+
+---
+
+### ALERT\_1019: [GRAFANA]: High Memory Usage Detected. System Could Become Unstable.
+
+**Severity:** `warning`
+
+**Affected System:** Grafana Visualization Service
+
+**Impact Summary:** High Memory usage in Grafana can lead to delayed alerting, affecting the monitoring and analysis of system metrics.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Allocate more memory if necessary or enable auto-scaling if it is not enabled.
+- Monitor the memory usage closely.
+- Identify the root cause of why the service is consuming high memory.
+- For more assistance, contact the administrative support.
+
+**Component:** `Infra: Grafana[]`
+
+---
+
+### INFRA\_LOKI\_023: [LOKI]: High Memory Usage Detected. System Could Become Unstable.
+
+**Severity:** `warning`
+
+**Affected System:** Loki Logging Service
+
+**Impact Summary:** High memory usage in Loki can delay log ingestion and querying, impacting real-time log visibility and troubleshooting.
+
+**Component:** `Infra: Loki[]`
+
+---
+
+### ALERT\_1020: [UNIFIED\_PIPELINE]: High Memory Usage Detected. System Could Become Unstable.
+
+**Severity:** `warning`
+
+**Affected System:** Unified Data Processing Pipeline
+
+**Impact Summary:** High memory usage in the Unified pipeline can interrupt the processing of real-time data, making it unavailable for querying.
+
+**Causes:**
+
+- The system is running out of resources due to insufficient resource allocation.
+- Autoscaling might not be enabled.
+- A high volume of data might be processed and queried.
+
+**Actions:**
+
+- Allocate more memory if necessary or enable auto-scaling if it is not enabled.
+- Monitor the memory usage closely.
+- Identify the root cause of why the service is consuming high memory.
+- For more assistance, contact the administrative support.
+
+**Component:** `Infra: Unified Pipeline[]`
+
+---
+
+### ALERT\_1021: [KUBERNETES NODE]: High CPU usage is detected in the Cluster Nodes.
+
+**Severity:** `warning`
+
+**Affected System:** Kubernetes Nodes
+
+**Impact Summary:** Persistent high CPU usage can cause Kubernetes nodes to become under pressure, leading to pod throttling, evictions, or failed launches, impacting overall cluster health.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Kubernetes Node[]`
+
+---
+
+### ALERT\_1022: [KUBERNETES NODE]: High memory usage is detected in Cluster Nodes.
+
+**Severity:** `warning`
+
+**Affected System:** Kubernetes Nodes
+
+**Impact Summary:** Persistent high memory usage has led to resource exhaustion, causing performance degradation and potential failures in services.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Kubernetes Node[]`
+
+---
+
+### ALERT\_1023: [KAFKA]: System has restarted. May Affect Ingestion of data.
+
+**Severity:** `critical`
+
+**Affected System:** Kafka Data Processing
+
+**Impact Summary:** Frequent restarts in kafka system may disrupt the data ingestion process, causing delays in data being processed and affecting the real-time flow of data into the dataset.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Kafka[]`
+
+---
+
+### ALERT\_1024: [DRUID HISTORICALS]: System has Restarted. May Affect Querying.
+
+**Severity:** `critical`
+
+**Affected System:** Druid Historical Nodes
+
+**Impact Summary:** Frequent restarts in Druid Historicals can affect the ability to access old segments, leading to delayed or incomplete query results.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Druid[Historicals]`
+
+---
+
+### ALERT\_1025: [DRUID INDEXER]: System has Restarted. May Affect Querying.
+
+**Severity:** `critical`
+
+**Affected System:** Druid Indexer Nodes
+
+**Impact Summary:** Frequent restarts in Druid Indexer can interrupt data ingestion. As a result, real-time data is unavailable for querying.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Druid[Indexer]`
+
+---
+
+### ALERT\_1026: [DRUID OVERLORD]: System has Restarted. May Affect Querying.
+
+**Severity:** `critical`
+
+**Affected System:** Druid Overlord Node
+
+**Impact Summary:** Frequent restarts in Druid Overlord can interrupt the handling of ingestion tasks, leading to delays or loss of new data, and impacting real-time data querying.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Druid[Overlord]`
+
+---
+
+### ALERT\_1027: [DRUID BROKER]: System has Restarted. May Affect Querying.
+
+**Severity:** `critical`
+
+**Affected System:** Druid Broker Node
+
+**Impact Summary:** Frequent restarts in Druid Broker can cause query routing issues, leading to delays while querying the data.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Druid[Broker]`
+
+---
+
+### ALERT\_1028: [DRUID COORDINATOR]: System has Restarted. May Affect Querying.
+
+**Severity:** `critical`
+
+**Affected System:** Druid Coordinator Node
+
+**Impact Summary:** Frequent restarts in Druid Coordinator can disrupt segment balancing and the availability of historical data, leading to incomplete query results.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Druid[Coordinator]`
+
+---
+
+### ALERT\_1029: [API SERVICE]: System has restarted. May Affect API Availability.
+
+**Severity:** `critical`
+
+**Affected System:** API service
+
+**Impact Summary:** Frequent restarts in the API service can disrupt dataset management, making it difficult to perform operations on the dataset.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: API Service[]`
+
+---
+
+### ALERT\_1030: [PROMETHEUS]: System has restarted. May Affect Monitoring.
+
+**Severity:** `critical`
+
+**Affected System:** Prometheus Monitoring Service
+
+**Impact Summary:** Frequent restarts of Prometheus can interrupt metric scraping and storage, causing missing data points, delayed alerts and monitoring.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Prometheus[]`
+
+---
+
+### ALERT\_1031: [GRAFANA]: System has restarted. May Affect Monitoring.
+
+**Severity:** `critical`
+
+**Affected System:** Grafana Monitoring Service
+
+**Impact Summary:** Frequent restarts of Grafana can affect monitoring, resulting in delays or issues with alerting about the system.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Grafana[]`
+
+---
+
+### ALERT\_1032: [LOKI]: System has restarted. May Affect Monitoring.
+
+**Severity:** `critical`
+
+**Affected System:** Loki Monitoring Service
+
+**Impact Summary:** Frequent restarts in Loki can disrupt the log ingestion process, causing delays in storing logs and potentially leading to issues when analyzing them.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Loki[]`
+
+---
+
+### ALERT\_1033: [POSTGRES]: System has restarted. May Affect Database Connectivity.
+
+**Severity:** `critical`
+
+**Affected System:** Postgres Database Service
+
+**Impact Summary:** Frequent restarts in PostgreSQL can disrupt dataset management, affecting read/write operations and potentially leading to failed dataset transactions.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Postgres[]`
+
+---
+
+### ALERT\_1034: [VALKEY]: System has restarted. May affect data enrichment.
+
+**Severity:** `critical`
+
+**Affected System:** Valkey Caching Service
+
+**Impact Summary:** A system restart in Valkey may stop the caching of new data, causing delays in processing of real time data, preventing new data from being queried.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Valkey[]`
+
+---
+
+### ALERT\_1035: [UNIFIED PIPELINE]: System has restarted. May Affect Dataset.
+
+**Severity:** `critical`
+
+**Affected System:** Unified Data Processing Pipeline
+
+**Impact Summary:** Frequent restarts in the Unified pipeline can interrupt the processing of real-time data, making it unavailable for querying.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Unified Pipeline[]`
+
+---
+
+### ALERT\_1036: [CACHE INDEXER]: System has restarted. May Affect Monitoring.
+
+**Severity:** `critical`
+
+**Affected System:** Cache Indexer Processing Pipeline
+
+**Impact Summary:** A system restart in Cache Indexer job may result in inaccurate data while processing and make all datasets unhealthy, causing delays in processing of real time data, preventing new data from being queried.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Cache Indexer[]`
+
+---
+
+### ALERT\_1037: [SECOR]: System has restarted. May Affect Services.
+
+**Severity:** `critical`
+
+**Affected System:** Secor Kafka Backup Service
+
+**Impact Summary:** A system restart in Secor may affect the backup of ingested data, potentially leading to delays or inconsistencies in data availability.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Secor[]`
+
+---
+
+### ALERT\_1038: [WEB CONSOLE]: System has restarted. May Affect Data Analytics View in Web Console.
+
+**Severity:** `critical`
+
+**Affected System:** Web console UI service
+
+**Impact Summary:** Frequent web console restarts can disrupt user interactions, affecting visualization of data for all the datasets.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Web Console[]`
+
+---
+
+### ALERT\_1039: [PROMTAIL]: System has restarted. May Affect Log Ingestion.
+
+**Severity:** `critical`
+
+**Affected System:** Promtail Service
+
+**Impact Summary:** Frequent restarts in Promtail can disrupt the log ingestion process, causing delays in storing logs and potentially leading to issues when analyzing them.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Promtail[]`
+
+---
+
+### ALERT\_1040: [KEYCLOAK]: System has restarted. May Affect User Authentication and Login Flow.
+
+**Severity:** `critical`
+
+**Affected System:** Keycloak Authentication Service
+
+**Impact Summary:** Frequent Keycloak restarts can disrupt authentication and authorization flows, causing login failures and access issues in the system.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Keycloak[]`
+
+---
+
+### ALERT\_1041: [SUPERSET]: System has restarted. May Affect Superset Dashboard Access.
+
+**Severity:** `critical`
+
+**Affected System:** Superset service
+
+**Impact Summary:** Frequent Superset restarts may lead to dashboard unavailability, impacting access to analytical insights for the datasets.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Superset[]`
+
+---
+
+### ALERT\_1042: [S3 EXPORTER]: System has restarted. May Affect Data export to S3.
+
+**Severity:** `critical`
+
+**Affected System:** S3 Exporter Monitoring Service
+
+**Impact Summary:** Frequent restarts of the S3 Exporter may interrupt the export of S3 metrics, potentially impacting the monitoring of cloud storage health and performance.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: S3 Exporter[]`
+
+---
+
+### ALERT\_1043: [MANAGEMENT API]: System has restarted. May Affect dataset management.
+
+**Severity:** `critical`
+
+**Affected System:** Management API service
+
+**Impact Summary:** Frequent restarts in the Management Api service can disrupt dataset management, making it difficult to perform operations on the dataset.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Management API[]`
+
+---
+
+### ALERT\_1044: [VELERO]: System has restarted. May Affect cluster backup.
+
+**Severity:** `critical`
+
+**Affected System:** Velero Cluster Backup Service
+
+**Impact Summary:** A system restart in Velero may affect the Kubernetes cluster backup, potentially making backup and restore services temporarily unavailable.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Velero[]`
+
+---
+
+### ALERT\_1045: [VOLUME AUTOSCALER]: System has restarted. Automatic Volume Scaling May Be Disrupted.
+
+**Severity:** `critical`
+
+**Affected System:** Persistent Volume Storage
+
+**Impact Summary:** Frequent restarts of the Volume Autoscaler may delay persistent volume resizing, potentially leading to disruptions in system operations.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: Volume Autoscaler[]`
+
+---
+
+### ALERT\_1046: [SYSTEM RULES INGESTOR]: System has restarted. May Affect System Health.
+
+**Severity:** `critical`
+
+**Affected System:** System Health Monitoring
+
+**Impact Summary:** Frequent restarts of the System rules ingestor may affect the monitoring of the system, causing delays in tracking system health.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: System Rules Ingestor[]`
+
+---
+
+### ALERT\_1047: [POSTGRES MIGRATION]: System has restarted. May Affect dataset management.
+
+**Severity:** `critical`
+
+**Affected System:** PostgreSQL Service
+
+**Impact Summary:** Frequent restarts of the PostgreSQL migration process may disrupt the migration flow, affecting dataset management and causing delays in database table creation.
+
+**Causes:**
+
+- The system could be running out of resources (CPU, Memory and Disk).
+- The system might be encountering functional errors.
+- Could be invalid configurations causing system to restart.
+
+**Actions:**
+
+- Monitor CPU, memory, and disk usage closely.
+- Check for any errors from the logs of loki instance.
+- Manually restart the service or pod to check if the issue persists.
+- Ensure all required variables and configurations are correctly set.
+- For more assistance, contact the administrative support with logs.
+
+**Component:** `Infra: PostgreSQL Migration[]`

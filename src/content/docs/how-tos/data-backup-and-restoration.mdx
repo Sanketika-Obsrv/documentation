@@ -1,0 +1,369 @@
+---
+title: "Data Backup and Restoration"
+description: "Instructions to restoration of obsrv from the backups"
+sidebar:
+  order: 3
+---
+
+**Date:** Friday, 05.07.2024
+
+## Introduction
+
+This document provides a **complete end-to-end restoration playbook** for Obsrv, including:
+
+* Restoration using **Velero snapshots**
+* **Selective Redis & PostgreSQL** restoration
+* **Flink, Druid, Superset pauses/resumes**
+* **S3-based Druid segment migration**
+* Python scripts used for updating `druid_segments`
+
+It is intended for operational recovery, migration, DR rehearsals, and environment cloning.
+
+---
+
+## 1. Backup Storage Reference
+
+The following objects store backups across AWS S3 and supporting services:
+
+| Service               | Backup Location                                  |
+| --------------------- | ------------------------------------------------ |
+| PostgreSQL            | `backups-{building_block}-{env}-{account-id}`    |
+| Denorm Redis          | `backups-{building_block}-{env}-{account-id}`    |
+| Dedup Redis           | `backups-{building_block}-{env}-{account-id}`    |
+| Dataset Events        | `{building_block}-{env}-{account_id}`            |
+| Infra Terraform State | `AWS_TERRAFORM_BACKEND_BUCKET_NAME`              |
+| Velero Backups        | `velero-{building_block}-{env}-{account-id}`     |
+| Flink Checkpoints     | `checkpoint-{building_block}-{env}-{account-id}` |
+
+---
+
+## 2. Velero Restoration — Full Environment Restore
+
+This procedure restores the entire Obsrv deployment from a **Velero backup**.
+
+### 2.1 Prerequisites
+
+* AWS CLI installed and configured
+* Cluster kubeconfig available
+* Velero CLI installed
+
+**Commands (Install Velero CLI):**
+
+```bash
+wget https://github.com/vmware-tanzu/velero/releases/download/v1.3.2/velero-v1.3.2-linux-amd64.tar.gz
+tar -xvf velero-v1.3.2-linux-amd64.tar.gz -C /tmp
+sudo mv /tmp/velero-v1.3.2-linux-amd64/velero /usr/local/bin
+velero version
+```
+
+### 2.2 Restore Workflow
+
+#### Restore all services
+
+```bash
+velero restore create --from-backup <backup-name>
+```
+
+**Example:**
+
+```bash
+velero restore create --from-backup velero-obsrv-daily-backup-20240904133016-20240904190534
+```
+
+#### Restore a specific namespace (Example: PostgreSQL)
+
+```bash
+velero restore create --from-backup <backup-name> --include-namespaces <namespace>
+```
+
+#### Check Status
+
+```bash
+velero restore describe <restore-name>
+```
+
+### 2.3 Post-Restore Validation
+
+Perform:
+
+* Pod status verification
+* PostgreSQL/Redis data checks
+* Flink/Druid processing resumption
+* Query validation from Superset/Obsrv APIs
+
+---
+
+## 3. Redis & PostgreSQL — Targeted Restoration
+
+This procedure is used if **buckets/paths did not change**, and only data rollback is required.
+
+### 3.1 Pause Streaming and Query Services
+
+Scale deployments to **0 replicas** for:
+
+* Flink jobs
+* Druid
+* Superset
+* API services
+* Web Console
+
+**Examples:**
+
+```bash
+kubectl scale deployment --all --replicas=0 -n druid-raw
+kubectl scale deployment --all --replicas=0 -n flink
+kubectl scale deployment --all --replicas=0 -n superset
+kubectl scale deployment --all --replicas=0 -n dataset-api
+kubectl scale deployment --all --replicas=0 -n web-console
+```
+
+---
+
+### 3.2 PostgreSQL Restore
+
+#### Enter the Pod
+
+```bash
+kubectl exec -it <pod-name> -n <namespace> -- /bin/bash
+```
+
+#### Pre-Cleanup
+
+```sql
+drop database druid_raw;
+drop database obsrv;
+drop database superset;
+
+create database druid_raw;
+create database obsrv;
+create database superset;
+```
+
+#### Copy Backup File
+
+```bash
+kubectl cp ./backup.sql postgresql/obsrv-postgresql-0:/tmp/db.sql
+```
+
+#### Run Restore
+
+```bash
+psql -U postgres -f /tmp/db.sql
+```
+
+---
+
+### 3.3 Redis Restore
+
+#### Download + Decompress
+
+```bash
+bzip2 -dk fulldb-{dd-mm-yyyy}.rdb.bz2
+```
+
+#### Enter Redis Pod
+
+```bash
+kubectl exec -it obsrv-<instance>-redis-master-0 -n redis -- sh
+```
+
+#### Disable AOF + Save
+
+```bash
+redis-cli
+config get save
+config set appendonly no
+config set save ""
+SAVE
+```
+
+#### Overwrite DB File
+
+```bash
+kubectl cp ./dump.rdb redis/obsrv-<instance>-redis-master-0:/data/dump.rdb
+kubectl delete pod obsrv-<instance>-redis-master-0 -n redis
+```
+
+#### Verification
+
+```bash
+kubectl exec -it obsrv-<instance>-redis-master-0 -n redis -- sh -c 'redis-cli info'
+```
+
+#### Re-enable Configs
+
+```bash
+redis-cli
+config set appendonly yes
+config set save "3600 1 300 100 60 10000"
+SAVE
+```
+
+---
+
+## 4. Resume Services
+
+Once Postgres/Redis is restored:
+
+```bash
+kubectl scale deployment --all --replicas=1 -n flink
+kubectl scale deployment --all --replicas=1 -n druid-raw
+kubectl scale deployment --all --replicas=1 -n superset
+kubectl scale deployment --all --replicas=1 -n dataset-api
+kubectl scale deployment --all --replicas=1 -n web-console
+```
+
+Verify datasets and pipeline resumes in Obsrv console.
+
+---
+
+## 5. Druid Segment Migration — S3 Bucket to S3 Bucket
+
+This section **changes metadata in PostgreSQL** so Druid looks at a **new S3 bucket**.
+
+### 5.1 Preconditions
+
+* Segment files must already be copied into target bucket
+* Druid scaled down:
+
+```bash
+kubectl scale deployment --all --replicas=0 -n druid-raw
+```
+
+---
+
+### 5.2 Create Python Pod
+
+`python_server.yaml`:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: python-pod
+  labels:
+    app: python-app
+spec:
+  containers:
+  - name: python-container
+    image: python:3.9
+    command: ["sleep", "3600"]
+```
+
+Apply:
+
+```bash
+kubectl apply -f python_server.yaml -n postgresql
+```
+
+Install dependency:
+
+```bash
+pip install psycopg2
+```
+
+---
+
+### 5.3 Migration Script
+
+Copy script:
+
+```bash
+kubectl cp ./druid-migrate.py postgresql/python-pod:/tmp/druid-migrate.py
+```
+
+**druid-migrate.py**
+
+```python
+import psycopg2, json
+
+conn = psycopg2.connect(
+    host="obsrv-postgresql-hl.postgresql.svc.cluster.local",
+    port=5432,
+    database="druid_raw",
+    user="druid_raw",
+    password=""
+)
+
+cur = conn.cursor()
+cur.execute("SELECT * FROM druid_segments")
+
+for row in cur.fetchall():
+    loadSpec = json.loads(row[8].tobytes())['loadSpec']
+    print("\nloadSpec before:", json.dumps(loadSpec))
+    loadSpec['bucket'] = "new-bucket-name"
+    print("loadSpec after:", json.dumps(loadSpec))
+    payload = json.loads(row[8].tobytes())
+    payload['loadSpec'] = loadSpec
+    sql = "UPDATE druid_segments SET payload=%s WHERE id=%s"
+    val = (memoryview(json.dumps(payload).encode()), row[0])
+    cur.execute(sql, val)
+
+conn.commit()
+conn.close()
+print("\nMigration Completed.")
+```
+
+Run:
+
+```bash
+python /tmp/druid-migrate.py
+```
+
+You should see logs like:
+
+```
+loadSpec before: {"type":"s3_zip","bucket":"old-bucket"...}
+loadSpec after: {"type":"s3_zip","bucket":"new-bucket"...}
+```
+
+---
+
+### 5.4 Verification Script
+
+Copy:
+
+```bash
+kubectl cp ./data-verification.py postgresql/python-pod:/tmp/data-verification.py
+```
+
+**data-verification.py**
+
+```python
+import psycopg2, json
+
+conn = psycopg2.connect(
+    host="obsrv-postgresql-hl.postgresql.svc.cluster.local",
+    port=5432,
+    database="druid_raw",
+    user="druid_raw",
+    password=""
+)
+
+cur = conn.cursor()
+cur.execute("SELECT * FROM druid_segments LIMIT 1")
+row = cur.fetchone()
+print(json.loads(row[8].tobytes()))
+```
+
+Expected Output:
+
+```
+'loadSpec': {'bucket': 'new-bucket-name', ...}
+```
+
+---
+
+### 5.5 Restart Druid
+
+```bash
+kubectl scale deployment --all --replicas=1 -n druid-raw
+```
+
+Check Historical logs and Druid console — segments should load successfully.
+
+---
+
+:::note
+Ensure that you have appropriate permissions and access rights to execute these commands within the Kubernetes environment. Replace placeholders such as \<pod-name\>, \<namespace\>, \<local-file-path\>, \<backup-file\>, \<username\>, and \<database-name\> with the actual values relevant to your setup.
+:::

@@ -1,0 +1,21 @@
+# Build output
+/dist
+/.astro
+
+# Dependencies
+/node_modules
+
+# Environment
+.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Claude Code
+CLAUDE.md

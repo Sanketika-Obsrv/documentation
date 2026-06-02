@@ -1,0 +1,167 @@
+---
+title: "Alerts Notification Setup Guide"
+description: "This document provides a detailed overview of how to create alert rules for effective monitoring and alerting."
+sidebar:
+  order: 3
+---
+
+## Introduction
+
+An alert rule defines the conditions under which a notification should be triggered. It includes queries to select and evaluate specific datasets, a threshold-based alert condition that determines when the alert should fire, an evaluation interval and duration that specify how often the rule runs and how long the condition must be met, and additional customizable options such as handling missing data, configuring notification messages, and more.
+
+## Alert Notification Setup Workflow Overview
+
+Setting up alerts allows you to proactively monitor your system and get notified when specific conditions occur. The process involves two main components that need to be configured in sequence:
+
+1. **Notification Channel:** Defines how and where alert notifications will be sent (e.g., to a specific email address, a Slack channel, etc.). Think of this as setting up the "delivery method" for your alerts.
+2. **Alert Rule:** Defines what condition should be monitored (e.g., CPU usage exceeding 90%) and when an alert should be triggered. This rule will then use a pre-configured Notification Channel to send the actual notification.
+
+## Creating an Email Notification Channel
+
+### 1. Navigate to Notification Channels
+
+![Grafana left-hand sidebar with Notification Channels option highlighted](/assets/notifications/setup-step1-nav-channels.png)
+
+- Look at the left-hand sidebar menu.
+- Click on **Notification Channels**.
+
+### 2. Start Creating a New Channel
+
+![Notification Channels page with Add Channel button in top-right corner](/assets/notifications/setup-step2-add-channel.png)
+
+- On the **Notification Channels** page, click the blue **Add Channel** button in the top-right corner.
+
+### 3. Select Channel Type and Name
+
+![Select Notification Channel screen with Channel Name field and Channel dropdown](/assets/notifications/setup-step3-select-channel.png)
+
+- You'll be on the **Select Notification Channel** screen.
+- In the **Channel Name** field, type a descriptive name, like `Email Notification Channel` or `Email`.
+- In the **Channel** dropdown on the right, select **Email** (or any other communication mode listed like Slack).
+
+### 4. Configure Email Details
+
+![Configure Notification Channel section with Recipient Addresses field](/assets/notifications/setup-step4-configure-email.png)
+
+- A new section **Configure Notification Channel** will appear.
+- In the **Recipient Addresses** field (separated by `;`), enter the email address (or multiple addresses separated by semicolons) where you want to receive alerts. For example: `user1@example.com;user2@example.com`.
+- (Optional) You can add a standard message in the **Optional Message** field if you like.
+
+### 5. Test the Channel (Recommended)
+
+![Test Notification Channel pop-up with Send Message button](/assets/notifications/setup-step5-test-channel.png)
+
+- Click the **Test Channel** button.
+- A pop-up **Test Notification Channel** will appear.
+- Click **Send Message**.
+- Check the email inbox you provided. You should receive a test message confirming the integration works.
+- Click the **Add Notification Channel** button at the bottom.
+
+### 6. Publish the Channel
+
+![Notification Channels list showing new channel with DRAFT status and Publish button](/assets/notifications/setup-step6-publish-channel.png)
+
+- You'll be taken back to the **Notification Channels** list.
+- Find the channel you just created. It will have a **DRAFT** status next to it.
+- Click the **Publish** button associated with your new draft channel.
+- Your channel status should change to **LIVE**.
+
+## Creating the Alert Rule
+
+### 1. Navigate to Alerts
+
+![Alerts page with Custom Alerts tab selected and Add Alert Rule button](/assets/notifications/setup-step7-nav-alerts.png)
+
+- Look at the left-hand sidebar menu.
+- Click on **Alerts**.
+- Make sure the **Custom Alerts** tab is selected.
+- Click the blue **Add Alert Rule** button in the top-right corner.
+
+### 2. Select Notification Channel for this Rule (Optional)
+
+![Add Alert Rule page — Notification Channel section with dropdown](/assets/notifications/setup-step8-select-channel.png)
+
+- On the **Add Alert Rule** page, the first section is **Notification Channel**.
+- Click the dropdown menu under **Notification Channels**.
+- Select the **Notification Channel** you created.
+
+### 3. Build the Query (Define What to Monitor)
+
+![Query Builder section with Component dropdown showing Infra selected](/assets/notifications/setup-step9-query-component.png)
+
+- Go to the **Query Builder** section.
+- Click the **Component** dropdown and select the system you want to monitor (e.g., `Infra`).
+
+![Query Builder with Metric dropdown showing alert options for the selected component](/assets/notifications/setup-step9-query-metric.png)
+
+- Click the **Metric** dropdown that appears.
+- Select the specific pre-registered metric you care about (e.g., `[KAFKA]: High CPU Usage Detected. System Under Heavy Load.`).
+
+![Query Builder with Operator and Threshold fields filled in](/assets/notifications/setup-step9-query-threshold.png)
+
+- Choose the **Operator** (how to compare the metric). Example: `Greater than (>)`.
+- Enter the **Threshold** value that triggers the alert. Example: `90` (meaning alert if CPU usage is greater than 90%).
+
+### 4. Preview the Metric (Optional but Recommended)
+
+![Graph showing historical data for the selected metric after clicking Run Query](/assets/notifications/setup-step10-preview.png)
+
+- Click the **Run Query** button.
+- A graph will appear showing the historical data for the metric you selected. This helps confirm you're monitoring the right thing.
+
+### 5. Configure Rule Details
+
+![Rule Configuration section with Name, Description, Severity, Frequency and Interval fields](/assets/notifications/setup-step11-rule-config.png)
+
+- Scroll down to the **Rule Configuration** section.
+- Enter a descriptive **Name** for your alert rule. Example: `Kafka High CPU Warning`.
+- Enter a **Description** explaining what this alert means. Example: `High CPU usage in Kafka may impact data processing and system performance.`
+- Select a **Severity** level (e.g., Warning, Critical). Example: `Warning`.
+- Adjust the **Frequency** and **Interval** sliders:
+  - **Interval:** How far back the data is checked (e.g., check the last 5 minutes of data).
+  - **Frequency:** How often the rule is checked (e.g., check every 5 minutes).
+
+### 6. Add Labels (Optional but useful for organization)
+
+![Labels section with key-value tag input and Create Rule button at the bottom](/assets/notifications/setup-step12-labels.png)
+
+- Go to the **Labels** section.
+- You can add tags (key-value pairs) to categorize your alerts.
+- Click the **Create Rule** button at the bottom to save the alert rule.
+
+### 7. Publish the Alert Rule
+
+![Alert Rules list showing new rule with DRAFT status and Publish button in Actions column](/assets/notifications/setup-step13-publish-rule.png)
+
+- You'll be taken back to the **Alert Rules** list.
+- Find the alert rule you just created. It will have a **DRAFT** status.
+- Click the **Publish** button associated with your new draft rule.
+- The status should change to **ACTIVE** or similar.
+
+### 8. Viewing Alert Rule Details
+
+![Alert rule detail View page showing all configured fields including Labels, Status, Severity](/assets/notifications/setup-step14-view-rule.png)
+
+- On the **Alert Rules** page (ensure **Custom Alerts** tab is selected), find the specific alert rule you want to view.
+- In the row for that alert rule, look under the **Actions** column.
+- Click the **eye icon**.
+- You will be taken to a detailed **View** page for that alert rule.
+- This page displays all configured information: Labels, Status, Description, Severity, Frequency, Interval, Notification Channel, and more.
+- You cannot directly edit fields on this page, but you can use the buttons at the top right (like Edit, Mute) to perform further actions. Click **Back** to return to the list.
+
+### Silencing an Alert Rule
+
+![Silence Alert pop-up with duration options: 1 hour, 2 hours, etc.](/assets/notifications/setup-step15-silence.png)
+
+- On the **Alert Rules** page (ensure **Custom Alerts** tab is selected), find the specific alert rule you want to silence.
+- In the row for that alert rule, look under the **Actions** column.
+- Click the **bell icon**.
+- A pop-up window titled **Silence Alert for:** will appear.
+- Select how long you want to stop receiving notifications for this specific alert (e.g., 1 hour, 2 hours).
+- The alert manager will stop sending notifications to that alert rule for the specified duration, even if the alert condition is met.
+- The alert continues to be evaluated in the background, but no messages will be sent to contact points.
+- After the silencing period ends, notifications will resume automatically if the alert condition is still active.
+
+:::note
+For instructions on modifying an existing rule, see [Alerts Modification](/how-tos/alerts-and-notifications/alerts-modification/).
+:::

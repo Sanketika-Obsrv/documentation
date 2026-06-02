@@ -1,0 +1,56 @@
+---
+title: "Notification Template Setup Guide"
+description: "This Document provides a detailed overview on how to create notification template in Grafana."
+sidebar:
+  order: 4
+---
+
+## Introduction
+
+Creating notification templates in Grafana ensures alert messages are clear, structured, and easy to understand, helping teams respond faster and more effectively. Notification templates allow you to customize the content of your notifications, such as the subject of an email or the body of a Slack message. This makes alerts more informative and consistent, clearly explaining the cause and context of issues in a standardized way.
+
+## Basic Guide to Creating Custom Notification Templates
+
+### 1. Navigate to the Contact Points
+
+![Grafana left-hand navigation menu showing Alerting dropdown with Contact Points option](/assets/notifications/template-step1-contact-points.png)
+
+- From the main menu, locate the left-hand navigation menu.
+- Click on the **Contact Points** option under the **Alerting** dropdown.
+
+### 2. Add New Notification Template
+
+![Notification Templates tab next to Contact Points with Add Notification Template button](/assets/notifications/template-step2-add-template.png)
+
+- Click on **Notification Templates** beside the Contact Points.
+- Click **Add Notification Template** to create the new notification template.
+
+### 3. Define and Test the Template Output
+
+![Template editor with Name field, Edit Payload section, and Preview button](/assets/notifications/template-step3-define-template.png)
+
+- **Enter a Name:** Provide a meaningful name for your notification template.
+- **Edit Payload:** Click on **Edit Payload** to start customizing the template.
+- **(Optional) Use Existing Alert Data:**
+  - **Select an Existing Alert Instance:** From the dropdown, choose **Use an existing alert instance**.
+  - **Pick Firing Instances:** Select one or more firing instances associated with the chosen alert rule.
+  - **Add Alert Data to Payload:** Click on **Add the alert data to payload** to include the relevant alert information into your template.
+- **Format the Template:** In the Template field, use only the necessary fields from the payload to define how your notification message should be structured and displayed.
+- **Preview the Template:** Click on **Preview** (located at the top-right corner) to view how the notification message will appear.
+- **Review and Save:** Review the output carefully, make any necessary adjustments, and save the template.
+
+To know more about the templating, refer to the [Alerting template language](https://grafana.com/docs/grafana/latest/alerting/configure-notifications/template-notifications/language/).
+
+### 4. Attach Notification Template to a Contact Point (Optional)
+
+![Contact point configuration form showing Optional settings with Edit Message and template selection](/assets/notifications/template-step4-attach-contact-point.png)
+
+- On the **Contact Points** tab, find and open the existing contact point where you want to apply the notification template.
+- From Integration, select a type and fill out mandatory fields. For example, if you choose email, enter the email addresses.
+- In **Optional settings**, click **"Edit Message"**, select **"Select existing notification template"**, and choose the template you created earlier.
+- Once all the necessary and optional settings are configured, save the contact point.
+- Once the alert is triggered, the customized notification template will be applied and can be viewed in the email body and subject as per the selected templates.
+
+:::note
+Once the Notification Template is created, you must associate it with a Contact Point to ensure it is used when alerts are triggered. This links the customized alert message with the delivery channel (e.g., email, Slack).
+:::

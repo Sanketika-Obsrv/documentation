@@ -1,0 +1,231 @@
+---
+title: "Storage System Alerts and Recommended Actions"
+description: "This document details the various alert rules configured within the system, providing information on their impact, potential causes, and recommended actions."
+sidebar:
+  order: 5
+---
+
+### ALERT\_1401: [SECOR]: High Disk Usage Detected
+
+**Severity:** `critical`
+
+**Affected System:** Secor Storage
+
+**Impact Summary:** High disk usage in Secor can delay saving processed data into the system.
+
+**Causes:**
+
+- The system is running out of disk space.
+- Volume autoscaling might be disabled.
+- Volume autoscaling may have failed due to threshold limits, subject to cloud provider limitations on scaling frequency.
+- A high volume of data is being written to the persistent storage.
+- A lot of old or unused data is accumulated in the PV.
+
+**Actions:**
+
+- Enable the auto scaling of volume.
+- Increase the volume size of the secor system.
+- Adjust the volume autoscaler to a higher threshold percentage. This proactive measure will increase volume at a greater utilization level, preventing frequent scaling.
+- Increase the PV size if needed.
+- For more assistance, contact the administrative support.
+
+**Component:** `Storage: Secor[]`
+
+---
+
+### ALERT\_1402: [PERSISTENT VOLUMES]: Storage volume resize request not processed by autoscaler
+
+**Severity:** `critical`
+
+**Affected System:** Persistent Volumes Storage
+
+**Impact Summary:** The volume autoscaler failed to process the request to increase storage capacity, which may lead to system instability.
+
+**Causes:**
+
+- Persistent Volume (PV) Resizing is ignored by the Volume Autoscaler.
+- The available storage in the cluster is insufficient to resize PV.
+- The volume autoscaler might not be enabled.
+
+**Actions:**
+
+- Review the ignored PVs and verify if they are intentionally excluded from auto-scaling by the auto scaler.
+- Check if autoscaler is enabled and configured properly.
+- Ensure there is enough free storage in the cluster.
+- For more assistance, contact the administrative support.
+
+**Component:** `Storage: Persistent volumes[]`
+
+---
+
+### ALERT\_1403: [PERSISTENT VOLUMES]: Failed to automatically expand storage volume
+
+**Severity:** `critical`
+
+**Affected System:** Persistent Volumes Storage
+
+**Impact Summary:** The volume autoscaler failed to expand the storage space (PV) due to certain limitations of the cloud provider. As a result, the system may become unhealthy.
+
+**Causes:**
+
+- Volume Autoscaler failed to resize the Persistent Volume.
+- Available storage in the cluster is insufficient to resize PV.
+- Volume autoscaler might be misconfigured.
+
+**Actions:**
+
+- Check if there is enough free storage in the cluster and allocate more if needed, or enable autoscaling.
+- Verify that the volume autoscaler is enabled and correctly configured.
+- For more assistance, contact the administrative support.
+
+**Component:** `Storage: Persistent volumes[]`
+
+---
+
+### STORAGE\_PG\_BACKUP\_004: [POSTGRESQL BACKUP]: PostgreSQL database backup not found
+
+**Severity:** `critical`
+
+**Affected System:** PostgreSQL backup Storage
+
+**Impact Summary:** Missing PostgreSQL database backup can risk data loss during failures or rollbacks, impacting data recovery.
+
+**Causes:**
+
+- The backup job may have failed.
+- The PostgreSQL service is down.
+- The connection credentials could be incorrect.
+- The job scheduler configuration may be incorrect.
+
+**Actions:**
+
+- Review the logs of the backup job to identify any errors or failures.
+- Ensure that the PostgreSQL service is running and accessible. Restart it if necessary.
+- Confirm that the database credentials used for the backup are correct.
+- Check if the job scheduler is configured correctly and running as expected.
+- Ensure there is enough storage available for the backup process.
+- For more assistance, contact the administrative support.
+
+**Component:** `Storage: PostgreSQL backup[]`
+
+---
+
+### STORAGE\_SECOR\_UNIQUE\_005: [SECOR UNIQUE]: Kafka data backup not found
+
+**Severity:** `critical`
+
+**Affected System:** Secor - Unique Storage
+
+**Impact Summary:** Missing Secor unique data backup can lead to permanent loss of Kafka messages, affecting data reliability and historical analysis in downstream systems.
+
+**Causes:**
+
+- The Secor service might not be running or has crashed.
+- Insufficient storage space for backups.
+- The connection to the storage destination (e.g., S3) is unavailable.
+
+**Actions:**
+
+- Review logs to identify specific errors causing the failure.
+- Ensure that Secor is running and restart if necessary.
+- Ensure that the target storage location has enough space and is accessible.
+- Review Secor configuration files for misconfigurations.
+- For more assistance, contact the administrative support.
+
+**Component:** `Storage: Secor - Unique[]`
+
+---
+
+### STORAGE\_SECOR\_006: Postgres database backup failed
+
+**Severity:** `critical`
+
+**Affected System:** Secor - Unique Storage
+
+**Impact Summary:** The PostgreSQL database backup has not occurred within the expected timeframe, requiring immediate investigation to prevent potential data loss.
+
+**Actions:**
+
+- The PostgreSQL database backup has not occurred within the expected timeframe. Please investigate immediately or contact administrative support for assistance.
+
+**Component:** `Storage: Secor - Unique[]`
+
+---
+
+### STORAGE\_SECOR\_INGESTION\_005: [SECOR INGESTION]: Kafka data backup not found
+
+**Severity:** `critical`
+
+**Affected System:** Secor - Ingestion Storage
+
+**Impact Summary:** Missing Secor ingestion data backup can lead to permanent loss of Kafka messages, affecting data reliability and historical analysis in downstream systems.
+
+**Causes:**
+
+- The Secor service might not be running or has crashed.
+- Insufficient storage space for backups.
+- The connection to the storage destination (e.g., S3) is unavailable.
+
+**Actions:**
+
+- Review logs to identify specific errors causing the failure.
+- Ensure that Secor is running and restart if necessary.
+- Ensure that the target storage location has enough space and is accessible.
+- Review Secor configuration files for misconfigurations.
+- For more assistance, contact the administrative support.
+
+**Component:** `Storage: Secor - Ingestion[]`
+
+---
+
+### STORAGE\_SECOR\_DENORM\_005: [SECOR DENORM]: Kafka data backup not found
+
+**Severity:** `critical`
+
+**Affected System:** Secor - Denorm Storage
+
+**Impact Summary:** Missing Secor denorm data backup can lead to permanent loss of Kafka messages, affecting data reliability and historical analysis in downstream systems.
+
+**Causes:**
+
+- The Secor service might not be running or has crashed.
+- Insufficient storage space for backups.
+- The connection to the storage destination (e.g., S3) is unavailable.
+
+**Actions:**
+
+- Review logs to identify specific errors causing the failure.
+- Ensure that Secor is running and restart if necessary.
+- Ensure that the target storage location has enough space and is accessible.
+- Review Secor configuration files for misconfigurations.
+- For more assistance, contact the administrative support.
+
+**Component:** `Storage: Secor - Denorm[]`
+
+---
+
+### ALERT\_1408: [VELERO]: Kubernetes cluster backup not found
+
+**Severity:** `critical`
+
+**Affected System:** Velero backup Storage
+
+**Impact Summary:** The backup process for the Kubernetes cluster failed, resulting in the system and its associated data may not be recoverable in the event of a failure or outage, impacting availability, disaster recovery, and rollback capabilities.
+
+**Causes:**
+
+- The backup process has stopped due to a service failure.
+- The Velero backup job has exceeded the allowed time or encountered an error.
+- The backup destination is full.
+- Storage credentials provided are incorrect.
+- Velero is not able to connect to the S3 storage.
+
+**Actions:**
+
+- Ensure Velero is up and running.
+- Run Velero logs to identify specific errors.
+- Ensure the backup destination has enough space and is accessible.
+- Confirm correct credentials and backup settings in Velero.
+- For more assistance, contact the administrative support.
+
+**Component:** `Storage: Velero backup[]`

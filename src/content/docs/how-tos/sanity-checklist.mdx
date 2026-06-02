@@ -1,0 +1,44 @@
+---
+title: "Sanity Checklist"
+description: "After installation, a sanity test must be performed to validate the deployment"
+sidebar:
+  order: 9
+---
+
+Use this checklist after installation or migration to validate your Obsrv deployment end-to-end.
+
+| Category | Check Item | Status |
+|---|---|---|
+| **Ingestion** | All ingestion connectors running with expected replicas | (✔/✘) |
+| | Data flowing from all expected upstream sources | (✔/✘) |
+| | No ingestion backlog in Kafka topics | (✔/✘) |
+| | Schema validation passing for incoming messages | (✔/✘) |
+| | No ingestion error messages from the connector pods | (✔/✘) |
+| | The resource configurations are correct as per the environment and load | (✔/✘) |
+| **Processing** | The unified pipeline, cache-indexer and lakehouse-connector jobs in `RUNNING` state with expected replica configurations | (✔/✘) |
+| | Checkpointing active and stable | (✔/✘) |
+| | 0% failed events (No schema and deduplicate events) and no higher lag | (✔/✘) |
+| | Kafka partitions match Flink job configs and are correct as per the load and environment | (✔/✘) |
+| | No errors in the pod logs | (✔/✘) |
+| **Querying** | Druid ingestion tasks running and segments published | (✔/✘) |
+| | Hudi datasets up-to-date and queryable | (✔/✘) |
+| | Query APIs responding within acceptable latency | (✔/✘) |
+| | Able to query realtime and historical data from both Hudi and Druid | (✔/✘) |
+| | Spot checks return correct and fresh data | (✔/✘) |
+| **Storage** | Velero backups completed successfully | (✔/✘) |
+| | Kafka/Druid/Hudi backups available | (✔/✘) |
+| | Secor backup service is running healthy | (✔/✘) |
+| | Dataset events Secor backup files are available in the blob storage | (✔/✘) |
+| | No error or higher amount of lag in the Secor service | (✔/✘) |
+| | Restore test performed in staging (optional) | (✔/✘) |
+| **Monitoring** | All key metrics collected (Kafka, Flink, Druid, Hudi, APIs) | (✔/✘) |
+| | Grafana dashboards rendering without gaps | (✔/✘) |
+| | No abnormal spikes in error rates, latency, or usage | (✔/✘) |
+| **Alerts** | All alerting rules enabled and targeting correct channels | (✔/✘) |
+| | Test alerts sent and acknowledged | (✔/✘) |
+| | Critical alert thresholds correctly configured | (✔/✘) |
+| **Management Console** | Management console is accessible | (✔/✘) |
+| | All the datasets are healthy | (✔/✘) |
+| | CPU, Memory, Volume usages are not abnormal | (✔/✘) |
+| | All service pods in `Running` state with expected restarts | (✔/✘) |
+| **Final** | End-to-end data flow verified (Ingestion → Processing → Storage → Query) | (✔/✘) |

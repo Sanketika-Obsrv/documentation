@@ -1,0 +1,59 @@
+---
+title: "Configure Lakehouse Store"
+description: "This documentation will help you configure Apache Hudi lakehouse data storage for your dataset"
+sidebar:
+  order: 10
+---
+
+## Enable the Lakehouse Store
+
+Lakehouse storage is configurable but disabled by default. It must be enabled at the web console and API service level.
+
+**Follow these steps:**
+
+1. Update the management-console/web-console Helm chart's `values.yaml` file by setting `lake_house: true` under the `STORAGE_TYPES` configuration:
+
+   ```yaml
+   STORAGE_TYPES: '{"lake_house":true,"realtime_store":true}'
+   ```
+
+2. Update the dataset-api Helm chart's `values.yaml` file by setting `lake_house: true` under the `storage_types` configuration:
+
+   ```yaml
+   storage_types: '{"lake_house":true,"realtime_store":true}'
+   ```
+
+3. Upgrade both the management-console/web-console and dataset-api Helm charts for the changes to take effect.
+
+4. Access the Obsrv console and configure the **lakehouse store** to your dataset.
+
+---
+
+## How to configure lakehouse store to your dataset?
+
+Follow this video to learn how to configure lakehouse storage for your dataset:
+
+[Watch: Configure Lakehouse Storage for a Dataset (Google Drive)](https://drive.google.com/file/d/1o-vmHMyhphoQWQIIgPRQhvJ53tp1QKD9/view?usp=sharing)
+
+---
+
+## How to query the data lake?
+
+You can query the data lake in two ways:
+
+**1. Query through Superset:**
+
+[Watch: Query Data Lake via Superset (Google Drive)](https://drive.google.com/file/d/1hhRjeTDiCCUf9vqdr5XPsjja57DebpkA/view?usp=sharing)
+
+**2. Query using Trino API:**
+
+[Watch: Query Data Lake via Trino API (Google Drive)](https://drive.google.com/file/d/1DtlaX3LN-TUZubByRjTNy21_jiytKFAq/view?usp=sharing)
+
+```bash
+curl --location 'http://localhost:8080/v1/statement' \
+  --header 'X-Trino-User: trino' \
+  --header 'X-Trino-Catalog: lakehouse' \
+  --header 'X-Trino-Schema: hms' \
+  --header 'Content-Type: text/plain' \
+  --data 'SELECT * FROM {{datasource}}'
+```

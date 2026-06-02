@@ -1,0 +1,34 @@
+---
+title: "Data In & Out APIs"
+description: List of APIs to write and read data
+---
+
+### Data In (Write) API
+
+The Data In APIs facilitate writing data into datasets, designed to simplify the ingestion of JSON data
+
+> **`POST /v2/data/in/{dataset_id}`** — [View full API reference →](/guides/api-specification/)
+
+### Data Out (Read) APIs
+
+Use the Data Out APIs to fetch data from a dataset with support for SQL and Druid native query formats, suitable for analytics and visualization.
+
+> **`POST /v2/data/query/{dataset_id}`** — [View full API reference →](/guides/api-specification/)
+
+
+### Template APIs
+
+The Template APIs enable efficient management of templates, including creating new templates, updating existing ones, listing all available templates, and retrieving metadata for specific templates. These APIs are designed to facilitate data retrieval from various sources using predefined template formats. They are particularly recommended for production environments where queries remain relatively static and do not require frequent changes.
+
+> **`POST /v2/template/create/{template_id}`** — [View full API reference →](/guides/api-specification/)
+
+> **`POST /v2/template/list`** — [View full API reference →](/guides/api-specification/)
+
+> **`GET /v2/template/read/{template_id}`** — [View full API reference →](/guides/api-specification/)
+
+> **`PATCH /v2/template/update/{template_id}`** — [View full API reference →](/guides/api-specification/)
+
+> **`POST /v2/template/query/{template_id}`** — [View full API reference →](/guides/api-specification/)
+
+> **`DELETE /v2/template/delete/{template_id}`** — [View full API reference →](/guides/api-specification/)
+

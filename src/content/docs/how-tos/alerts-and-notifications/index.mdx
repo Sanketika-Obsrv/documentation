@@ -1,0 +1,41 @@
+---
+title: "Alerts and Notifications"
+description: "Configure alerts and notifications for monitoring system health, performance, and security in Obsrv."
+sidebar:
+  order: 0
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+This documentation provides an overview of how to configure alerts and notifications in the system. Alerts are essential for monitoring system health, performance, and security, while notifications ensure that relevant stakeholders are informed in a timely manner.
+
+## Alerts and Recommended Actions
+
+This section outlines the alert rules for our data platform, which can be broadly categorized into four main systems:
+
+<CardGrid>
+  <LinkCard title="Infrastructure Alerts" href="/how-tos/alerts-and-notifications/alerts-and-recommended-actions/infra-alerts/" description="CPU, memory, disk, and restart alerts for all Obsrv infrastructure components" />
+  <LinkCard title="Ingestion System Alerts" href="/how-tos/alerts-and-notifications/alerts-and-recommended-actions/ingestion-alerts/" description="Alerts for API ingestion, Kafka connectors, and batch connector issues" />
+  <LinkCard title="Processing System Alerts" href="/how-tos/alerts-and-notifications/alerts-and-recommended-actions/processing-alerts/" description="Alerts for pipeline processing, Valkey, PostgreSQL, and dataset validation" />
+  <LinkCard title="Storage System Alerts" href="/how-tos/alerts-and-notifications/alerts-and-recommended-actions/storage-alerts/" description="Alerts for Secor, persistent volumes, PostgreSQL backup, and Velero" />
+</CardGrid>
+
+## Alerts Notifications
+
+This section discusses how to configure the system to send alerts to relevant parties, including setting up notification channels and managing alert frequency.
+
+<CardGrid>
+  <LinkCard title="Alerts Notification Setup" href="/how-tos/alerts-and-notifications/notifications/" description="Set up notification channels such as email, SMS, or third-party integrations" />
+</CardGrid>
+
+## Alerts Modification
+
+This section briefly explains how to change existing alerts and set up new ones using system metrics.
+
+**Modifying Existing Alerts**
+
+We can adjust current alerts by changing their urgency, trigger points, who gets notified, and the troubleshooting steps. This keeps our alerts relevant and useful.
+
+**Configuring New Alerts**
+
+We can also create new alerts by choosing what to monitor (metrics), deciding when to get alerted (thresholds), documenting why it happened and what to do, and specifying who should receive the alert. This helps us catch new issues early.
