@@ -1,10 +1,26 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import { visit } from 'unist-util-visit';
+
+const base = '/documentation';
+
+function remarkFixImagePaths() {
+  return function (tree) {
+    visit(tree, 'image', function (node) {
+      if (node.url.startsWith('/') && !node.url.startsWith(base)) {
+        node.url = base + node.url;
+      }
+    });
+  };
+}
 
 export default defineConfig({
   site: 'https://sanketika-obsrv.github.io',
-  base: '/documentation',
+  base,
+  markdown: {
+    remarkPlugins: [remarkFixImagePaths],
+  },
   integrations: [
     starlight({
       title: 'Obsrv',
