@@ -41,7 +41,7 @@ export default defineConfig({
       tableOfContents: { minHeadingLevel: 2, maxHeadingLevel: 3 },
       customCss: ['./src/styles/custom.css'],
       components: {
-        Footer: './src/components/Footer.astro',
+        PageFrame: './src/components/PageFrame.astro',
         SiteTitle: './src/components/SiteTitle.astro',
         Sidebar: './src/components/Sidebar.astro',
         PageTitle: './src/components/PageTitle.astro',
