@@ -518,6 +518,14 @@ ul ul li {
    Footer
    ============================================================ */
 
+/* Starlight sets flex: 1 on the content panel, stretching it to viewport
+   height and pushing our custom footer down with a large gap. Override it
+   so the panel only takes its natural content height. */
+.content-panel:last-child {
+  flex: none;
+  min-height: unset;
+}
+
 .obsrv-footer {
   border-top: 1px solid var(--sl-color-hairline-light);
   padding: 1.5rem 2rem;
