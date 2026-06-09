@@ -664,6 +664,40 @@ ul ul li {
 }
 
 /* ============================================================
+   Key Capabilities — availability colors
+   blue  = available today
+   orange = available in a future release
+   ============================================================ */
+
+.sl-markdown-content .cap-available {
+  color: var(--sl-color-text-accent);
+  font-weight: 500;
+}
+
+.sl-markdown-content .cap-future {
+  color: var(--obsrv-orange);
+  font-weight: 500;
+}
+
+[data-theme='dark'] .sl-markdown-content .cap-future {
+  color: var(--obsrv-orange-light);
+}
+
+/* Stacked list of capabilities within a table cell */
+.sl-markdown-content .cap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+/* Flowing multi-column grid for the Infra capabilities */
+.sl-markdown-content .cap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.55rem 1.5rem;
+}
+
+/* ============================================================
    Responsive
    ============================================================ */
 
