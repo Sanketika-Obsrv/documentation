@@ -5,11 +5,32 @@ import { visit } from 'unist-util-visit';
 
 const base = '/documentation';
 
+// Prepend the site base to root-absolute internal URLs so links/images resolve
+// when the site is served under `/documentation`. Leaves external URLs, anchors,
+// and already-prefixed paths untouched. Covers markdown links/images AND MDX
+// component attributes (e.g. <LinkCard href="/...">).
+function fixInternalUrl(url) {
+  if (typeof url !== 'string') return url;
+  if (!url.startsWith('/') || url.startsWith('//')) return url; // external / protocol-relative
+  if (url === base || url.startsWith(base + '/')) return url;    // already prefixed
+  return base + url;
+}
+
 function remarkFixImagePaths() {
   return function (tree) {
-    visit(tree, 'image', function (node) {
-      if (node.url.startsWith('/') && !node.url.startsWith(base)) {
-        node.url = base + node.url;
+    visit(tree, ['image', 'link'], function (node) {
+      node.url = fixInternalUrl(node.url);
+    });
+    visit(tree, ['mdxJsxFlowElement', 'mdxJsxTextElement'], function (node) {
+      if (!node.attributes) return;
+      for (const attr of node.attributes) {
+        if (
+          attr.type === 'mdxJsxAttribute' &&
+          (attr.name === 'href' || attr.name === 'src') &&
+          typeof attr.value === 'string'
+        ) {
+          attr.value = fixInternalUrl(attr.value);
+        }
       }
     });
   };
