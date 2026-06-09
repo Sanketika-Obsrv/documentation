@@ -216,11 +216,6 @@ a[aria-current='page']:focus {
   box-shadow: none !important;
 }
 
-/* ── Nested sidebar: left-border tree line ── */
-ul ul li {
-  border-inline-start: 1px solid var(--sl-color-hairline-light);
-}
-
 /* ── Sidebar summary caret ── */
 .caret {
   color: var(--sl-color-gray-4);

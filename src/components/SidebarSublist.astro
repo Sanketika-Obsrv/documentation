@@ -166,17 +166,14 @@ const entryRestoreIndices = sublist.map((entry) => {
     overflow-wrap: anywhere;
   }
 
-  /* Nested lists: a single continuous vertical guide line + indent gives a
-     clear tree/hierarchy feel (e.g. Explore › Roadmap › FY2025-26). */
+  /* Nested lists: progressive indentation conveys the hierarchy
+     (e.g. Explore → Roadmap → FY2025-26) — no guide line. */
   ul ul {
-    margin-inline-start: 0.6rem;
-    padding-inline-start: 0.8rem;
-    border-inline-start: 1px solid var(--sl-color-hairline-light);
+    padding-inline-start: 1.1rem;
   }
 
   ul ul li {
-    /* indentation now comes from the parent <ul>; remove the per-item
-       border so we don't double up with the global nested-list rule */
+    /* neutralize any inherited nested-list tree line */
     border-inline-start: none;
   }
 
@@ -312,6 +309,11 @@ const entryRestoreIndices = sublist.map((entry) => {
     }
     .large {
       font-size: var(--sl-text-base);
+    }
+    /* Sub-group headers (e.g. Roadmap, Case Studies) sit one tier below the
+       top-level section headers: same weight, slightly smaller. */
+    ul ul .large {
+      font-size: var(--sl-text-sm);
     }
     a {
       font-size: var(--sl-text-sm);

@@ -58,13 +58,15 @@ const icon = isIndex ? SECTION_ICONS[normalised] : undefined;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 50%;
-    background: var(--obsrv-active-bg);
-    border: 1px solid var(--obsrv-active-border);
+    /* Scale the icon with the H1 so it visually matches the title text */
+    font-size: var(--sl-text-h1);
     color: var(--obsrv-active-text);
     flex-shrink: 0;
+  }
+
+  .page-title-icon svg {
+    width: 0.9em;
+    height: 0.9em;
   }
 
   .page-description {
