@@ -1,7 +1,7 @@
 ---
-import { SECTION_ICONS } from '../icons/sections';
+import { SECTION_ICONS, SECTION_ICONS_BY_LABEL } from '../icons/sections';
 
-const { entry } = Astro.locals.starlightRoute;
+const { entry, sidebar } = Astro.locals.starlightRoute;
 
 // Strip .mdx/.md extension — entry.id may be "index.mdx" or "core-concepts/index.mdx"
 const id: string = (entry.id ?? '').replace(/\.mdx?$/, '');
@@ -9,10 +9,76 @@ const topSection = id.includes('/') ? id.split('/')[0] : id;
 const normalised = (topSection === 'index' || topSection === '') ? '' : topSection;
 const isIndex = id === 'index' || id === '' || id.endsWith('/index') || !id.includes('/');
 const icon = isIndex ? SECTION_ICONS[normalised] : undefined;
+
+// ── Breadcrumb trail ────────────────────────────────────────────────────────
+// Derive the path from the sidebar's active branch so labels (and the leading
+// section icon) always match the navigation exactly. The trail holds the
+// ancestor groups of the current page — the page title itself is the leaf.
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
+// A group whose first child is a link sharing its label is a section index;
+// use that link's href so the crumb is navigable.
+function groupIndexHref(group: any): string | undefined {
+  const first = group.entries?.[0];
+  if (first && first.type === 'link' && first.label === group.label) return first.href;
+  return undefined;
+}
+
+function findTrail(entries: any[], acc: Crumb[]): Crumb[] | null {
+  for (const e of entries) {
+    if (e.type === 'link') {
+      if (e.isCurrent) return acc;
+    } else if (e.type === 'group') {
+      const found = findTrail(e.entries, [...acc, { label: e.label, href: groupIndexHref(e) }]);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+const trail: Crumb[] = (!isIndex ? findTrail(sidebar as any[], []) : null) ?? [];
+const breadcrumbIcon = trail.length ? SECTION_ICONS_BY_LABEL[trail[0].label] : undefined;
+const hasBreadcrumbs = trail.length > 0;
 ---
 
+{hasBreadcrumbs && (
+  <nav class="page-breadcrumbs" id="_top" aria-label="Breadcrumb">
+    <ol>
+      {breadcrumbIcon && (
+        <li class="crumb-icon" aria-hidden="true">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            set:html={breadcrumbIcon}
+          />
+        </li>
+      )}
+      {trail.map((crumb, i) => (
+        <li>
+          {crumb.href ? (
+            <a href={crumb.href}>{crumb.label}</a>
+          ) : (
+            <span>{crumb.label}</span>
+          )}
+          {i < trail.length - 1 && <span class="sep" aria-hidden="true">›</span>}
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}
+
 {icon ? (
-  <div class="page-title-wrap" id="_top">
+  <div class="page-title-wrap" id={hasBreadcrumbs ? undefined : '_top'}>
     <span class="page-title-icon" aria-hidden="true">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -30,7 +96,7 @@ const icon = isIndex ? SECTION_ICONS[normalised] : undefined;
     <h1>{entry.data.title}</h1>
   </div>
 ) : (
-  <h1 id="_top">{entry.data.title}</h1>
+  <h1 id={hasBreadcrumbs ? undefined : '_top'}>{entry.data.title}</h1>
 )}
 {entry.data.description && <p class="page-description">{entry.data.description}</p>}
 
@@ -74,5 +140,71 @@ const icon = isIndex ? SECTION_ICONS[normalised] : undefined;
     color: var(--sl-color-gray-2);
     font-size: var(--sl-text-body-sm);
     line-height: 1.5;
+  }
+
+  /* ── Breadcrumbs ── */
+  .page-breadcrumbs {
+    margin-top: 1rem;
+  }
+
+  /* Title sits tight under the breadcrumb trail */
+  .page-breadcrumbs + .page-title-wrap,
+  .page-breadcrumbs + h1 {
+    margin-top: 0.55rem;
+  }
+
+  .page-breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .page-breadcrumbs li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    line-height: 1;
+  }
+
+  /* Leading section icon — same brand hue as the title icon */
+  .page-breadcrumbs .crumb-icon {
+    color: var(--obsrv-active-text);
+  }
+
+  .page-breadcrumbs .crumb-icon svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  .page-breadcrumbs a {
+    color: var(--obsrv-active-text);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: color 0.12s ease;
+  }
+
+  .page-breadcrumbs a:hover,
+  .page-breadcrumbs a:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Non-linked crumbs (e.g. the immediate parent group) recede to gray */
+  .page-breadcrumbs li > span:not(.sep) {
+    color: var(--sl-color-gray-3);
+  }
+
+  .page-breadcrumbs .sep {
+    color: var(--sl-color-gray-4);
+    font-weight: 400;
+    margin-inline-start: 0.1rem;
   }
 </style>

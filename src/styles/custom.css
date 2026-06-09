@@ -229,6 +229,15 @@ a[aria-current='page']:focus {
   padding-block: 2rem;
 }
 
+/* Drop the divider line between the title/description panel and the body.
+   Keep a single, meaningful gap (the title panel's bottom padding) instead
+   of the default border + doubled top padding. */
+.content-panel + .content-panel {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
+}
+
 /* Adjust for narrower screens */
 @media (max-width: 72rem) {
   :root {
@@ -421,19 +430,6 @@ a[aria-current='page']:focus {
 .header site-search button[data-open-modal]:hover {
   border-color: var(--sl-color-accent);
   box-shadow: 0 0 0 3px rgba(79, 134, 200, 0.12);
-}
-
-/* ============================================================
-   Breadcrumbs
-   ============================================================ */
-
-.sl-breadcrumbs a,
-.sl-breadcrumbs li {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--sl-color-gray-3);
 }
 
 /* ============================================================
