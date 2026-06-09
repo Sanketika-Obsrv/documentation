@@ -74,8 +74,8 @@ const entryRestoreIndices = sublist.map((entry) => {
                 <svg
                   class="sidebar-group-icon"
                   xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -104,8 +104,8 @@ const entryRestoreIndices = sublist.map((entry) => {
                     <svg
                       class="sidebar-group-icon"
                       xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
+                      width="18"
+                      height="18"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -168,8 +168,14 @@ const entryRestoreIndices = sublist.map((entry) => {
 
   ul ul li {
     margin-inline-start: var(--sl-sidebar-item-padding-inline);
-    border-inline-start: 1px solid var(--sl-color-hairline-light);
     padding-inline-start: var(--sl-sidebar-item-padding-inline);
+    /* No tree/connector line (overrides the global nested-list rule) */
+    border-inline-start: none;
+  }
+
+  /* A bit more breathing room between nested items */
+  ul ul li + li {
+    margin-top: 0.35rem;
   }
 
   .large {
@@ -295,18 +301,17 @@ const entryRestoreIndices = sublist.map((entry) => {
 
   @media (min-width: 50rem) {
     .top-level > li + li {
-      margin-top: 0.5rem;
+      margin-top: 0.65rem;
     }
     .large {
-      font-size: var(--sl-text-sm);
+      font-size: var(--sl-text-base);
     }
     a {
       font-size: var(--sl-text-sm);
     }
-    /* Top-level direct links (e.g. Community) get .large but should match
-       nested item font size — not the group-header size */
+    /* Top-level direct links (e.g. Community) should match the group-header size */
     .top-level > li > a.large {
-      font-size: var(--sl-text-sm);
+      font-size: var(--sl-text-base);
     }
   }
 </style>
