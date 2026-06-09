@@ -1,7 +1,26 @@
 /* ============================================================
-   Google Fonts — Open Sans
+   Fonts
+   - Google Sans (self-hosted) — body / UI text
+   - IBM Plex Mono (Google Fonts CDN) — code
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+
+/* Google Sans — self-hosted variable font (latin subset, weights 400–700) */
+@font-face {
+  font-family: 'Google Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../fonts/google-sans-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Google Sans';
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../fonts/google-sans-latin-italic.woff2') format('woff2');
+}
 
 /* ============================================================
    Obsrv design tokens — layer 1: global / brand
@@ -19,7 +38,7 @@
   --obsrv-orange-light: #f2956b;
 
   /* ── Typography ── */
-  --sl-font:      'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --sl-font:      'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --sl-font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Code', monospace;
   --sl-text-body-sm: 0.875rem;
   --sl-line-height: 1.75;
@@ -45,6 +64,7 @@
   --obsrv-active-border: hsl(212, 70%, 80%);
   --obsrv-active-text:   hsl(212, 72%, 34%);
   --obsrv-sidebar-border: rgba(0, 0, 0, 0.10);
+  --obsrv-sidebar-card-bg: rgba(255, 255, 255, 0.7);
 
   /* Inline code chip */
   --sl-color-bg-inline-code: hsl(212, 30%, 96%);
@@ -66,6 +86,7 @@
   --obsrv-active-border: rgba(79, 134, 200, 0.32);
   --obsrv-active-text:   hsl(212, 82%, 75%);
   --obsrv-sidebar-border: rgba(255, 255, 255, 0.10);
+  --obsrv-sidebar-card-bg: rgba(255, 255, 255, 0.03);
 
   /* Inline code chip */
   --sl-color-bg-inline-code: hsl(215, 30%, 16%);
@@ -115,7 +136,7 @@
 .sidebar-pane {
   background: transparent !important;
   box-shadow: none !important;
-  border-right: 1px solid var(--obsrv-sidebar-border) !important;
+  border-right: none !important;
 }
 
 nav.sidebar {
@@ -126,10 +147,27 @@ nav.sidebar {
   padding: 0.85rem 1rem 0.85rem 0.85rem;
 }
 
-/* All sidebar links and summaries: 8px radius */
+/* Desktop: wrap the nav in a rounded, bordered card (reference parity) */
+@media (min-width: 50rem) {
+  .sidebar-pane {
+    border-inline-end: none !important;
+  }
+
+  .sidebar-content {
+    height: auto;
+    margin: 0.75rem;
+    padding: 0.85rem;
+    border: 1px solid var(--obsrv-sidebar-border);
+    border-radius: 12px;
+    background: var(--obsrv-sidebar-card-bg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* All sidebar links and summaries: 6px radius */
 .sidebar-content a,
 .sidebar-content summary {
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 /* ── Section group headers ── */
@@ -149,7 +187,7 @@ nav.sidebar {
 
 /* ── Sidebar leaf items ── */
 .sl-sidebar-item a {
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 0.8125rem;
   color: var(--sl-color-gray-2);
   padding: 0.3em 0.6em;
@@ -429,6 +467,37 @@ ul ul li {
 .right-sidebar-panel a[aria-current='true'] {
   color: var(--sl-color-text-accent);
   font-weight: 600;
+}
+
+/* ── Spacing between TOC entries ── */
+.right-sidebar-panel starlight-toc li + li {
+  margin-top: 0.4rem;
+}
+
+/* ── Per-entry Lucide `hash` marker on each TOC link ── */
+.right-sidebar-panel starlight-toc a {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+
+.right-sidebar-panel starlight-toc a::before {
+  content: '';
+  flex: none;
+  width: 0.85em;
+  height: 0.85em;
+  margin-top: 0.32em;
+  background-color: currentColor;
+  opacity: 0.45;
+  transition: opacity 0.12s ease;
+  /* Lucide: hash (ISC) */
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='4' x2='20' y1='9' y2='9'/%3E%3Cline x1='4' x2='20' y1='15' y2='15'/%3E%3Cline x1='10' x2='8' y1='3' y2='21'/%3E%3Cline x1='16' x2='14' y1='3' y2='21'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='4' x2='20' y1='9' y2='9'/%3E%3Cline x1='4' x2='20' y1='15' y2='15'/%3E%3Cline x1='10' x2='8' y1='3' y2='21'/%3E%3Cline x1='16' x2='14' y1='3' y2='21'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.right-sidebar-panel starlight-toc a:hover::before,
+.right-sidebar-panel starlight-toc a[aria-current='true']::before {
+  opacity: 1;
 }
 
 /* ============================================================

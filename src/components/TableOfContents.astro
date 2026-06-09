@@ -1,0 +1,61 @@
+---
+/**
+ * Override of Starlight's TableOfContents.
+ * Adds a Lucide `list-tree` icon beside the "On this page" heading.
+ * Per-entry Lucide `hash` markers are applied via custom.css.
+ * The recursive list is reused from Starlight so scroll-spy keeps working.
+ */
+import TableOfContentsList from '../../node_modules/@astrojs/starlight/components/TableOfContents/TableOfContentsList.astro';
+
+const { toc } = Astro.locals.starlightRoute;
+---
+
+{
+	toc && (
+		<starlight-toc data-min-h={toc.minHeadingLevel} data-max-h={toc.maxHeadingLevel}>
+			<nav aria-labelledby="starlight__on-this-page">
+				<h2 id="starlight__on-this-page" class="toc-heading">
+					{/* Lucide: list-tree (ISC) */}
+					<svg
+						class="toc-heading__icon"
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+					>
+						<path d="M8 5h13" />
+						<path d="M13 12h8" />
+						<path d="M13 19h8" />
+						<path d="M3 10a2 2 0 0 0 2 2h3" />
+						<path d="M3 5v12a2 2 0 0 0 2 2h3" />
+					</svg>
+					<span>{Astro.locals.t('tableOfContents.onThisPage')}</span>
+				</h2>
+				<TableOfContentsList toc={toc.items} />
+			</nav>
+		</starlight-toc>
+	)
+}
+
+<script>
+	import '../../node_modules/@astrojs/starlight/components/TableOfContents/starlight-toc.ts';
+</script>
+
+<style>
+	.toc-heading {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+	}
+
+	.toc-heading__icon {
+		flex: none;
+		width: 0.95em;
+		height: 0.95em;
+		opacity: 0.7;
+	}
+</style>

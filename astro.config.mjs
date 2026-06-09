@@ -42,6 +42,7 @@ export default defineConfig({
         SiteTitle: './src/components/SiteTitle.astro',
         Sidebar: './src/components/Sidebar.astro',
         PageTitle: './src/components/PageTitle.astro',
+        TableOfContents: './src/components/TableOfContents.astro',
       },
       sidebar: [
         {
@@ -123,16 +124,16 @@ export default defineConfig({
           items: [
             { label: 'Releases', slug: 'release-notes' },
             { label: '2.1.0', collapsed: true, autogenerate: { directory: 'release-notes/2.1.0' } },
-            { label: '2.0.0', link: '/release-notes/2.0.0/' },
+            { label: '2.0.0', slug: 'release-notes/200' },
             { label: '1.9.0', collapsed: true, autogenerate: { directory: 'release-notes/1.9.0' } },
-            { label: '1.8.0', link: '/release-notes/1.8.0/' },
-            { label: '1.7.0', link: '/release-notes/1.7.0/' },
+            { label: '1.8.0', slug: 'release-notes/180' },
+            { label: '1.7.0', slug: 'release-notes/170' },
             {
               label: 'Archive',
               collapsed: true,
               items: [
-                { label: '1.1.0-Beta', link: '/release-notes/archive/1.1.0-beta/' },
-                { label: '1.2.0', link: '/release-notes/archive/1.2.0/' },
+                { label: '1.1.0-Beta', slug: 'release-notes/archive/110-beta' },
+                { label: '1.2.0', slug: 'release-notes/archive/120' },
               ],
             },
           ],
