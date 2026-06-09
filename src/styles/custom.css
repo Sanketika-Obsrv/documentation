@@ -185,12 +185,17 @@ nav.sidebar {
 }
 
 
+/* ── Sidebar list spacing: breathing room between items ── */
+.sidebar-content ul li {
+  margin-block: 0.3rem;
+}
+
 /* ── Sidebar leaf items ── */
 .sl-sidebar-item a {
   border-radius: 6px;
   font-size: 0.8125rem;
   color: var(--sl-color-gray-2);
-  padding: 0.3em 0.6em;
+  padding: 0.35em 0.6em;
   transition: background 0.12s ease, color 0.12s ease;
 }
 

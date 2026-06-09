@@ -166,10 +166,17 @@ const entryRestoreIndices = sublist.map((entry) => {
     overflow-wrap: anywhere;
   }
 
+  /* Nested lists: a single continuous vertical guide line + indent gives a
+     clear tree/hierarchy feel (e.g. Explore › Roadmap › FY2025-26). */
+  ul ul {
+    margin-inline-start: 0.6rem;
+    padding-inline-start: 0.8rem;
+    border-inline-start: 1px solid var(--sl-color-hairline-light);
+  }
+
   ul ul li {
-    margin-inline-start: var(--sl-sidebar-item-padding-inline);
-    padding-inline-start: var(--sl-sidebar-item-padding-inline);
-    /* No tree/connector line (overrides the global nested-list rule) */
+    /* indentation now comes from the parent <ul>; remove the per-item
+       border so we don't double up with the global nested-list rule */
     border-inline-start: none;
   }
 
