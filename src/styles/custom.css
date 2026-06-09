@@ -147,6 +147,15 @@ nav.sidebar {
   padding: 0.85rem 1rem 0.85rem 0.85rem;
 }
 
+/* Mobile: the slide-out menu is a full-screen overlay, so it needs a solid
+   background. The transparent pane above is only meant for the desktop card
+   layout — without this the page content bleeds through the open menu. */
+@media (max-width: 49.9375rem) {
+  .sidebar-pane {
+    background: var(--sl-color-bg) !important;
+  }
+}
+
 /* Desktop: wrap the nav in a rounded, bordered card (reference parity) */
 @media (min-width: 50rem) {
   .sidebar-pane {
