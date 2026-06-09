@@ -7,11 +7,11 @@ sidebar:
   order: 5
 ---
 
-### Introduction
+## Introduction
 
 Connectors are one of the core construct of Obsrv in addition to datasets. While datasets provide a construct to manage your data processing , storage and querying layers, connectors provide a construct to manage your data ingress and outgress.
 
-### What does connectors do?
+## What does connectors do?
 
 While Obsrv automatically enables data "push" into the platform there are many use-cases where one has to pull the data from sources. Trying to write custom scripts/jobs to read from many sources and pushing into Obsrv is a complex problem and is prone to quality and reliability issues. "**Connectors**" as a concept is used to solve the problem of pulling data efficiently and reliably. **Connectors** solve quite a few design problems of new age data platforms:
 
@@ -28,12 +28,40 @@ Connectors fall into 4 broad categories:
 3. **File:** Any connector pulling data from file systems or object stores like S3, Azure Blob,  GCS, MinIO etc
 4. **Application:** Custom application specific connector. For ex: A SAP connector to pull data from SAP system.
 
-### Available Connectors
+## Available Connectors
 
-Following are the connectors available out of the box. Connector with _blue_ are available and orange are under incubation and will be available in future releases
+Following are the connectors available out of the box. Connector with <span class="cap-available">blue</span> are available and <span class="cap-future">orange</span> are under incubation and will be available in future releases.
 
-| Connector Type | Connector Source                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Database       | <p>_Postgres_, _MySQL_, _DB2_, _MariaDB_</p><p>Oracle, SQL Server, _Amazon RDS_, _Azure SQL_, _Google Cloud SQL_</p><p>MongoDB, Cassandra, ElasticSearch</p> |
-| Stream         | _Kafka_, Postgresql Debezium, MySQL Debezium, _Neo4j Transactions_, DB2 Debezium, Oracle Debezium, SQL Server Debezium, MongoDB Debezium, Cassandra Debezium                                                                                      |
-| File           | _AWS S3_, Azure Blob Storage, MinIO, Google Cloud Storage                                                                                                                                                                                                                                                                                                                                                                    |
+<table>
+  <thead>
+    <tr>
+      <th>Connector Type</th>
+      <th>Connector Source</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Database</td>
+      <td>
+        <div class="cap-list">
+          <span class="cap-available">Postgres, MySQL, DB2, MariaDB</span>
+          <span><span class="cap-available">Oracle, </span><span class="cap-future">SQL Server, </span><span class="cap-available">Amazon RDS, Azure SQL, Google Cloud SQL</span></span>
+          <span class="cap-future">MongoDB, Cassandra, ElasticSearch</span>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>Stream</td>
+      <td>
+        <span class="cap-available">Kafka, PostgreSQL Debezium, MySQL Debezium, Neo4j Transactions, </span>
+        <span class="cap-future">DB2 Debezium, Oracle Debezium, SQL Server Debezium, MongoDB Debezium, Cassandra Debezium</span>
+      </td>
+    </tr>
+    <tr>
+      <td>File</td>
+      <td>
+        <span class="cap-available">AWS S3, Azure Blob Storage, MinIO, Google Cloud Storage</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
