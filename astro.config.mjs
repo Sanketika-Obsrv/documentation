@@ -158,7 +158,6 @@ export default defineConfig({
                 { label: 'AWS Installation Guide', slug: 'guides/installation/aws-installation-guide' },
                 { label: 'Azure', slug: 'guides/installation/azure-installation-guide' },
                 { label: 'GCP', slug: 'guides/installation/gcp-installation-guide' },
-                { label: 'OCI', slug: 'guides/installation/oci-installation-guide' },
                 { label: 'Data Center', slug: 'guides/installation/data-center-installation-guide' },
               ],
             },
