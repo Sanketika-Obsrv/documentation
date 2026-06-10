@@ -1,0 +1,256 @@
+---
+title: "AWS IAM Policy"
+description: "Required prerequisites, IAM policy definition, and steps to apply the ObsrvIAMRestrictedPolicy for running Obsrv on an Amazon EKS cluster."
+sidebar:
+  order: 1
+---
+
+Obsrv requires specific AWS permissions to create and manage IAM resources and supporting infrastructure when running on an Amazon EKS cluster.
+
+This document describes the **required prerequisites**, **IAM policy definition**, and **steps to apply the policy**.
+
+***
+
+### Overview
+
+Obsrv components rely on AWS services such as IAM, EKS, EC2, VPC, and S3.
+To ensure secure and controlled access, a **restricted IAM policy** (`ObsrvIAMRestrictedPolicy`) is used to grant only the minimum required permissions.
+
+***
+
+### Prerequisites
+
+#### AWS Account Requirements
+
+You must have an AWS account with permissions to create and manage the following resources:
+
+* IAM users, roles, and policies
+* EKS-related IAM resources
+* VPCs
+* EC2 instances
+* S3 buckets
+
+***
+
+#### Environment Setup
+
+Before installing or operating Obsrv:
+
+* Choose the **AWS region** where the existing EKS cluster is running
+* Ensure **kubectl** is configured to access the target EKS cluster
+* Ensure **AWS CLI** is configured with credentials that have **admin-level access** for infrastructure provisioning
+
+***
+
+### IAM Policy: ObsrvIAMRestrictedPolicy
+
+The **ObsrvIAMRestrictedPolicy** defines the **minimum IAM permissions** required to:
+
+* Install Obsrv on an existing EKS cluster
+* Create and manage IAM users, roles, policies, and IRSA configuration required by Obsrv components
+
+***
+
+#### Notes
+
+* Replace `<AWS_ACCOUNT_ID>` with your actual AWS account ID
+* Scope ARNs according to your environment and naming conventions
+* This policy is intended **only** for Obsrv infrastructure setup and IAM configuration
+
+***
+
+### Policy Definition
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "User",
+      "Effect": "Allow",
+      "Action": [
+        "iam:DeleteAccessKey",
+        "iam:CreateUser",
+        "iam:CreateAccessKey",
+        "iam:ListAttachedUserPolicies",
+        "iam:ListAccessKeys",
+        "iam:UpdateUser",
+        "iam:UpdateAccessKey",
+        "iam:DeleteUser",
+        "iam:TagUser",
+        "iam:UntagUser",
+        "iam:GetUser",
+        "iam:ListUserTags",
+        "iam:DetachUserPolicy",
+        "iam:DeleteUserPolicy",
+        "iam:AttachUserPolicy",
+        "iam:CreatePolicy",
+        "iam:GetUserPolicy",
+        "iam:PutUserPolicy",
+        "iam:ListUserPolicies",
+        "iam:ListGroupsForUser",
+        "ec2:DescribeVolumes"
+      ],
+      "Resource": [
+        "arn:aws:iam::<AWS_ACCOUNT_ID>:user/*-s3-user",
+        "arn:aws:iam::<AWS_ACCOUNT_ID>:user/*-velero-user",
+        "arn:aws:iam::<AWS_ACCOUNT_ID>:policy/*-velero-policy",
+        "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+      ]
+    },
+    {
+      "Sid": "Roles",
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetRole",
+        "iam:ListRoleTags",
+        "iam:ListAttachedRolePolicies",
+        "iam:ListRolePolicies",
+        "iam:GetRolePolicy",
+        "iam:UntagRole",
+        "iam:TagRole",
+        "iam:UpdateAssumeRolePolicy",
+        "iam:CreateRole",
+        "iam:PutRolePolicy",
+        "iam:DeleteRolePolicy",
+        "iam:DeleteRole",
+        "iam:AttachRolePolicy",
+        "iam:PassRole",
+        "iam:ListInstanceProfilesForRole",
+        "iam:DetachRolePolicy",
+        "ec2:DescribeVolumes"
+      ],
+      "Resource": [
+        "arn:aws:iam::*:role/*-eks_master_role",
+        "arn:aws:iam::*:role/*-eks_nodes_role",
+        "arn:aws:iam::*:role/*-dataset-api-sa-iam-role",
+        "arn:aws:iam::*:role/*-flink-sa-iam-role",
+        "arn:aws:iam::*:role/*-druid-raw-sa-iam-role",
+        "arn:aws:iam::*:role/*-secor-sa-iam-role",
+        "arn:aws:iam::*:role/*-spark-sa-iam-role",
+        "arn:aws:iam::*:role/*-s3-exporter-sa-iam-role",
+        "arn:aws:iam::*:role/*-postgresql-backup-sa-iam-role",
+        "arn:aws:iam::*:role/*-redis-backup-sa-iam-role",
+        "arn:aws:iam::*:role/*-aws-alb-controller-sa-iam-role",
+        "arn:aws:iam::*:role/aws-service-role/eks-nodegroup.amazonaws.com/AWSServiceRoleForAmazonEKSNodegroup",
+        "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
+        "arn:aws:iam::*:role/*-vpc-flowlogs-role",
+        "arn:aws:iam::*:role/*-service-manager-sa-iam-role",
+        "arn:aws:iam::*:role/*-replay-service-sa-iam-role",
+        "arn:aws:iam::*:role/*-config-api-sa-iam-role",
+        "arn:aws:iam::*:role/*-velero-backup-sa-iam-role",
+        "arn:aws:iam::*:role/*-ebs-csi-driver"
+      ]
+    },
+    {
+      "Sid": "Policies",
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetPolicyVersion",
+        "iam:DeletePolicy",
+        "iam:CreatePolicyVersion",
+        "iam:ListPolicyTags",
+        "iam:GetPolicy",
+        "iam:TagPolicy",
+        "iam:CreatePolicy",
+        "iam:ListPolicyVersions",
+        "iam:UntagPolicy",
+        "iam:DeletePolicyVersion",
+        "ec2:DescribeVolumes"
+      ],
+      "Resource": [
+        "arn:aws:iam::<AWS_ACCOUNT_ID>:policy/*-velero-policy",
+        "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+      ]
+    },
+    {
+      "Sid": "OpenIDForEKS",
+      "Effect": "Allow",
+      "Action": [
+        "iam:ListOpenIDConnectProviders",
+        "iam:RemoveClientIDFromOpenIDConnectProvider",
+        "iam:ListOpenIDConnectProviderTags",
+        "iam:UpdateOpenIDConnectProviderThumbprint",
+        "iam:UntagOpenIDConnectProvider",
+        "iam:AddClientIDToOpenIDConnectProvider",
+        "iam:DeleteOpenIDConnectProvider",
+        "iam:GetOpenIDConnectProvider",
+        "iam:TagOpenIDConnectProvider",
+        "iam:CreateOpenIDConnectProvider",
+        "ec2:DescribeVolumes"
+      ],
+      "Resource": "arn:aws:iam::*:oidc-provider/oidc.eks.*"
+    }
+  ]
+}
+```
+
+***
+
+### Applying the ObsrvIAMRestrictedPolicy
+
+The **ObsrvIAMRestrictedPolicy** must be attached to an **IAM user or IAM role** used during Obsrv installation and operation.
+
+You can apply this policy using either the **AWS Console** or the **AWS CLI**.
+
+***
+
+#### Option 1: Attach Policy Using AWS Console
+
+1. Go to **AWS Console → IAM → Policies**
+2. Click **Create policy**
+3. Select the **JSON** tab
+4. Paste the `ObsrvIAMRestrictedPolicy` JSON definition
+5. Review and **Create policy**
+6. Attach the policy to:
+   * The IAM **user** used for Obsrv installation, **or**
+   * The IAM **role** used for infrastructure provisioning
+
+***
+
+#### Option 2: Attach Policy Using AWS CLI
+
+**Step 1: Save the Policy Definition**
+
+Save the policy JSON to a file:
+
+```bash
+obsrv-iam-policy.json
+```
+
+**Step 2: Create the IAM Policy**
+
+```bash
+aws iam create-policy \
+  --policy-name ObsrvIAMRestrictedPolicy \
+  --policy-document file://obsrv-iam-policy.json
+```
+
+**Step 3: Attach the Policy to a User or Role**
+
+**Attach to an IAM User:**
+
+```bash
+aws iam attach-user-policy \
+  --user-name <IAM_USER_NAME> \
+  --policy-arn arn:aws:iam::<AWS_ACCOUNT_ID>:policy/ObsrvIAMRestrictedPolicy
+```
+
+**Attach to an IAM Role:**
+
+```bash
+aws iam attach-role-policy \
+  --role-name <IAM_ROLE_NAME> \
+  --policy-arn arn:aws:iam::<AWS_ACCOUNT_ID>:policy/ObsrvIAMRestrictedPolicy
+```
+
+***
+
+#### Note: IAM Roles for Service Accounts (IRSA)
+
+Obsrv components use **IAM Roles for Kubernetes ServiceAccounts (IRSA)** to access AWS services.
+
+* If a **single ServiceAccount** is used across namespaces, the **same IAM role** must be referenced in all Obsrv namespaces.
+* If **different ServiceAccounts** are used per namespace, ensure **each IAM role** has the required permissions.
+
+Incorrect IRSA configuration may lead to AWS authentication failures and AWS-dependent Obsrv components not functioning correctly.

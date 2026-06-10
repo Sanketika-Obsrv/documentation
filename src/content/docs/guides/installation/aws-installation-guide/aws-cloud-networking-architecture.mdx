@@ -1,0 +1,134 @@
+---
+title: "AWS Cloud Networking Architecture"
+description: "Scalable, secure, and modular AWS networking architecture for deploying Obsrv, provisioned with Terraform."
+sidebar:
+  order: 2
+---
+
+## 1. Overview
+
+The AWS cloud networking architecture provides a scalable, secure, and modular infrastructure for deploying cloud-based applications. Leveraging Terraform, it automates the provisioning of critical networking components such as VPCs, subnets, routing tables, security groups, and other AWS services. This ensures high availability, fault tolerance, and streamlined management.
+
+1. The architecture uses reusable Terraform modules for VPC, EKS, IAM, S3, and other components.
+2. Designed to easily accommodate additional workloads or services with minimal changes.
+3. Several commented-out modules indicate potential for future enhancements, such as monitoring, ingestion pipelines, and data processing.
+
+***
+
+## 2. Key Components
+
+### A. Virtual Private Cloud (VPC)
+
+* **Purpose**: Provides an isolated networking environment for managing cloud resources.
+* **Features**:
+  * Creation of a VPC to isolate workloads.
+  * Support for multiple Availability Zones (AZs) to ensure fault tolerance and high availability.
+  * Integration with public and private subnets for traffic segregation.
+* **Configuration**:
+  * `var.create_vpc`: Enables or disables VPC creation.
+  * **Public Subnets**: For resources that require internet connectivity (e.g., bastion hosts, load balancers).
+  * **Private Subnets**: For internal workloads such as databases and application servers.
+
+### B. Subnets
+
+* **Types**:
+  * **Public Subnets**: For resources exposed to the internet.
+  * **Private Subnets**: For secure, internal-only resources.
+* **Configuration**:
+  * `var.availability_zones`: Defines the AZs for subnets.
+  * **EKS Subnets**:
+    * **Master Subnet IDs** (`var.eks_master_subnet_ids`): Subnets for EKS master nodes.
+    * **Node Subnet IDs** (`var.eks_nodes_subnet_ids`): Subnets for EKS worker nodes.
+
+### C. Internet Gateway (IGW)
+
+* **Purpose**: Provides internet connectivity to resources in public subnets.
+* **Details**: Automatically created when a VPC is provisioned.
+
+### D. NAT Gateway
+
+* **Purpose**: Allows private subnets to securely access the internet without exposing them directly.
+* **Details**: Configurable for high availability.
+
+### E. Elastic Kubernetes Service (EKS)
+
+* **Purpose**: Manages Kubernetes clusters for containerized applications.
+* **Features**:
+  * Deploys an EKS cluster within the VPC.
+  * Configurable scaling for EKS worker nodes.
+  * Supports private API endpoint access for secure cluster management.
+* **Key Variables**:
+  * `var.eks_endpoint_private_access`: Enables private API access.
+  * `var.eks_node_group_scaling_config`: Configures auto-scaling for worker nodes.
+  * `var.eks_node_group_instance_type`: Defines instance types for EKS nodes.
+
+### F. Security Groups
+
+* **Purpose**: Controls inbound and outbound traffic for AWS resources.
+* **Features**:
+  * Highly customizable rules for restricting or allowing access.
+  * Used by EKS, EC2 instances, and other AWS services.
+
+### G. S3 Storage
+
+* **Purpose**: Provides scalable object storage for backups, logs, and application data.
+* **Features**:
+  * Configurable buckets for various use cases:
+    * Backup storage.
+    * Checkpoints for data processing pipelines.
+  * `var.create_s3_buckets`: Toggles the creation of S3 buckets.
+
+### H. Elastic IP (EIP)
+
+* **Purpose**: Provides static public IP addresses for external connectivity.
+* **Use Cases**: Assigning to resources like load balancers (e.g., Kong Ingress).
+
+### I. Flow Logs
+
+* **Purpose**: Monitors and logs VPC traffic for analysis and compliance.
+* **Features**:
+  * Logs stored in CloudWatch for real-time or historical analysis.
+  * Configurable retention period using `var.flowlogs_retention_in_days`.
+
+### J. Storage Classes
+
+* **Purpose**: Configures storage for Kubernetes workloads.
+* **Features**:
+  * Includes volume encryption to secure data at rest.
+  * Configurable via `var.volume_encryption`.
+
+***
+
+## 3. Security Features
+
+### A. IAM Roles and Policies
+
+* **Purpose**: Manages access control and permissions.
+* **Features**:
+  * Creates roles for services like Velero backups and Kubernetes workloads.
+  * Configurable via `var.create_velero_user` for enabling or disabling user creation.
+
+### B. Encryption
+
+* **Purpose**: Secures sensitive data.
+* **Features**:
+  * Randomly generated keys for encrypting data.
+  * Enables EBS volume encryption for EKS nodes.
+
+***
+
+## 4. Configuration Variables
+
+The architecture is highly customizable with the following variables:
+
+* `var.region`: Specifies the AWS region (e.g., `us-east-2`).
+* `var.create_vpc`: Enables or disables VPC creation.
+* `var.availability_zones`: Defines the availability zones for subnets.
+* `var.eks_node_group_scaling_config`: Configures EKS node group scaling.
+* `var.create_s3_buckets`: Toggles the creation of S3 buckets.
+
+***
+
+## 5. Architecture Diagram
+
+{/* TODO: Export the AWS networking architecture diagram from GitBook (asset id: Cin3Y1dE843BV0Mtoax9), place it under public/assets/, and reference it here. */}
