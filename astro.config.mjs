@@ -5,54 +5,17 @@ import starlightScrollToTop from 'starlight-scroll-to-top';
 import starlightImageZoom from 'starlight-image-zoom';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightOpenAPI from 'starlight-openapi';
-import { visit } from 'unist-util-visit';
-
-const base = '/documentation';
-
-// Prepend the site base to root-absolute internal URLs so links/images resolve
-// when the site is served under `/documentation`. Leaves external URLs, anchors,
-// and already-prefixed paths untouched. Covers markdown links/images AND MDX
-// component attributes (e.g. <LinkCard href="/...">).
-function fixInternalUrl(url) {
-  if (typeof url !== 'string') return url;
-  if (!url.startsWith('/') || url.startsWith('//')) return url; // external / protocol-relative
-  if (url === base || url.startsWith(base + '/')) return url;    // already prefixed
-  return base + url;
-}
-
-function remarkFixImagePaths() {
-  return function (tree) {
-    visit(tree, ['image', 'link'], function (node) {
-      node.url = fixInternalUrl(node.url);
-    });
-    visit(tree, ['mdxJsxFlowElement', 'mdxJsxTextElement'], function (node) {
-      if (!node.attributes) return;
-      for (const attr of node.attributes) {
-        if (
-          attr.type === 'mdxJsxAttribute' &&
-          (attr.name === 'href' || attr.name === 'src') &&
-          typeof attr.value === 'string'
-        ) {
-          attr.value = fixInternalUrl(attr.value);
-        }
-      }
-    });
-  };
-}
 
 export default defineConfig({
+  // Served at the org root (https://sanketika-obsrv.github.io), so no base path.
+  // Root-absolute internal links/images resolve directly — no URL rewriting needed.
   site: 'https://sanketika-obsrv.github.io',
-  base,
   // Scale Infrastructure was promoted from under How-Tos to a top-level section;
-  // redirect the old URLs to the new top-level namespace. Destinations include
-  // the base (Astro does not prepend it to redirect targets).
+  // redirect the old URLs to the new top-level namespace.
   redirects: {
-    '/how-tos/scale-infrastructure': `${base}/scale-infrastructure`,
-    '/how-tos/scale-infrastructure/autoscaling-components': `${base}/scale-infrastructure/autoscaling-components`,
-    '/how-tos/scale-infrastructure/autoscaling-volumes': `${base}/scale-infrastructure/autoscaling-volumes`,
-  },
-  markdown: {
-    remarkPlugins: [remarkFixImagePaths],
+    '/how-tos/scale-infrastructure': '/scale-infrastructure',
+    '/how-tos/scale-infrastructure/autoscaling-components': '/scale-infrastructure/autoscaling-components',
+    '/how-tos/scale-infrastructure/autoscaling-volumes': '/scale-infrastructure/autoscaling-volumes',
   },
   integrations: [
     starlight({

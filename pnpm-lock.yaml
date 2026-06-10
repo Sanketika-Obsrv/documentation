@@ -26,9 +26,6 @@ importers:
       starlight-scroll-to-top:
         specifier: ^1.0.1
         version: 1.0.1(@astrojs/starlight@0.40.0(astro@6.4.5(@types/node@24.13.1)(rollup@4.61.1)(yaml@2.9.0))(typescript@5.9.3))
-      unist-util-visit:
-        specifier: ^5.1.0
-        version: 5.1.0
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.9
