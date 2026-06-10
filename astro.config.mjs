@@ -79,7 +79,7 @@ export default defineConfig({
         {
           label: 'Core Concepts',
           collapsed: true,
-          autogenerate: { directory: 'core-concepts' },
+          items: [{ autogenerate: { directory: 'core-concepts' } }],
         },
         {
           label: 'Explore',
@@ -134,8 +134,8 @@ export default defineConfig({
             },
             { label: 'Dataset Management Console', slug: 'guides/management-console-guide' },
             { label: 'Developer Guide', slug: 'guides/developer-guide' },
-            { label: 'Example Datasets', collapsed: true, autogenerate: { directory: 'guides/example-datasets' } },
-            { label: 'Connectors Developer Guide', collapsed: true, autogenerate: { directory: 'guides/connectors-developer-guide' } },
+            { label: 'Example Datasets', collapsed: true, items: [{ autogenerate: { directory: 'guides/example-datasets' } }] },
+            { label: 'Connectors Developer Guide', collapsed: true, items: [{ autogenerate: { directory: 'guides/connectors-developer-guide' } }] },
           ],
         },
         { label: 'Community', slug: 'community' },
@@ -144,9 +144,9 @@ export default defineConfig({
           collapsed: true,
           items: [
             { label: 'Releases', slug: 'release-notes' },
-            { label: '2.1.0', collapsed: true, autogenerate: { directory: 'release-notes/2.1.0' } },
+            { label: '2.1.0', collapsed: true, items: [{ autogenerate: { directory: 'release-notes/2.1.0' } }] },
             { label: '2.0.0', slug: 'release-notes/200' },
-            { label: '1.9.0', collapsed: true, autogenerate: { directory: 'release-notes/1.9.0' } },
+            { label: '1.9.0', collapsed: true, items: [{ autogenerate: { directory: 'release-notes/1.9.0' } }] },
             { label: '1.8.0', slug: 'release-notes/180' },
             { label: '1.7.0', slug: 'release-notes/170' },
             {
@@ -171,12 +171,12 @@ export default defineConfig({
               label: 'Scale Infrastructure',
               collapsed: true,
               badge: { text: 'Pro Feature', variant: 'tip' },
-              autogenerate: { directory: 'how-tos/scale-infrastructure' },
+              items: [{ autogenerate: { directory: 'how-tos/scale-infrastructure' } }],
             },
             {
               label: 'Troubleshoot',
               collapsed: true,
-              autogenerate: { directory: 'how-tos/troubleshoot' },
+              items: [{ autogenerate: { directory: 'how-tos/troubleshoot' } }],
             },
             {
               label: 'Alerts and Notifications',
@@ -186,12 +186,12 @@ export default defineConfig({
                 {
                   label: 'Alerts and Recommended Actions',
                   collapsed: true,
-                  autogenerate: { directory: 'how-tos/alerts-and-notifications/alerts-and-recommended-actions' },
+                  items: [{ autogenerate: { directory: 'how-tos/alerts-and-notifications/alerts-and-recommended-actions' } }],
                 },
                 {
                   label: 'Notifications',
                   collapsed: true,
-                  autogenerate: { directory: 'how-tos/alerts-and-notifications/notifications' },
+                  items: [{ autogenerate: { directory: 'how-tos/alerts-and-notifications/notifications' } }],
                 },
                 { label: 'Alerts Modification', link: '/how-tos/alerts-and-notifications/alerts-modification/' },
               ],

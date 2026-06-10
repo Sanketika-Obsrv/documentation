@@ -5,7 +5,7 @@
  * Per-entry Lucide `hash` markers are applied via custom.css.
  * The recursive list is reused from Starlight so scroll-spy keeps working.
  */
-import TableOfContentsList from '../../node_modules/@astrojs/starlight/components/TableOfContents/TableOfContentsList.astro';
+import TableOfContentsList from '../../node_modules/@astrojs/starlight/components-internals/TableOfContents/TableOfContentsList.astro';
 
 const { toc } = Astro.locals.starlightRoute;
 ---
@@ -42,7 +42,7 @@ const { toc } = Astro.locals.starlightRoute;
 }
 
 <script>
-	import '../../node_modules/@astrojs/starlight/components/TableOfContents/starlight-toc.ts';
+	import '../../node_modules/@astrojs/starlight/components-internals/TableOfContents/starlight-toc.ts';
 </script>
 
 <style>

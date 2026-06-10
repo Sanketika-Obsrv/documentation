@@ -1,0 +1,23 @@
+# Allow these dependencies to run their install/build scripts (pnpm blocks
+# build scripts by default). esbuild (via Vite) and sharp (image processing)
+# both need theirs.
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+
+# pnpm's minimum-release-age policy would otherwise block these freshly
+# published versions; explicitly allow the ones our upgrade pulled in.
+minimumReleaseAgeExclude:
+  - '@astrojs/starlight@0.40.0'
+  - '@expressive-code/core@0.43.1'
+  - '@expressive-code/plugin-frames@0.43.1'
+  - '@expressive-code/plugin-shiki@0.43.1'
+  - '@expressive-code/plugin-text-markers@0.43.1'
+  - astro-expressive-code@0.43.1
+  - astro@6.4.5
+  - expressive-code@0.43.1
+  - rehype-expressive-code@0.43.1
+
+allowBuilds:
+  esbuild: true
+  sharp: true
