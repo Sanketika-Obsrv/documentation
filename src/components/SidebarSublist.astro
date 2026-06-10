@@ -1,10 +1,7 @@
 ---
-import { Icon, Badge } from '@astrojs/starlight/components';
-import { SECTION_ICONS_BY_LABEL as SECTION_ICONS, BADGE_ICONS } from '../icons/sections';
-
-function badgeIconFor(badge: { text: string } | undefined): string | undefined {
-  return badge ? BADGE_ICONS[badge.text.trim().toLowerCase()] : undefined;
-}
+import { Icon } from '@astrojs/starlight/components';
+import { SECTION_ICONS_BY_LABEL as SECTION_ICONS } from '../icons/sections';
+import SidebarBadge from './SidebarBadge.astro';
 
 interface SidebarLink {
   type: 'link';
@@ -65,7 +62,6 @@ const entryRestoreIndices = sublist.map((entry) => {
       const subEntries = entry.type === 'group'
         ? (indexLink ? entry.entries.slice(1) : entry.entries)
         : [];
-      const badgeIcon = badgeIconFor(entry.badge);
       // Highlight the top-level section that contains the active page.
       const isActiveSection =
         entry.type === 'group' && !nested && hasCurrentEntry(entry.entries);
@@ -95,29 +91,7 @@ const entryRestoreIndices = sublist.map((entry) => {
                 />
               )}
               <span>{entry.label}</span>
-              {entry.badge && (badgeIcon ? (
-                <span class="badge-icon" role="img" title={entry.badge.text} aria-label={entry.badge.text}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                    set:html={badgeIcon}
-                  />
-                </span>
-              ) : (
-                <Badge
-                  variant={entry.badge.variant as any}
-                  class={entry.badge.class}
-                  text={entry.badge.text}
-                />
-              ))}
+              {entry.badge && <SidebarBadge badge={entry.badge} />}
             </a>
           ) : (
             <details
@@ -154,29 +128,7 @@ const entryRestoreIndices = sublist.map((entry) => {
                   ) : (
                     <span class="large">{entry.label}</span>
                   )}
-                  {entry.badge && (badgeIcon ? (
-                    <span class="badge-icon" role="img" title={entry.badge.text} aria-label={entry.badge.text}>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                        set:html={badgeIcon}
-                      />
-                    </span>
-                  ) : (
-                    <Badge
-                      variant={entry.badge.variant as any}
-                      class={entry.badge.class}
-                      text={entry.badge.text}
-                    />
-                  ))}
+                  {entry.badge && <SidebarBadge badge={entry.badge} />}
                 </div>
                 <Icon name="right-caret" class="caret" size="1.25rem" />
               </summary>
@@ -238,17 +190,6 @@ const entryRestoreIndices = sublist.map((entry) => {
   }
   .active-section > summary .group-label .sidebar-group-icon {
     opacity: 1;
-  }
-
-  /* Badge rendered as a Lucide icon (replaces text badges like "latest"). */
-  .badge-icon {
-    display: inline-flex;
-    align-items: center;
-    color: var(--obsrv-active-text);
-  }
-  .badge-icon svg {
-    width: 0.95em;
-    height: 0.95em;
   }
 
   .top-level > li + li {

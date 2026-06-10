@@ -9,6 +9,9 @@ sidebar:
 ---
 
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+import ProFeatureNotice from '../../../components/ProFeatureNotice.astro';
+
+<ProFeatureNotice />
 
 Obsrv provides comprehensive autoscaling capabilities through Horizontal Pod Autoscaling (HPA) and Volume Autoscaling, enabling dynamic resource management that adapts to your workload demands. These features ensure:
 
@@ -18,6 +21,6 @@ Obsrv provides comprehensive autoscaling capabilities through Horizontal Pod Aut
 * **Cost Efficiency**: Balance between performance and resource utilization through configurable thresholds and scaling policies
 
 <CardGrid>
-  <LinkCard title="Autoscaling Components" href="/how-tos/scale-infrastructure/autoscaling-components/" description="Configure HPA for Flink and Druid using KEDA" />
-  <LinkCard title="Autoscaling Volumes" href="/how-tos/scale-infrastructure/autoscaling-volumes/" description="Automatically expand persistent volumes as data grows" />
+  <LinkCard title="Autoscaling Components" href="/scale-infrastructure/autoscaling-components/" description="Configure HPA for Flink and Druid using KEDA" />
+  <LinkCard title="Autoscaling Volumes" href="/scale-infrastructure/autoscaling-volumes/" description="Automatically expand persistent volumes as data grows" />
 </CardGrid>

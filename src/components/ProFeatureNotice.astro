@@ -1,0 +1,69 @@
+---
+/**
+ * Orange "Obsrv Pro feature" callout, used at the top of Pro-only pages
+ * (e.g. Scale Infrastructure). Pass custom body text via the default slot.
+ */
+---
+
+<aside class="pro-feature-notice" aria-label="Obsrv Pro feature">
+  <svg
+    class="pro-feature-notice__icon"
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" />
+    <path d="M5 21h14" />
+  </svg>
+  <p>
+    <strong>Obsrv Pro feature.</strong>
+    <slot>This capability is available in the Obsrv Pro version only.</slot>
+  </p>
+</aside>
+
+<style>
+  .pro-feature-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    margin: 1rem 0 1.5rem;
+    padding: 0.85rem 1.05rem;
+    border: 1px solid var(--obsrv-pro-border, rgba(212, 98, 26, 0.35));
+    border-inline-start: 3px solid var(--obsrv-orange);
+    border-radius: 8px;
+    background: var(--obsrv-pro-bg, rgba(212, 98, 26, 0.08));
+  }
+
+  .pro-feature-notice__icon {
+    flex: none;
+    margin-top: 0.1rem;
+    color: var(--obsrv-orange);
+  }
+
+  .pro-feature-notice p {
+    margin: 0;
+    font-size: var(--sl-text-sm);
+    line-height: 1.55;
+    color: var(--sl-color-text);
+  }
+
+  .pro-feature-notice strong {
+    color: var(--obsrv-orange);
+  }
+
+  :global([data-theme='dark']) .pro-feature-notice {
+    --obsrv-pro-border: rgba(242, 149, 107, 0.3);
+    --obsrv-pro-bg: rgba(242, 149, 107, 0.1);
+  }
+  :global([data-theme='dark']) .pro-feature-notice__icon,
+  :global([data-theme='dark']) .pro-feature-notice strong {
+    color: var(--obsrv-orange-light);
+  }
+</style>

@@ -43,6 +43,14 @@ function remarkFixImagePaths() {
 export default defineConfig({
   site: 'https://sanketika-obsrv.github.io',
   base,
+  // Scale Infrastructure was promoted from under How-Tos to a top-level section;
+  // redirect the old URLs to the new top-level namespace. Destinations include
+  // the base (Astro does not prepend it to redirect targets).
+  redirects: {
+    '/how-tos/scale-infrastructure': `${base}/scale-infrastructure`,
+    '/how-tos/scale-infrastructure/autoscaling-components': `${base}/scale-infrastructure/autoscaling-components`,
+    '/how-tos/scale-infrastructure/autoscaling-volumes': `${base}/scale-infrastructure/autoscaling-volumes`,
+  },
   markdown: {
     remarkPlugins: [remarkFixImagePaths],
   },
@@ -206,12 +214,6 @@ export default defineConfig({
             { label: 'Create a Dataset', slug: 'how-tos/create-a-dataset' },
             { label: 'Register a Connector', slug: 'how-tos/register-a-connector' },
             {
-              label: 'Scale Infrastructure',
-              collapsed: true,
-              badge: { text: 'Pro Feature', variant: 'tip' },
-              items: [{ autogenerate: { directory: 'how-tos/scale-infrastructure' } }],
-            },
-            {
               label: 'Troubleshoot',
               collapsed: true,
               items: [{ autogenerate: { directory: 'how-tos/troubleshoot' } }],
@@ -246,6 +248,12 @@ export default defineConfig({
             { label: 'Sanity Checklist', slug: 'how-tos/sanity-checklist' },
             { label: 'Configure Lakehouse Store', slug: 'how-tos/configure-lakehouse-store' },
           ],
+        },
+        {
+          label: 'Scale Infrastructure',
+          collapsed: true,
+          badge: { text: 'Pro Feature', variant: 'tip' },
+          items: [{ autogenerate: { directory: 'scale-infrastructure' } }],
         },
       ],
     }),

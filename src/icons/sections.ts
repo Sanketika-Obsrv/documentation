@@ -18,6 +18,7 @@ const USERS = `<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16
 const ROCKET = `<path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09"/><path d="M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05"/>`;
 const CIRCLE_HELP = `<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>`;
 const ARCHIVE = `<rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/>`;
+const SCALING = `<path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M16 3h5v5"/><path d="M14 10 21 3"/>`;
 
 /** Keyed by top-level slug (used by PageTitle). '' === site index. */
 export const SECTION_ICONS: Record<string, string> = {
@@ -28,6 +29,7 @@ export const SECTION_ICONS: Record<string, string> = {
   community: USERS,
   'release-notes': ROCKET,
   'how-tos': CIRCLE_HELP,
+  'scale-infrastructure': SCALING,
   'previous-versions': ARCHIVE,
 };
 
@@ -40,6 +42,7 @@ export const SECTION_ICONS_BY_LABEL: Record<string, string> = {
   Community: SECTION_ICONS.community,
   Releases: SECTION_ICONS['release-notes'],
   'How-Tos': SECTION_ICONS['how-tos'],
+  'Scale Infrastructure': SECTION_ICONS['scale-infrastructure'],
   'Previous Versions': SECTION_ICONS['previous-versions'],
 };
 
