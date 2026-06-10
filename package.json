@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "packageManager": "pnpm@11.2.2",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "dev": "node scripts/transform-openapi.mjs && astro dev",
+    "build": "node scripts/transform-openapi.mjs && astro build",
     "preview": "astro preview",
     "migrate": "node scripts/migrate.mjs",
     "astro": "astro"
@@ -22,6 +22,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
     "starlight-links-validator": "^0.24.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "yaml": "^2.9.0"
   }
 }
