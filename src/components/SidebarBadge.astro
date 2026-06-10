@@ -13,22 +13,7 @@ const isPro = key === 'pro feature';
 ---
 
 {isPro ? (
-  <span class="pro-badge" role="img" title={badge.text} aria-label={badge.text}>
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="13"
-      height="13"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-      set:html={icon}
-    />
-    <span>PRO</span>
-  </span>
+  <span class="pro-badge" title={badge.text} aria-label={badge.text}>PRO</span>
 ) : icon ? (
   <span class="badge-icon" role="img" title={badge.text} aria-label={badge.text}>
     <svg
@@ -61,24 +46,20 @@ const isPro = key === 'pro feature';
     height: 0.95em;
   }
 
-  /* "Pro feature" → crown + PRO pill, in the brand premium accent. */
+  /* "Pro feature" → clean "PRO" pill in the brand premium accent. */
   .pro-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.2rem;
-    padding: 0.05rem 0.4rem;
+    flex: none;
+    display: inline-block;
+    white-space: nowrap;
+    padding: 0.1rem 0.45rem;
     border-radius: 999px;
     font-size: 0.625rem;
     font-weight: 700;
-    letter-spacing: 0.06em;
-    line-height: 1.4;
+    letter-spacing: 0.08em;
+    line-height: 1.5;
     color: var(--obsrv-orange);
     background: rgba(212, 98, 26, 0.1);
-    border: 1px solid rgba(212, 98, 26, 0.3);
-  }
-  .pro-badge svg {
-    width: 0.85em;
-    height: 0.85em;
+    border: 1px solid rgba(212, 98, 26, 0.35);
   }
 
   :global([data-theme='dark']) .pro-badge {
