@@ -7,9 +7,9 @@ import starlightLinksValidator from 'starlight-links-validator';
 import starlightOpenAPI from 'starlight-openapi';
 
 export default defineConfig({
-  // Served at the org root (https://sanketika-obsrv.github.io), so no base path.
-  // Root-absolute internal links/images resolve directly — no URL rewriting needed.
-  site: 'https://sanketika-obsrv.github.io',
+  // Served at the root of the custom domain (https://docs.obsrv.ai), so no base
+  // path. Root-absolute internal links/images resolve directly.
+  site: 'https://docs.obsrv.ai',
   // Scale Infrastructure was promoted from under How-Tos to a top-level section;
   // redirect the old URLs to the new top-level namespace.
   redirects: {
