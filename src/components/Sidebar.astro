@@ -13,3 +13,25 @@ const { sidebar } = Astro.locals.starlightRoute;
 <div class="md:sl-hidden">
   <MobileMenuFooter />
 </div>
+
+<script>
+  // API operation pages are plugin-injected routes that aren't in the sidebar,
+  // so Starlight can't mark their parent section active. PageTitle renders a
+  // "back to section" link on those pages; mirror its target onto the matching
+  // sidebar Section link so the section stays highlighted while reading an endpoint.
+  function highlightApiSection() {
+    const back = document.querySelector<HTMLAnchorElement>('a[data-api-section-back]');
+    if (!back) return;
+    const target = new URL(back.href).pathname.replace(/\/+$/, '');
+    document
+      .querySelectorAll<HTMLAnchorElement>('.sidebar-content a[href]')
+      .forEach((a) => {
+        if (new URL(a.href).pathname.replace(/\/+$/, '') === target) {
+          a.setAttribute('aria-current', 'page');
+          a.closest('details')?.setAttribute('open', '');
+        }
+      });
+  }
+  highlightApiSection();
+  document.addEventListener('astro:page-load', highlightApiSection);
+</script>

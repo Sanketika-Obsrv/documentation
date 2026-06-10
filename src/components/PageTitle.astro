@@ -1,5 +1,6 @@
 ---
 import { SECTION_ICONS, SECTION_ICONS_BY_LABEL } from '../icons/sections';
+import openapiSections from '../data/openapi-sections.json';
 
 const { entry, sidebar } = Astro.locals.starlightRoute;
 
@@ -41,8 +42,46 @@ function findTrail(entries: any[], acc: Crumb[]): Crumb[] | null {
 
 const trail: Crumb[] = (!isIndex ? findTrail(sidebar as any[], []) : null) ?? [];
 const breadcrumbIcon = trail.length ? SECTION_ICONS_BY_LABEL[trail[0].label] : undefined;
-const hasBreadcrumbs = trail.length > 0;
+
+// ── OpenAPI operation pages ─────────────────────────────────────────────────
+// These are plugin-injected routes that don't appear in the sidebar, so they
+// have no breadcrumb trail. Use the generated operation→section map to render a
+// "back to section" link and to let the sidebar highlight the parent section.
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const opMatch = Astro.url.pathname.match(
+  /\/guides\/api-specification\/operations\/(?!tags\/)(.+?)\/?$/
+);
+const apiSection = opMatch
+  ? (openapiSections as Record<string, { label: string; slug: string }>)[opMatch[1]]
+  : undefined;
+const apiSectionHref = apiSection
+  ? `${base}/guides/api-specification/operations/tags/${apiSection.slug}/`
+  : undefined;
+
+const hasBreadcrumbs = !apiSection && trail.length > 0;
 ---
+
+{apiSection && (
+  <nav class="api-section-back" id="_top" aria-label="Section">
+    <a href={apiSectionHref} data-api-section-back>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m15 18-6-6 6-6" />
+      </svg>
+      <span>{apiSection.label}</span>
+    </a>
+  </nav>
+)}
 
 {hasBreadcrumbs && (
   <nav class="page-breadcrumbs" id="_top" aria-label="Breadcrumb">
@@ -78,7 +117,7 @@ const hasBreadcrumbs = trail.length > 0;
 )}
 
 {icon ? (
-  <div class="page-title-wrap" id={hasBreadcrumbs ? undefined : '_top'}>
+  <div class="page-title-wrap" id={apiSection || hasBreadcrumbs ? undefined : '_top'}>
     <span class="page-title-icon" aria-hidden="true">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -96,7 +135,7 @@ const hasBreadcrumbs = trail.length > 0;
     <h1>{entry.data.title}</h1>
   </div>
 ) : (
-  <h1 id={hasBreadcrumbs ? undefined : '_top'}>{entry.data.title}</h1>
+  <h1 id={apiSection || hasBreadcrumbs ? undefined : '_top'}>{entry.data.title}</h1>
 )}
 {entry.data.description && <p class="page-description">{entry.data.description}</p>}
 
@@ -140,6 +179,40 @@ const hasBreadcrumbs = trail.length > 0;
     color: var(--sl-color-gray-2);
     font-size: var(--sl-text-body-sm);
     line-height: 1.5;
+  }
+
+  /* ── OpenAPI operation: back-to-section link ── */
+  .api-section-back {
+    margin-top: 1rem;
+  }
+
+  .api-section-back + .page-title-wrap,
+  .api-section-back + h1 {
+    margin-top: 0.55rem;
+  }
+
+  .api-section-back a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--obsrv-active-text);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: gap 0.12s ease;
+  }
+
+  .api-section-back a:hover {
+    gap: 0.5rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .api-section-back svg {
+    flex: none;
   }
 
   /* ── Breadcrumbs ── */

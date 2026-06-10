@@ -9,14 +9,18 @@
  * Runs as part of the `dev` and `build` npm scripts so it executes locally and
  * in CI (right after the spec-sync step).
  */
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { parse, stringify } from 'yaml';
+import { slug as ghSlug } from 'github-slugger';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(ROOT, 'openapi', 'openapi_v2.yml');
 const OUT = join(ROOT, 'openapi', 'openapi.generated.yml');
+// Map of operation page slug -> its section, consumed by PageTitle.astro to
+// render a "back to section" link and highlight the section in the sidebar.
+const MAP_OUT = join(ROOT, 'src', 'data', 'openapi-sections.json');
 
 // Granular upstream tag -> friendly section. Anything not listed falls back to
 // DEFAULT_SECTION (and is logged below so new upstream tags never disappear).
@@ -72,16 +76,37 @@ function sectionFor(tag) {
   return DEFAULT_SECTION;
 }
 
-for (const pathItem of Object.values(doc.paths ?? {})) {
+// First pass: count operationId usage so we mirror starlight-openapi's
+// duplicate-operationId slug handling (it appends the method when an id repeats).
+const idCounts = new Map();
+for (const [path, pathItem] of Object.entries(doc.paths ?? {})) {
+  if (!pathItem || typeof pathItem !== 'object') continue;
+  for (const method of HTTP_METHODS) {
+    const op = pathItem[method];
+    if (!op || typeof op !== 'object') continue;
+    const id = op.operationId ?? path;
+    idCounts.set(id, (idCounts.get(id) ?? 0) + 1);
+  }
+}
+
+// Second pass: remap tags to sections and record each operation's page slug.
+const sectionMap = {};
+for (const [path, pathItem] of Object.entries(doc.paths ?? {})) {
   if (!pathItem || typeof pathItem !== 'object') continue;
   for (const method of HTTP_METHODS) {
     const op = pathItem[method];
     if (!op || typeof op !== 'object') continue;
     const original = Array.isArray(op.tags) && op.tags.length > 0 ? op.tags : [DEFAULT_SECTION];
-    // Map each tag to its section, dedupe, keep at most one section per op.
-    const sections = [...new Set(original.map(sectionFor))];
-    op.tags = [sections[0]];
-    usedSections.add(sections[0]);
+    const section = [...new Set(original.map(sectionFor))][0];
+    op.tags = [section];
+    usedSections.add(section);
+
+    // Mirror the plugin's operation page slug (libs/operation.ts):
+    // slug(operationId ?? path), with the method appended on duplicate ids.
+    const id = op.operationId ?? path;
+    const idSlug = ghSlug(id);
+    const opSlug = idCounts.get(id) > 1 ? `${idSlug}/${ghSlug(method)}` : idSlug;
+    sectionMap[opSlug] = { label: section, slug: ghSlug(section) };
   }
 }
 
@@ -92,6 +117,8 @@ doc.tags = SECTION_ORDER.filter((s) => usedSections.has(s)).map((name) => ({
 }));
 
 writeFileSync(OUT, stringify(doc), 'utf8');
+mkdirSync(dirname(MAP_OUT), { recursive: true });
+writeFileSync(MAP_OUT, JSON.stringify(sectionMap, null, 2) + '\n', 'utf8');
 
 console.log(
   `[transform-openapi] Wrote ${OUT} with ${doc.tags.length} sections: ${doc.tags

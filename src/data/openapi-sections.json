@@ -1,0 +1,178 @@
+{
+  "v2datasetscreate": {
+    "label": "Dataset Management",
+    "slug": "dataset-management"
+  },
+  "v2filesgenerate-url": {
+    "label": "Dataset Management",
+    "slug": "dataset-management"
+  },
+  "v2datasetsupdate": {
+    "label": "Dataset Management",
+    "slug": "dataset-management"
+  },
+  "v2datasetsreaddataset_id": {
+    "label": "Dataset Management",
+    "slug": "dataset-management"
+  },
+  "v2datasetslist": {
+    "label": "Dataset Management",
+    "slug": "dataset-management"
+  },
+  "v2datasetsdataschema": {
+    "label": "Dataset Management",
+    "slug": "dataset-management"
+  },
+  "v2datasetsstatus-transition": {
+    "label": "Dataset Management",
+    "slug": "dataset-management"
+  },
+  "v2datasetsimport": {
+    "label": "Dataset Management",
+    "slug": "dataset-management"
+  },
+  "v2datasetsexportdataset_id": {
+    "label": "Dataset Management",
+    "slug": "dataset-management"
+  },
+  "v2datasetscopy": {
+    "label": "Dataset Management",
+    "slug": "dataset-management"
+  },
+  "v2connectorslist": {
+    "label": "Connectors",
+    "slug": "connectors"
+  },
+  "v2connectorsreadconnector_id": {
+    "label": "Connectors",
+    "slug": "connectors"
+  },
+  "registerconnector": {
+    "label": "Connectors",
+    "slug": "connectors"
+  },
+  "v2dataindataset_id": {
+    "label": "Data In & Out",
+    "slug": "data-in--out"
+  },
+  "v2dataquerydataset_id": {
+    "label": "Data In & Out",
+    "slug": "data-in--out"
+  },
+  "v2templatereadtemplate_id": {
+    "label": "Data In & Out",
+    "slug": "data-in--out"
+  },
+  "v2templatedeletetemplate_id": {
+    "label": "Data In & Out",
+    "slug": "data-in--out"
+  },
+  "v2templatecreate": {
+    "label": "Data In & Out",
+    "slug": "data-in--out"
+  },
+  "v2templatelist": {
+    "label": "Data In & Out",
+    "slug": "data-in--out"
+  },
+  "v2templateupdatetemplate_id": {
+    "label": "Data In & Out",
+    "slug": "data-in--out"
+  },
+  "v2templatequerytemplate_id": {
+    "label": "Data In & Out",
+    "slug": "data-in--out"
+  },
+  "alertsv1notificationssearch": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1notificationscreate": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1notificationspublishalert_id": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1notificationstest": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1notificationsupdatealert_id": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1notificationsdeletealert_id": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1silencecreate": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1silencegetalert_id": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1silencedeletealert_id": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1silencesearch": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1silenceupdatealert_id": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1deletealert_id": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1updatealert_id": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1publishalert_id": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1create": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1search": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1getalert_id": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1metricaliascreate": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1metricaliassearch": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1metricaliasupdatealert_id": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "alertsv1metricaliasdeletealert_id": {
+    "label": "Alerts & Notifications",
+    "slug": "alerts--notifications"
+  },
+  "v2datasetmetrics": {
+    "label": "Dataset Management",
+    "slug": "dataset-management"
+  },
+  "v2dataanalyzepii": {
+    "label": "Other APIs",
+    "slug": "other-apis"
+  }
+}
