@@ -1,6 +1,8 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import starlightScrollToTop from 'starlight-scroll-to-top';
+import starlightImageZoom from 'starlight-image-zoom';
 import { visit } from 'unist-util-visit';
 
 const base = '/documentation';
@@ -45,6 +47,10 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Obsrv',
+      plugins: [
+        starlightImageZoom(),
+        starlightScrollToTop(),
+      ],
       logo: {
         src: './src/assets/obsrv-logo.svg',
         replacesTitle: true,
