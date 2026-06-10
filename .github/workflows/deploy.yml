@@ -39,6 +39,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Refresh the API reference from the upstream obsrv-api-service spec.
+      # Best-effort: falls back to the committed copy if the fetch fails.
+      - name: Sync OpenAPI spec
+        run: |
+          curl -fsSL "https://raw.githubusercontent.com/Sanketika-Obsrv/obsrv-api-service/main/api-service/swagger-doc/openapi_v2.yml" \
+            -o openapi/openapi_v2.yml \
+            && echo "Synced latest OpenAPI spec." \
+            || echo "::warning::OpenAPI spec fetch failed; using committed copy."
+
       - name: Build
         run: pnpm run build
 
