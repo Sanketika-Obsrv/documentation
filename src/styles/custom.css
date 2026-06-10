@@ -47,6 +47,9 @@
   /* ── Layout — reference-parity content width ── */
   --sl-content-width: 60rem;
   --sl-content-pad-x: 3rem;
+  /* Wider sidebar so long section labels (e.g. "Scale Infrastructure" + PRO)
+     stay on a single line. */
+  --sl-sidebar-width: 21rem;
 }
 
 /* ── Light theme ── */

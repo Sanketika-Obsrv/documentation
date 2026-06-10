@@ -65,6 +65,11 @@ const entryRestoreIndices = sublist.map((entry) => {
       // Highlight the top-level section that contains the active page.
       const isActiveSection =
         entry.type === 'group' && !nested && hasCurrentEntry(entry.entries);
+      // Obsrv Pro sections get an orange (vs blue) active treatment.
+      const isProSection =
+        entry.type === 'group' &&
+        !nested &&
+        entry.badge?.text.trim().toLowerCase() === 'pro feature';
       return (
         <li>
           {entry.type === 'link' ? (
@@ -96,7 +101,7 @@ const entryRestoreIndices = sublist.map((entry) => {
           ) : (
             <details
               open={hasCurrentEntry(entry.entries) || !entry.collapsed}
-              class:list={{ 'active-section': isActiveSection }}
+              class:list={{ 'active-section': isActiveSection, 'pro-section': isProSection }}
             >
               <sl-sidebar-restore data-index={entryRestoreIndices[i]}></sl-sidebar-restore>
               <summary>
@@ -190,6 +195,20 @@ const entryRestoreIndices = sublist.map((entry) => {
   }
   .active-section > summary .group-label .sidebar-group-icon {
     opacity: 1;
+  }
+
+  /* On an active Obsrv Pro section, recolor the active treatment to orange.
+     Redefining the vars here cascades to both the section header and the
+     active page pill (which all consume --obsrv-active-*). */
+  .active-section.pro-section {
+    --obsrv-active-text: var(--obsrv-orange);
+    --obsrv-active-bg: rgba(212, 98, 26, 0.1);
+    --obsrv-active-border: rgba(212, 98, 26, 0.4);
+  }
+  :global([data-theme='dark']) .active-section.pro-section {
+    --obsrv-active-text: var(--obsrv-orange-light);
+    --obsrv-active-bg: rgba(242, 149, 107, 0.14);
+    --obsrv-active-border: rgba(242, 149, 107, 0.34);
   }
 
   .top-level > li + li {
