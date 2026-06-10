@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightScrollToTop from 'starlight-scroll-to-top';
 import starlightImageZoom from 'starlight-image-zoom';
+import starlightLinksValidator from 'starlight-links-validator';
 import { visit } from 'unist-util-visit';
 
 const base = '/documentation';
@@ -50,6 +51,10 @@ export default defineConfig({
       plugins: [
         starlightImageZoom(),
         starlightScrollToTop(),
+        starlightLinksValidator({
+          // Skip the frozen GitBook-era archive — its legacy links aren't worth maintaining.
+          exclude: ({ file }) => file.includes('/previous-versions/'),
+        }),
       ],
       logo: {
         src: './src/assets/obsrv-logo.svg',
