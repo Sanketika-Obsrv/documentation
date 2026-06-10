@@ -310,6 +310,22 @@ a[aria-current='page']:focus {
   color: var(--sl-color-gray-2);
 }
 
+/* ── Heading anchor link (appears on hover) ── */
+.sl-markdown-content .sl-heading-wrapper {
+  /* More breathing room between the heading text and the link icon. */
+  --sl-anchor-icon-gap: 0.5em;
+}
+
+.sl-markdown-content .sl-anchor-link {
+  color: var(--sl-color-gray-3);
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.sl-markdown-content .sl-anchor-link:hover,
+.sl-markdown-content .sl-anchor-link:focus {
+  color: var(--sl-color-text-accent);
+}
+
 /* Body line height */
 .sl-markdown-content p,
 .sl-markdown-content li {
