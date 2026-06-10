@@ -1,0 +1,250 @@
+---
+title: "Azure Installation – Helm Charts"
+description: "Deploy Obsrv on an existing Azure AKS cluster using Helm charts: prerequisites, Helm configuration, execution, and verification."
+sidebar:
+  order: 1
+---
+
+## Installation Steps
+
+### 1. Prerequisites
+
+#### 1. Clone the Obsrv Automation
+
+1. Clone the below repository and checkout the desired branch or release tag:
+
+```bash
+git clone git@github.com:Sanketika-Obsrv/obsrv-automation.git
+cd obsrv-automation
+git checkout <latest_release_tag>  # or use 'main' for the latest code
+```
+
+#### 2. Install Dependencies
+
+An existing AKS cluster with `kubectl` and `helm` already installed. For detailed prerequisites, refer to [Prerequisites to Install Obsrv](#1-prerequisites-to-install-obsrv).
+
+#### 3. Configure Cluster Access
+
+Set the kubeconfig path in your environment:
+
+```bash
+export KUBE_CONFIG_PATH="$HOME/.kube/config"
+```
+
+```bash
+export KUBECONFIG="$HOME/.kube/obsrv-kube-config.yaml"
+```
+
+#### 4. Verify the Cluster
+
+Once the installation completes, verify that your Kubernetes cluster is up and running:
+
+```bash
+kubectl get nodes
+```
+
+:::note
+The result of the above command should show the nodes in your Kubernetes cluster.
+:::
+
+***
+
+### 2. Helm Configurations
+
+#### 1. Navigate to the Helm Chart Directory
+
+```bash
+cd ./obsrv-automation/helmcharts/
+```
+
+#### 2. Update Azure Cloud Configuration
+
+Modify `global-cloud-values-azure.yaml` with the appropriate values for your environment:
+
+```yaml
+global:
+  ssl_enabled: &ssl_enabled <fill-value>  # Enable SSL/TLS for secure communication
+  cloud_storage_provider: &cloud_storage_provider <fill-value>  # Cloud provider for storage
+  cloud_store_provider: &cloud_store_provider <fill-value>  # Alias for cloud storage provider
+  cloud_storage_region: &cloud_storage_region <fill-value>  # Cloud storage region
+  postgresql_backup_cloud_bucket: &backups_bucket <fill-value>  # Bucket for PostgreSQL backups
+  redis_backup_cloud_bucket: &redis_backup_cloud_bucket <fill-value>  # Bucket for Redis backups
+  velero_backup_cloud_bucket: &velero_backup_cloud_bucket <fill-value>  # Bucket for Velero backups
+  cloud_storage_bucket: &cloud_storage_bucket <fill-value>  # Default storage bucket
+  dataset_api_container: &dataset_api_container <fill-value>  # Dataset API container name
+  config_api_container: &config_api_container <fill-value>  # Config API container name
+  storage_class_name: &storage_class_name <fill-value>  # Storage class for cloud objects
+  azure_storage_account_name: &azure_storage_account_name <fill-value>  # Azure storage account name
+  azure_storage_account_key: &azure_storage_account_key <fill-value>  # Azure storage account key
+  container: &container <fill-value>  # Default container name
+  deep_store_type: &deep_store_type <fill-value>  # Deep store type (e.g., "azure")
+  azure_storage_container: &azure_storage_container <fill-value>  # Azure container for S3 segment publishing
+  secor_storage_container: &secor_storage_container <fill-value>  # Secor container name
+  azure_resource_group: &azure_resource_group <fill-value>  # Azure resource group
+  azure_subscription_id: &azure_subscription_id <fill-value>  # Azure subscription ID
+  azure_tenant_id: &azure_tenant_id <fill-value>  # Azure tenant ID
+  azure_service_principal_id: &azure_service_principal_id <fill-value>  # Service principal ID
+  azure_service_principal_key: &azure_service_principal_key <fill-value>  # Service principal key
+  checkpoint_bucket: &checkpoint_bucket <fill-value>  # Flink checkpoints bucket
+  hudi_metadata_bucket: &hudi_metadata_bucket <fill-value>  # Hudi metadata bucket
+  cloud_storage_config: |+
+    '{"identity":"","credential":"","region":""}' # JSON credentials for cloud storage
+
+kong:
+  proxy:
+    type: NodePort  # Update the Kong service to NodePort and configure an external ingress service using the NodePort IP. Otherwise, use LoadBalancer.
+```
+
+#### 3. Configure Domain
+
+Update the `global-values.yaml` file and replace `<domain>` with your actual access endpoint — either your domain, Elastic IP, or NodePort external IP (depending on the Kong service type). This domain will be used to access the Obsrv Console UI.
+
+* **LoadBalancer:** If Kong's service type is LoadBalancer, retrieve the Elastic IP from the console and use the following format: `Domain: <eip>.sslip.io`
+* **Accessing Kong via NodePort:** When Kong is deployed as a **NodePort** service, use the **external IP of the AKS node** and **Kong's NodePort** to access services:
+
+  ```
+  http://<Node External IP>:<NodePort>
+  ```
+
+##### Update Network Security Group (Required)
+
+To allow access from the internet:
+
+1. Open the **Network Security Group (NSG)** attached to the AKS node subnet.
+2. Add a new **Inbound rule**:
+   * **Source**: Any
+   * **Protocol**: TCP
+   * **Port range**: Kong NodePort (e.g., `32080`)
+   * **Action**: Allow
+
+##### Find Kong's NodePort
+
+```sh
+kubectl get svc -n kong-ingress
+```
+
+Locate the NodePort under the `PORT(S)` column.
+
+### 3. Helm Execution
+
+Make the script executable, set the environment variables, and run the installation.
+
+The file `install.sh` is located in `obsrv-automation/helmcharts/kitchen`.
+
+```bash
+export cloud_env=azure
+export KUBE_CONFIG_PATH="$HOME/.kube/obsrv-kube-config.yaml"
+export KUBECONFIG="$HOME/.kube/obsrv-kube-config.yaml"
+
+chmod +x ./kitchen/install.sh
+./kitchen/install.sh core-setup
+./kitchen/install.sh all
+```
+
+***
+
+### 4. Post-Installation Verification
+
+After completing the installation, follow these steps to verify that all components are running correctly:
+
+#### 1. Check Kubernetes Components
+
+1. **Verify all pods are running**:
+
+   ```bash
+   kubectl get pods -A
+   ```
+
+   All pods should be in `Running` state. Common namespaces to check:
+
+   * `flink`: Core Pipeline
+   * `monitoring`: Monitoring stack
+   * `dataset-api`: Dataset APIs
+   * `web-console`: Dataset Management console
+2. **Check Services**:
+
+   ```bash
+   kubectl get svc -A
+   ```
+
+   Verify that essential services have external IPs assigned, particularly the Kong service.
+
+If any component fails these checks, refer to the component-specific logs:
+
+```bash
+kubectl logs -f <pod-name> -n <namespace>
+```
+
+***
+
+By following these steps, you will ensure a successful installation and configuration of Obsrv on Azure.
+
+### HOW TO's
+
+#### 1. Prerequisites To Install Obsrv
+
+| Requirement Category | Details |
+| -------------------- | ------- |
+| Kubernetes Cluster | Existing Azure AKS cluster |
+| kubectl Access | kubectl configured and connected to the cluster |
+| Helm | Helm installed on your local machine |
+| Cluster Capacity | Minimum 24 vCPU & 96 GB RAM |
+| Azure Access | Azure credentials include the storage account name, storage account access key, and Azure subscription ID. |
+| Containers | At least one container required for backups and storage (three separate containers recommended). For details, refer to [Azure Container Requirements](#2-azure-container-requirements). |
+| `azure_service_principal_id` / `azure_service_principal_key` | These credentials are required for accessing Azure Storage, Velero backups and restores, and Azure metrics scraping. Follow the steps below to set up the service principal ([ASP](#3-create-azure-service-principal-credentials)). |
+
+***
+
+### 2. Azure Container Requirements
+
+* Used for backups & cloud storage operations
+* Either **a single container** or **three separate containers** (recommended for clean separation)
+
+**CORS configuration required:**
+
+```hcl
+cors_rule {
+  allowed_headers = ["*"]
+  allowed_methods = ["GET", "POST", "PUT", "DELETE"]
+  allowed_origins = ["*"]
+  expose_headers  = ["ETag"]
+  max_age_seconds = 3000
+}
+```
+
+### 3. Create Azure Service Principal Credentials
+
+Follow the steps below to create credentials required for Azure access.
+
+#### Step 1: Create an App Registration
+
+1. Go to **Azure Portal**
+2. Search and open **Microsoft Entra ID**
+3. Click **App registrations**
+4. Select **New registration**
+5. Enter a name: 👉 `obsrv-access-sp` (recommended)
+6. Supported account type: 👉 **Accounts in this organizational directory only**
+7. Click **Register**
+
+**Copy `Application (client) ID`** → This becomes your `azure_service_principal_id`.
+
+***
+
+#### Step 2: Generate Client Secret (Key)
+
+1. Open the newly created App registration
+2. Go to **Certificates & secrets**
+3. Click **New client secret**
+4. Add a description (e.g., `obsrv-secret`)
+5. Select expiry — **24 months recommended**
+6. Click **Add**
+7. Copy the **Value** immediately
+
+**Copy Secret Value** → This becomes your `azure_service_principal_key`.
+
+:::caution
+The secret value is only shown once — store it securely.
+:::
+
+**After installation, you must perform sanity testing to validate the deployment.**
+👉 Please refer to the [Sanity Checklist](/how-tos/sanity-checklist/).
