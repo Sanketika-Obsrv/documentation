@@ -33,7 +33,9 @@
     display: flex;
     align-items: flex-start;
     gap: 0.7rem;
-    margin: 1rem 0 1.5rem;
+    /* Sits right under the page description (which already has panel spacing
+       above it); keep a small bottom gap before the content that follows. */
+    margin: 0 0 1rem;
     padding: 0.85rem 1.05rem;
     border: 1px solid var(--obsrv-pro-border, rgba(212, 98, 26, 0.35));
     border-inline-start: 3px solid var(--obsrv-orange);

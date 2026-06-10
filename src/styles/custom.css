@@ -329,6 +329,12 @@ a[aria-current='page']:focus {
   color: var(--sl-color-text-accent);
 }
 
+/* Tighten the gap when a heading immediately follows the Pro-feature banner
+   (otherwise the heading's large top margin collapses to ~2.5rem). */
+.sl-markdown-content .pro-feature-notice + :is(h2, h3, h4) {
+  margin-top: 1.25rem;
+}
+
 /* Body line height */
 .sl-markdown-content p,
 .sl-markdown-content li {
