@@ -1,6 +1,10 @@
 ---
 import { Icon, Badge } from '@astrojs/starlight/components';
-import { SECTION_ICONS_BY_LABEL as SECTION_ICONS } from '../icons/sections';
+import { SECTION_ICONS_BY_LABEL as SECTION_ICONS, BADGE_ICONS } from '../icons/sections';
+
+function badgeIconFor(badge: { text: string } | undefined): string | undefined {
+  return badge ? BADGE_ICONS[badge.text.trim().toLowerCase()] : undefined;
+}
 
 interface SidebarLink {
   type: 'link';
@@ -61,6 +65,10 @@ const entryRestoreIndices = sublist.map((entry) => {
       const subEntries = entry.type === 'group'
         ? (indexLink ? entry.entries.slice(1) : entry.entries)
         : [];
+      const badgeIcon = badgeIconFor(entry.badge);
+      // Highlight the top-level section that contains the active page.
+      const isActiveSection =
+        entry.type === 'group' && !nested && hasCurrentEntry(entry.entries);
       return (
         <li>
           {entry.type === 'link' ? (
@@ -87,16 +95,35 @@ const entryRestoreIndices = sublist.map((entry) => {
                 />
               )}
               <span>{entry.label}</span>
-              {entry.badge && (
+              {entry.badge && (badgeIcon ? (
+                <span class="badge-icon" role="img" title={entry.badge.text} aria-label={entry.badge.text}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                    set:html={badgeIcon}
+                  />
+                </span>
+              ) : (
                 <Badge
                   variant={entry.badge.variant as any}
                   class={entry.badge.class}
                   text={entry.badge.text}
                 />
-              )}
+              ))}
             </a>
           ) : (
-            <details open={hasCurrentEntry(entry.entries) || !entry.collapsed}>
+            <details
+              open={hasCurrentEntry(entry.entries) || !entry.collapsed}
+              class:list={{ 'active-section': isActiveSection }}
+            >
               <sl-sidebar-restore data-index={entryRestoreIndices[i]}></sl-sidebar-restore>
               <summary>
                 <div class="group-label">
@@ -127,13 +154,29 @@ const entryRestoreIndices = sublist.map((entry) => {
                   ) : (
                     <span class="large">{entry.label}</span>
                   )}
-                  {entry.badge && (
+                  {entry.badge && (badgeIcon ? (
+                    <span class="badge-icon" role="img" title={entry.badge.text} aria-label={entry.badge.text}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                        set:html={badgeIcon}
+                      />
+                    </span>
+                  ) : (
                     <Badge
                       variant={entry.badge.variant as any}
                       class={entry.badge.class}
                       text={entry.badge.text}
                     />
-                  )}
+                  ))}
                 </div>
                 <Icon name="right-caret" class="caret" size="1.25rem" />
               </summary>
@@ -186,6 +229,26 @@ const entryRestoreIndices = sublist.map((entry) => {
     font-size: var(--sl-text-lg);
     font-weight: 600;
     color: var(--sl-color-gray-2);
+  }
+
+  /* Highlight the top-level section that contains the active page. */
+  .active-section > summary .group-label .large,
+  .active-section > summary .group-label .sidebar-group-icon {
+    color: var(--obsrv-active-text);
+  }
+  .active-section > summary .group-label .sidebar-group-icon {
+    opacity: 1;
+  }
+
+  /* Badge rendered as a Lucide icon (replaces text badges like "latest"). */
+  .badge-icon {
+    display: inline-flex;
+    align-items: center;
+    color: var(--obsrv-active-text);
+  }
+  .badge-icon svg {
+    width: 0.95em;
+    height: 0.95em;
   }
 
   .top-level > li + li {

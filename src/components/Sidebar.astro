@@ -1,14 +1,13 @@
 ---
 import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
-import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
 import SidebarSublist from './SidebarSublist.astro';
 
 const { sidebar } = Astro.locals.starlightRoute;
 ---
 
-<SidebarPersister>
-  <SidebarSublist sublist={sidebar} />
-</SidebarPersister>
+{/* No SidebarPersister: each page resets to "active section only" — other
+    sections render collapsed by default but can be expanded manually. */}
+<SidebarSublist sublist={sidebar} />
 
 <div class="md:sl-hidden">
   <MobileMenuFooter />
@@ -28,7 +27,11 @@ const { sidebar } = Astro.locals.starlightRoute;
       .forEach((a) => {
         if (new URL(a.href).pathname.replace(/\/+$/, '') === target) {
           a.setAttribute('aria-current', 'page');
-          a.closest('details')?.setAttribute('open', '');
+          const details = a.closest('details');
+          // Open and highlight the parent "API Specification" section so the
+          // active section shows even though endpoints aren't sidebar entries.
+          details?.setAttribute('open', '');
+          details?.classList.add('active-section');
         }
       });
   }

@@ -99,6 +99,7 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Welcome to Obsrv',
+          collapsed: true,
           items: [
             { label: 'Welcome to Obsrv', slug: '' },
             { label: 'The Value of Data', slug: 'introduction/the-value-of-data' },
