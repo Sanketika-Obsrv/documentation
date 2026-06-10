@@ -117,14 +117,23 @@
    Header — borderless, frosted glass in dark mode
    ============================================================ */
 
-.header {
-  background: var(--sl-color-bg-nav);
-  border-bottom: none !important;
-  backdrop-filter: none;
+/* Transparent + frosted glass so the header blends with the body's ambient
+   gradient (strongest in the top corners, right behind the header) instead of
+   masking it. A thin hairline + soft drop shadow at the bottom edge give the
+   header a defined "surface" presence without the hard white seam.
+   Scoped to `.page > .header` (the outer fixed wrapper) so it doesn't also hit
+   Starlight's nested inner `.header` content grid — which would draw a second
+   border line and double-blur. */
+.page > .header {
+  background: transparent;
+  border-bottom: 1px solid var(--obsrv-sidebar-border) !important;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
 }
 
-[data-theme='dark'] .header {
-  backdrop-filter: blur(16px) saturate(140%);
+[data-theme='dark'] .page > .header {
+  box-shadow: 0 1px 12px rgba(0, 0, 0, 0.25);
 }
 
 /* Thin separator line between header sections */
