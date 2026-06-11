@@ -82,6 +82,10 @@
   --sl-color-accent-low:    hsl(215, 70%, 15%);
   --sl-color-accent:        hsl(215, 82%, 60%);
   --sl-color-accent-high:   hsl(215, 70%, 12%);
+  /* Bright accent for text/links in dark mode. Without this it falls back to
+     the very dark `--sl-color-accent-high`, making the active "On this page"
+     entry and inline links nearly invisible on the dark background. */
+  --sl-color-text-accent:   hsl(212, 85%, 72%);
   --sl-color-hairline-light: rgba(255, 255, 255, 0.09);
 
   /* Sidebar active-item pill */
