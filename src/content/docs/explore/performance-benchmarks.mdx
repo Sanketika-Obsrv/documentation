@@ -5,7 +5,9 @@ sidebar:
   order: 3
 ---
 
-> **Note:**** **__**This is a work in progress page. Following results are from initial benchmarks. Detailed benchmarks will be added shortly once the benchmark exercise is completed**__
+:::caution[Work in progress]
+These results are from initial benchmarks. Detailed benchmarks will be added shortly once the benchmark exercise is completed.
+:::
 
 ### Cluster Size
 
@@ -35,7 +37,9 @@ Processing benchmark is independent on number of datasets created, hence the str
 | 2 CPU, 2GB, 2 task slot, 2 parallelism  | \~ 30k  \| 30 Mb                               | \~ 1.8Million \| 1.8Gb                         | \~ 40Million \| 40Gb                           |
 | 4 CPU, 4Gb, 4 task slots, 4 parallelism | `In Progress` | `In Progress` | `In Progress` |
 
-> Note: Many other scenarios with varying flink configurations are under benchmarking and will be updated post completion
+:::note
+Many other scenarios with varying Flink configurations are under benchmarking and will be updated post completion.
+:::
 
 ### Secor Backups Benchmark
 
@@ -51,7 +55,9 @@ To ensure there is no data loss across obsrv pipeline all data is backuped to ob
 
 <table><thead><tr><th width="192">Events per Min</th><th width="187">Events per hour</th><th width="177">Events per Day</th><th>Events per process</th></tr></thead><tbody><tr><td>~ 1.6 Million | 1.6Mb</td><td>~ 100 Million | 100Gb</td><td>~ 2.4 Billion | 2.4Tb</td><td>~ 300 Million | 300Gb</td></tr></tbody></table>
 
-> Note: In DIKSHA we have observed each secor process with 1cpu was able to upload 200Million events (200 Gb) to Azure blob storage
+:::note
+In DIKSHA we have observed each Secor process with 1 cpu was able to upload 200 Million events (200 Gb) to Azure blob storage.
+:::
 
 ### Druid Indexing Benchmark
 
@@ -73,7 +79,9 @@ Druid indexing benchmark is dependent on number of datasets created and number o
 
 <table><thead><tr><th width="154">Num of Tables</th><th width="144">Events per Min</th><th>Events per hour</th><th>Events per Day</th></tr></thead><tbody><tr><td>1</td><td>~ 80k  | 80 Mb</td><td>~ 4.8 Million | 4.8 Gb</td><td>~ 110 Million | 110 Gb</td></tr><tr><td>2</td><td>~ 40k | 40 Mb</td><td>~ 2.4 Million | 2.4 Gb</td><td>~ 55 Million | 55 Gb</td></tr><tr><td>3</td><td>`In Progress`</td><td>`In Progress`</td><td>`In Progress`</td></tr><tr><td>4</td><td>`In Progress`</td><td>`In Progress`</td><td>`In Progress`</td></tr><tr><td>5</td><td>~ 35k  | 35 Mb</td><td>~ 2.1 Million | 2.1 Gb</td><td>~ 50 Million | 50 Gb</td></tr></tbody></table>
 
-> Note: How does the indexing scale when more cpu resources are provided will be added once the benchmark is complete
+:::note
+How the indexing scales when more CPU resources are provided will be added once the benchmark is complete.
+:::
 
 ### Query Benchmark
 
@@ -102,4 +110,6 @@ Similar to processing, query benchmark is dependent on the volume of data but no
 
 <table><thead><tr><th width="224">Query</th><th width="138">Query Interval</th><th width="120">Throughput</th><th>Response Times (in ms)</th></tr></thead><tbody><tr><td>Group by on Aggregate Data </td><td>1 Day</td><td>`In Progress`</td><td>`In Progress`</td></tr><tr><td>Group by on Aggregate Data </td><td>7 Days</td><td>`In Progress`</td><td>`In Progress`</td></tr><tr><td>Group by on Aggregate Data </td><td>30 Days</td><td>`In Progress`</td><td>`In Progress`</td></tr></tbody></table>
 
-> Note: Multiple query types with varying interval and historical configuration combinations are being benchmarked actively and results will be updated once the activity is completed. 
+:::note
+Multiple query types with varying interval and historical configuration combinations are being benchmarked actively and results will be updated once the activity is completed.
+:::
