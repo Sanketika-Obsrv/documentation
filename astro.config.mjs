@@ -56,6 +56,9 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Obsrv',
+      // Hide the "On this page" panel (and expand the main content) on pages
+      // whose ToC would only contain the auto-generated "Overview" entry.
+      routeMiddleware: './src/starlight-route-data.ts',
       // NOTE: code-block (Expressive Code) styling is NOT set here. The
       // `starlight-openapi` plugin overwrites the top-level `expressiveCode`
       // option during its `config:setup` (Starlight shallow-merges plugin
