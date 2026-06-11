@@ -43,6 +43,13 @@ const { toc } = Astro.locals.starlightRoute;
 
 <script>
 	import '../../node_modules/@astrojs/starlight/components-internals/TableOfContents/starlight-toc.ts';
+
+	// Long headings are clamped to 2 lines in the TOC (see custom.css). Expose
+	// the full text as a native tooltip so nothing is lost on hover.
+	for (const link of document.querySelectorAll<HTMLAnchorElement>('starlight-toc a')) {
+		const text = link.textContent?.trim();
+		if (text) link.setAttribute('title', text);
+	}
 </script>
 
 <style>

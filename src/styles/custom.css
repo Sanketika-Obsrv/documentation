@@ -513,19 +513,28 @@ a[aria-current='page']:focus {
   margin-top: 0.4rem;
 }
 
-/* ── Per-entry Lucide `hash` marker on each TOC link ── */
+/* ── Per-entry Lucide `hash` marker on each TOC link ──
+   Long headings (e.g. "ALERT_1001: [KAFKA]: High CPU Usage Detected…") are
+   clamped to 2 lines with an ellipsis so the panel stays tidy; the full text
+   is preserved in a `title` tooltip (set in TableOfContents.astro). The hash
+   marker is absolutely positioned so the line-clamp applies to the text only. */
 .right-sidebar-panel starlight-toc a {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.45rem;
+  position: relative;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  padding-left: 1.3em;
 }
 
 .right-sidebar-panel starlight-toc a::before {
   content: '';
-  flex: none;
+  position: absolute;
+  left: 0;
+  top: 0.32em;
   width: 0.85em;
   height: 0.85em;
-  margin-top: 0.32em;
   background-color: currentColor;
   opacity: 0.45;
   transition: opacity 0.12s ease;
