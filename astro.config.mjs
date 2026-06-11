@@ -6,6 +6,42 @@ import starlightImageZoom from 'starlight-image-zoom';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightOpenAPI from 'starlight-openapi';
 
+// Local Starlight plugin that applies our Expressive Code (code-block) styling.
+// Lives in a plugin — rather than the top-level `expressiveCode` option — so it
+// runs AFTER starlight-openapi (which otherwise overwrites `expressiveCode`).
+// The Starlight defaults ship a very muted light-theme palette (near-black
+// tokens that read as un-highlighted); GitHub's themes give vivid, familiar
+// syntax colours in both modes, with a softer frame (rounded, subtle border,
+// no heavy shadow). We spread any existing config so starlight-openapi's
+// `removeUnusedThemes: false` (needed for its API examples) is preserved.
+const obsrvCodeStyles = {
+  name: 'obsrv-code-styles',
+  hooks: {
+    'config:setup'({ config, updateConfig }) {
+      const existing = typeof config.expressiveCode === 'object' ? config.expressiveCode : {};
+      updateConfig({
+        expressiveCode: {
+          ...existing,
+          themes: ['github-dark-default', 'github-light-default'],
+          styleOverrides: {
+            ...(existing.styleOverrides ?? {}),
+            borderRadius: '10px',
+            borderColor: 'var(--obsrv-sidebar-border)',
+            codeFontFamily: 'var(--sl-font-mono)',
+            codeFontSize: '0.85rem',
+            codeLineHeight: '1.6',
+            uiFontFamily: 'var(--sl-font)',
+            frames: {
+              shadowColor: 'transparent',
+              editorActiveTabIndicatorBottomColor: 'var(--sl-color-accent)',
+            },
+          },
+        },
+      });
+    },
+  },
+};
+
 export default defineConfig({
   // Served at the root of the custom domain (https://docs.obsrv.ai), so no base
   // path. Root-absolute internal links/images resolve directly.
@@ -20,6 +56,12 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Obsrv',
+      // NOTE: code-block (Expressive Code) styling is NOT set here. The
+      // `starlight-openapi` plugin overwrites the top-level `expressiveCode`
+      // option during its `config:setup` (Starlight shallow-merges plugin
+      // updates), wiping out any themes/styleOverrides we set here. Instead we
+      // re-apply our config from `obsrvCodeStyles` plugin, registered LAST in
+      // `plugins` below so it runs after starlight-openapi and wins.
       plugins: [
         starlightImageZoom(),
         starlightScrollToTop(),
@@ -46,6 +88,7 @@ export default defineConfig({
             // validator can't see; the plugin guarantees their internal links.
             link.includes('/guides/api-specification'),
         }),
+        obsrvCodeStyles,
       ],
       logo: {
         src: './src/assets/obsrv-logo.svg',

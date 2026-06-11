@@ -6,26 +6,28 @@ sidebar:
   hidden: true
 ---
 
-import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+import CardGrid from '../../../components/CardGrid.astro';
 
 ## Roadmap
 
-<CardGrid>
-  <LinkCard title="FY2025-26" href="/explore/roadmap/fy2025-26/" description="Planned enhancements and ongoing engineering efforts for 2025-26" />
-  <LinkCard title="FY2024-25" href="/explore/roadmap/fy2024-25/" description="Completed and ongoing work for the 2024-25 fiscal year" />
-</CardGrid>
+<CardGrid cards={[
+  { title: "FY2025-26", href: "/explore/roadmap/fy2025-26/", description: "Planned enhancements and ongoing engineering efforts for 2025-26", icon: "map" },
+  { title: "FY2024-25", href: "/explore/roadmap/fy2024-25/", description: "Completed and ongoing work for the 2024-25 fiscal year", icon: "calendar" },
+]} />
 
 ## Case Studies
 
-<CardGrid>
-  <LinkCard title="Agri Climate Advisory" href="/explore/case-studies/agri-climate-advisory/" description="Climate-smart agriculture powered by real-time data" />
-  <LinkCard title="Learning Analytics at Population Scale" href="/explore/case-studies/learning-analytics-at-population-scale/" description="2B events/day on DIKSHA, India's national learning platform" />
-  <LinkCard title="IOT Observations Infra" href="/explore/case-studies/iot-observations-infra/" description="Real-time IOT sensor data at scale" />
-  <LinkCard title="Data Driven Features in Learning Platform" href="/explore/case-studies/data-driven-features-in-learning-platform/" description="Personalised learning using live behavioural data" />
-  <LinkCard title="Network Observability" href="/explore/case-studies/network-observability/" description="End-to-end visibility across distributed networks" />
-  <LinkCard title="Fraud Detection" href="/explore/case-studies/fraud-detection/" description="Real-time anomaly and fraud detection pipelines" />
-</CardGrid>
+<CardGrid cards={[
+  { title: "Agri Climate Advisory", href: "/explore/case-studies/agri-climate-advisory/", description: "Climate-smart agriculture powered by real-time data", icon: "leaf" },
+  { title: "Learning Analytics at Population Scale", href: "/explore/case-studies/learning-analytics-at-population-scale/", description: "2B events/day on DIKSHA, India's national learning platform", icon: "graduation" },
+  { title: "IOT Observations Infra", href: "/explore/case-studies/iot-observations-infra/", description: "Real-time IOT sensor data at scale", icon: "radio" },
+  { title: "Data Driven Features in Learning Platform", href: "/explore/case-studies/data-driven-features-in-learning-platform/", description: "Personalised learning using live behavioural data", icon: "sparkles" },
+  { title: "Network Observability", href: "/explore/case-studies/network-observability/", description: "End-to-end visibility across distributed networks", icon: "network" },
+  { title: "Fraud Detection", href: "/explore/case-studies/fraud-detection/", description: "Real-time anomaly and fraud detection pipelines", icon: "shield" },
+]} />
 
 ## Performance Benchmarks
 
-<LinkCard title="Performance Benchmarks" href="/explore/performance-benchmarks/" description="Proof of the pudding — scalability numbers for Obsrv" />
+<CardGrid cards={[
+  { title: "Performance Benchmarks", href: "/explore/performance-benchmarks/", description: "Proof of the pudding — scalability numbers for Obsrv", icon: "gauge" },
+]} />
