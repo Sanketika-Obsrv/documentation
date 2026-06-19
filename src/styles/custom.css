@@ -69,6 +69,23 @@
   --obsrv-sidebar-border: rgba(0, 0, 0, 0.10);
   --obsrv-sidebar-card-bg: rgba(255, 255, 255, 0.7);
 
+  /* Gradient cards (CardGrid.astro) — theme-aware so a single rule set works in
+     both modes. Defined here (not in the scoped component) because Astro
+     mis-scopes `[data-theme]` ancestor selectors inside component <style>. */
+  --obsrv-card-bg:            #ffffff;
+  --obsrv-card-bg-hover:      #ffffff;
+  --obsrv-card-border:        rgba(15, 23, 42, 0.10);
+  --obsrv-card-border-hover:  rgba(15, 23, 42, 0.20);
+  --obsrv-card-title:         #000000;
+  --obsrv-card-shadow:        0 1px 4px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --obsrv-card-shadow-hover:  0 4px 12px rgba(0, 0, 0, 0.10), 0 12px 32px rgba(0, 0, 0, 0.08);
+
+  /* Decorative elevation — a soft drop shadow reads on light backgrounds. On
+     dark these become `none` (a black shadow is invisible on the dark page, so
+     the border/background carry the surface) — keeping the two themes honest. */
+  --obsrv-elevation-sm:       0 1px 3px rgba(0, 0, 0, 0.05);
+  --obsrv-elevation-md:       0 2px 8px rgba(0, 0, 0, 0.06);
+
   /* Inline code chip */
   --sl-color-bg-inline-code: hsl(212, 30%, 96%);
 }
@@ -94,6 +111,25 @@
   --obsrv-active-text:   hsl(212, 82%, 75%);
   --obsrv-sidebar-border: rgba(255, 255, 255, 0.10);
   --obsrv-sidebar-card-bg: rgba(255, 255, 255, 0.03);
+
+  /* Gradient cards (CardGrid.astro) — a solid slate-800 surface that reads
+     clearly against the slate-900 page; shadows don't show on dark, so the
+     border + hover lift carry the card edge and elevation. */
+  --obsrv-card-bg:            #1e293b;
+  /* Hover lifts the surface to a lighter slate — the reliable elevation cue on
+     dark, since a black drop shadow is invisible against the page. Paired with
+     a brighter border and a deep, wide shadow for a clear sense of depth. */
+  --obsrv-card-bg-hover:      #24314a;
+  --obsrv-card-border:        rgba(255, 255, 255, 0.10);
+  --obsrv-card-border-hover:  rgba(255, 255, 255, 0.28);
+  --obsrv-card-title:         #ffffff;
+  --obsrv-card-shadow:        none;
+  --obsrv-card-shadow-hover:  0 14px 34px -10px rgba(0, 0, 0, 0.85);
+
+  /* Decorative elevation — see the light block. A black shadow has no impact on
+     the dark page, so these are `none`; the border/background convey surface. */
+  --obsrv-elevation-sm:       none;
+  --obsrv-elevation-md:       none;
 
   /* Inline code chip */
   --sl-color-bg-inline-code: hsl(215, 30%, 16%);
@@ -185,7 +221,7 @@ nav.sidebar {
     border: 1px solid var(--obsrv-sidebar-border);
     border-radius: 12px;
     background: var(--obsrv-sidebar-card-bg);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--obsrv-elevation-sm);
   }
 }
 
@@ -470,7 +506,7 @@ a[aria-current='page']:focus {
   border-radius: 10px;
   border: 1px solid var(--sl-color-hairline-light);
   background: var(--sl-color-bg);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--obsrv-elevation-sm);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -566,73 +602,7 @@ a[aria-current='page']:focus {
 .pagination-links a:hover {
   border-color: var(--obsrv-active-border);
   background: var(--obsrv-active-bg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-/* ============================================================
-   Card Grid — landing page
-   ============================================================ */
-
-.card-grid-section {
-  margin: 2.5rem 0;
-}
-
-.card-grid-section h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 1.25rem;
-  color: var(--sl-color-text);
-  letter-spacing: -0.01em;
-}
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.25rem;
-}
-
-.obsrv-card {
-  border: 1px solid var(--sl-color-hairline-light);
-  border-radius: 12px;
-  overflow: hidden;
-  text-decoration: none;
-  color: inherit;
-  background: var(--sl-color-bg);
-  transition: box-shadow 0.2s ease, transform 0.15s ease, border-color 0.15s ease;
-  display: flex;
-  flex-direction: column;
-}
-
-.obsrv-card:hover {
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.09);
-  transform: translateY(-2px);
-  border-color: var(--obsrv-active-border);
-}
-
-.card-image {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  display: block;
-}
-
-.card-body {
-  padding: 1rem 1.125rem 1.25rem;
-  flex: 1;
-}
-
-.card-title {
-  font-size: 0.9375rem;
-  font-weight: 700;
-  margin: 0 0 0.375rem;
-  color: var(--sl-color-text);
-}
-
-.card-desc {
-  font-size: 0.8125rem;
-  color: var(--sl-color-gray-3);
-  margin: 0;
-  line-height: 1.55;
+  box-shadow: var(--obsrv-elevation-md);
 }
 
 /* ============================================================
@@ -749,12 +719,3 @@ a[aria-current='page']:focus {
   gap: 0.55rem 1.5rem;
 }
 
-/* ============================================================
-   Responsive
-   ============================================================ */
-
-@media (max-width: 640px) {
-  .card-grid {
-    grid-template-columns: 1fr;
-  }
-}

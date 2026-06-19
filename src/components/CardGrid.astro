@@ -144,26 +144,27 @@ const ICONS: Record<IconKey, string> = {
     }
   }
 
+  /* Colours come from theme-aware tokens defined in custom.css (--obsrv-card-*)
+     so a single rule set covers light and dark — see the note there on why the
+     theme switch can't live in this scoped component stylesheet. */
   .gradient-card {
     display: flex;
     flex-direction: column;
     border-radius: 14px;
     overflow: hidden;
     text-decoration: none;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    background: var(--sl-color-bg, #fff);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
-  }
-
-  [data-theme='dark'] .gradient-card {
-    border-color: rgba(255, 255, 255, 0.08);
-    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid var(--obsrv-card-border);
+    background: var(--obsrv-card-bg);
+    box-shadow: var(--obsrv-card-shadow);
+    transition: transform 0.18s ease, box-shadow 0.18s ease,
+      border-color 0.18s ease, background-color 0.18s ease;
   }
 
   .gradient-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10), 0 12px 32px rgba(0, 0, 0, 0.08);
+    background-color: var(--obsrv-card-bg-hover);
+    border-color: var(--obsrv-card-border-hover);
+    box-shadow: var(--obsrv-card-shadow-hover);
     text-decoration: none;
   }
 
@@ -193,7 +194,7 @@ const ICONS: Record<IconKey, string> = {
     margin: 0 0 0.3rem;
     font-size: 1rem;
     font-weight: 600;
-    color: var(--sl-color-text);
+    color: var(--obsrv-card-title);
     line-height: 1.3;
   }
 
@@ -202,9 +203,5 @@ const ICONS: Record<IconKey, string> = {
     font-size: 0.875rem;
     color: var(--sl-color-gray-3);
     line-height: 1.5;
-  }
-
-  [data-theme='dark'] .gradient-card__desc {
-    color: var(--sl-color-gray-3, #94a3b8);
   }
 </style>
