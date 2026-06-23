@@ -5,21 +5,21 @@ sidebar:
   hidden: true
 ---
 
-import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+import CardGrid from '../../../components/CardGrid.astro';
 
 ## Current Releases
 
-<CardGrid>
-  <LinkCard title="2.1.0" href="/release-notes/210/" description="Obsrv 2.1.0 — includes 2.1.1 through 2.1.5 patch releases" />
-  <LinkCard title="2.0.0" href="/release-notes/200/" description="Obsrv 2.0.0 — major release" />
-  <LinkCard title="1.9.0" href="/release-notes/190/" description="Auto-scaling, ingestion accuracy improvements, Kubernetes 1.32 upgrade" />
-  <LinkCard title="1.8.0" href="/release-notes/180/" description="Alerting system improvements and AWS EKS cluster upgrade" />
-  <LinkCard title="1.7.0" href="/release-notes/170/" description="Data replay and aggregation features with key bug fixes" />
-</CardGrid>
+<CardGrid cards={[
+  { title: "2.1.0", href: "/release-notes/210/", description: "Obsrv 2.1.0 — includes 2.1.1 through 2.1.5 patch releases", icon: "rocket" },
+  { title: "2.0.0", href: "/release-notes/200/", description: "Obsrv 2.0.0 — major release", icon: "rocket" },
+  { title: "1.9.0", href: "/release-notes/190/", description: "Auto-scaling, ingestion accuracy improvements, Kubernetes 1.32 upgrade", icon: "tag" },
+  { title: "1.8.0", href: "/release-notes/180/", description: "Alerting system improvements and AWS EKS cluster upgrade", icon: "tag" },
+  { title: "1.7.0", href: "/release-notes/170/", description: "Data replay and aggregation features with key bug fixes", icon: "tag" },
+]} />
 
 ## Archive
 
-<CardGrid>
-  <LinkCard title="1.2.0" href="/release-notes/archive/120/" />
-  <LinkCard title="1.1.0-Beta" href="/release-notes/archive/110-beta/" />
-</CardGrid>
+<CardGrid cards={[
+  { title: "1.2.0", href: "/release-notes/archive/120/", description: "Earlier Obsrv 1.2.0 release notes", icon: "archive" },
+  { title: "1.1.0-Beta", href: "/release-notes/archive/110-beta/", description: "Obsrv 1.1.0 beta release notes", icon: "archive" },
+]} />

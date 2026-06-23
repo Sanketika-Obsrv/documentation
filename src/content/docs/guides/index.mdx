@@ -3,13 +3,13 @@ title: "Guides"
 description: Documentation to install and operate an Obsrv instance
 ---
 
-import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+import CardGrid from '../../../components/CardGrid.astro';
 
-<CardGrid>
-  <LinkCard title="Installation Guide" href="/guides/installation/" description="Deploy Obsrv on AWS, Azure, GCP, OCI, or an on-premises data center" />
-  <LinkCard title="API Specification" href="/guides/api-specification/" description="Complete REST API reference for Dataset Management, Connectors, Data In/Out, and Alerts" />
-  <LinkCard title="Management Console" href="/guides/management-console-guide/" description="Manage datasets and connectors through the web UI" />
-  <LinkCard title="Developer Guide" href="/guides/developer-guide/" description="Set up your development environment and contribute to Obsrv" />
-  <LinkCard title="Example Datasets" href="/guides/example-datasets/" description="Sample datasets to get started quickly" />
-  <LinkCard title="Connectors Developer Guide" href="/guides/connectors-developer-guide/" description="Build custom connectors using the Connector SDK" />
-</CardGrid>
+<CardGrid cards={[
+  { title: "Installation Guide", href: "/guides/installation/", description: "Deploy Obsrv on AWS, Azure, GCP, OCI, or an on-premises data center", icon: "server" },
+  { title: "API Specification", href: "/guides/api-specification/", description: "Complete REST API reference for Dataset Management, Connectors, Data In/Out, and Alerts", icon: "api" },
+  { title: "Management Console", href: "/guides/management-console-guide/", description: "Manage datasets and connectors through the web UI", icon: "monitor" },
+  { title: "Developer Guide", href: "/guides/developer-guide/", description: "Set up your development environment and contribute to Obsrv", icon: "terminal" },
+  { title: "Example Datasets", href: "/guides/example-datasets/", description: "Sample datasets to get started quickly", icon: "database" },
+  { title: "Connectors Developer Guide", href: "/guides/connectors-developer-guide/", description: "Build custom connectors using the Connector SDK", icon: "puzzle" },
+]} />

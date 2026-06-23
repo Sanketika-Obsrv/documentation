@@ -5,12 +5,12 @@ sidebar:
   order: 0
 ---
 
-import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+import CardGrid from '../../../../../components/CardGrid.astro';
 
-<CardGrid>
-  <LinkCard title="Infra Alerts and Recommended Actions" href="/how-tos/alerts-and-notifications/alerts-and-recommended-actions/infra-alerts/" description="Hardware, network, and critical infrastructure alerts with recommended resolution steps" />
-  <LinkCard title="Ingestion System Alerts and Recommended Actions" href="/how-tos/alerts-and-notifications/alerts-and-recommended-actions/ingestion-alerts/" description="Data input errors, performance issues, and system failures in the ingestion pipeline" />
-  <LinkCard title="Processing System Alerts and Recommended Actions" href="/how-tos/alerts-and-notifications/alerts-and-recommended-actions/processing-alerts/" description="Performance degradation, task failures, or delays in data processing" />
-  <LinkCard title="Querying System Alerts and Recommended Actions" href="/how-tos/alerts-and-notifications/alerts-and-recommended-actions/querying-alerts/" description="Query performance failures, high resource usage, and downtime of querying systems" />
-  <LinkCard title="Storage System Alerts and Recommended Actions" href="/how-tos/alerts-and-notifications/alerts-and-recommended-actions/storage-alerts/" description="Disk space issues, database failures, and read/write errors in the storage layer" />
-</CardGrid>
+<CardGrid cards={[
+  { title: "Infra Alerts and Recommended Actions", href: "/how-tos/alerts-and-notifications/alerts-and-recommended-actions/infra-alerts/", description: "Hardware, network, and critical infrastructure alerts with recommended resolution steps", icon: "server" },
+  { title: "Ingestion System Alerts and Recommended Actions", href: "/how-tos/alerts-and-notifications/alerts-and-recommended-actions/ingestion-alerts/", description: "Data input errors, performance issues, and system failures in the ingestion pipeline", icon: "download" },
+  { title: "Processing System Alerts and Recommended Actions", href: "/how-tos/alerts-and-notifications/alerts-and-recommended-actions/processing-alerts/", description: "Performance degradation, task failures, or delays in data processing", icon: "cpu" },
+  { title: "Querying System Alerts and Recommended Actions", href: "/how-tos/alerts-and-notifications/alerts-and-recommended-actions/querying-alerts/", description: "Query performance failures, high resource usage, and downtime of querying systems", icon: "search" },
+  { title: "Storage System Alerts and Recommended Actions", href: "/how-tos/alerts-and-notifications/alerts-and-recommended-actions/storage-alerts/", description: "Disk space issues, database failures, and read/write errors in the storage layer", icon: "drive" },
+]} />

@@ -8,7 +8,7 @@ sidebar:
     variant: tip
 ---
 
-import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+import CardGrid from '../../../components/CardGrid.astro';
 import ProFeatureNotice from '../../../components/ProFeatureNotice.astro';
 
 <ProFeatureNotice />
@@ -20,7 +20,7 @@ Obsrv provides comprehensive autoscaling capabilities through Horizontal Pod Aut
 * **Storage Management**: Automatic volume expansion for components like Druid Historicals to handle growing data volumes
 * **Cost Efficiency**: Balance between performance and resource utilization through configurable thresholds and scaling policies
 
-<CardGrid>
-  <LinkCard title="Autoscaling Components" href="/scale-infrastructure/autoscaling-components/" description="Configure HPA for Flink and Druid using KEDA" />
-  <LinkCard title="Autoscaling Volumes" href="/scale-infrastructure/autoscaling-volumes/" description="Automatically expand persistent volumes as data grows" />
-</CardGrid>
+<CardGrid cards={[
+  { title: "Autoscaling Components", href: "/scale-infrastructure/autoscaling-components/", description: "Configure HPA for Flink and Druid using KEDA", icon: "cpu" },
+  { title: "Autoscaling Volumes", href: "/scale-infrastructure/autoscaling-volumes/", description: "Automatically expand persistent volumes as data grows", icon: "drive" },
+]} />

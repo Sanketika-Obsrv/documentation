@@ -5,10 +5,9 @@ sidebar:
   order: 0
 ---
 
-import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+import CardGrid from '../../../../components/CardGrid.astro';
 
-
-<CardGrid>
-  <LinkCard title="Obsrv Error Codes and Resolution" href="/how-tos/troubleshoot/obsrv-error-codes-and-resolution/" description="Obsrv Error Codes and Resolution" />
-  <LinkCard title="Obsrv Troubleshooting Guide" href="/how-tos/troubleshoot/obsrv-troubleshooting-guide/" description="Obsrv Troubleshooting Guide" />
-</CardGrid>
+<CardGrid cards={[
+  { title: "Obsrv Error Codes and Resolution", href: "/how-tos/troubleshoot/obsrv-error-codes-and-resolution/", description: "Reference of Obsrv error codes and how to resolve them", icon: "file" },
+  { title: "Obsrv Troubleshooting Guide", href: "/how-tos/troubleshoot/obsrv-troubleshooting-guide/", description: "Diagnose and fix common operational issues in Obsrv", icon: "wrench" },
+]} />

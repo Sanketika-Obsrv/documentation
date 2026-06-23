@@ -5,21 +5,21 @@ sidebar:
   order: 2
 ---
 
-import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+import CardGrid from '../../../../../components/CardGrid.astro';
 
 ## Alerts Notification Setup
 
 The setup process involves configuring the system to send notifications when specific conditions or events occur. Users can select preferred notification channels (email, SMS, webhooks, Slack, etc.) and define alert rules based on thresholds, event types, or errors. Delivery options, including message formats and frequency, are also customizable. Once configured, testing ensures the system is working as intended.
 
-<CardGrid>
-  <LinkCard title="Alerts Notification Setup Guide" href="/how-tos/alerts-and-notifications/notifications/alerts-notification-setup/" description="Step-by-step guide to configure notification channels and alert rules in Obsrv" />
-</CardGrid>
+<CardGrid cards={[
+  { title: "Alerts Notification Setup Guide", href: "/how-tos/alerts-and-notifications/notifications/alerts-notification-setup/", description: "Step-by-step guide to configure notification channels and alert rules in Obsrv", icon: "bell" },
+]} />
 
 ## Notification Templates
 
 To standardize the format of alerts, notification templates are used. These templates define the structure of the message, including key details such as alert type, severity, timestamp, and action required. Templates can be customized with dynamic fields to provide tailored information, ensuring that alerts are clear and actionable across various platforms.
 
-<CardGrid>
-  <LinkCard title="Notification Template Setup Guide" href="/how-tos/alerts-and-notifications/notifications/notification-template-setup/" description="Create and manage custom notification templates in Grafana" />
-  <LinkCard title="Sample Notification Templates" href="/how-tos/alerts-and-notifications/notifications/sample-notification-templates/" description="Ready-to-use template code snippets and email preview examples" />
-</CardGrid>
+<CardGrid cards={[
+  { title: "Notification Template Setup Guide", href: "/how-tos/alerts-and-notifications/notifications/notification-template-setup/", description: "Create and manage custom notification templates in Grafana", icon: "file" },
+  { title: "Sample Notification Templates", href: "/how-tos/alerts-and-notifications/notifications/sample-notification-templates/", description: "Ready-to-use template code snippets and email preview examples", icon: "code" },
+]} />
