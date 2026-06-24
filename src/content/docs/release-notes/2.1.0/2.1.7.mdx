@@ -1,0 +1,136 @@
+---
+title: "2.1.7"
+description: "Obsrv 2.1.7 release notes."
+sidebar:
+  order: 7
+  badge:
+    text: latest
+    variant: tip
+---
+
+**Release Date:** 2026-06-24
+
+**Release Type:** Minor
+
+**Objective:** Added IRSA (IAM Roles for Service Accounts) support for Trino and HMS (Hive Metastore), replacing static S3 access/secret keys with OIDC-based credential chain.
+
+**Focus:** Trino and HMS now authenticate to S3 via IAM roles bound to Kubernetes service accounts, eliminating the need to provision or rotate static AWS credentials.
+
+## What's New
+
+- **Trino SA** — New IAM role `trino-sa-iam-role` with OIDC trust policy; Trino coordinator and workers use `trino-sa` service account with IRSA annotation.
+- **HMS SA** — New IAM role `hms-sa-iam-role` with OIDC trust policy; HMS pod uses `hms-sa` service account with IRSA annotation.
+
+## Prerequisites
+
+Admin must add `iam:CreateRole` permission scoped to the two new role names in the `ObsrvRestrictedUser` IAM policy before running terraform:
+
+- `<env>-<building_block>-trino-sa-iam-role`
+- `<env>-<building_block>-hms-sa-iam-role`
+
+**Console → IAM → Users → ObsrvRestrictedUser → Add permissions → Inline policy:**
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:GetRole",
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:ListAttachedRolePolicies",
+        "iam:TagRole",
+        "iam:UntagRole",
+        "iam:ListRoleTags"
+      ],
+      "Resource": [
+        "arn:aws:iam::*:role/*-trino-sa-iam-role",
+        "arn:aws:iam::*:role/*-hms-sa-iam-role"
+      ]
+    }
+  ]
+}
+```
+
+## Migration Steps
+
+### 1. Create IAM roles
+
+Trino and HMS need dedicated IAM roles in AWS so they can authenticate to S3 without static keys. Each role has a trust policy scoped to its specific Kubernetes service account via OIDC — meaning only that exact pod can assume the role.
+
+```bash
+cd obsrv-automation/terraform/aws
+
+terraform apply \
+  -var-file=vars/cluster_overrides.tfvars \
+  -target=module.eks.aws_iam_role.trino_sa_iam_role \
+  -target=module.eks.aws_iam_role.hms_sa_iam_role
+```
+
+> `AmazonS3FullAccess` is attached via `managed_policy_arns` directly on the role — no separate policy attachment resource.
+
+### 2. Generate global-cloud-values-aws.yaml
+
+Once the roles are created, their ARNs need to flow into the helm values so the Kubernetes service accounts get annotated with the correct role. This step renders the terraform template and writes the updated `helmcharts/global-cloud-values-aws.yaml` with the actual ARNs substituted in.
+
+```bash
+terraform apply \
+  -var-file=vars/cluster_overrides.tfvars \
+  -target=module.aws_cloud_values
+```
+
+Verify the ARNs were written correctly:
+
+```bash
+grep -A2 "trino:\|hms:" ../../helmcharts/global-cloud-values-aws.yaml
+```
+
+Expected:
+
+```yaml
+service_accounts:
+  trino: &trino_sa_annotation
+    eks.amazonaws.com/role-arn: "arn:aws:iam::<account-id>:role/<env>-<bb>-trino-sa-iam-role"
+  hms: &hms_sa_annotation
+    eks.amazonaws.com/role-arn: "arn:aws:iam::<account-id>:role/<env>-<bb>-hms-sa-iam-role"
+```
+
+### 3. Install hudi bundle
+
+Now deploy the updated helm charts. This creates the `trino-sa` and `hms-sa` Kubernetes service accounts with the IRSA role ARN annotation, and deploys HMS, Trino, and lakehouse-connector configured to use `WebIdentityTokenCredentialsProvider` instead of static keys.
+
+```bash
+cd obsrv-automation/helmcharts/kitchen
+
+bash install.sh hudi
+```
+
+### 4. Verify
+
+**Service account annotations** — confirms the IRSA annotation is set. EKS will inject `AWS_ROLE_ARN` into the pod only when this annotation is present on the service account.
+
+```bash
+kubectl get sa trino-sa -n trino -o jsonpath='{.metadata.annotations}'
+kubectl get sa hms-sa -n hms -o jsonpath='{.metadata.annotations}'
+```
+
+Expected on both — `eks.amazonaws.com/role-arn` set to the respective role ARN.
+
+**Trino query** — the single query that confirms the full chain is working: Trino coordinator connects to HMS over thrift, HMS reads the S3 warehouse directory using the IRSA role, and Trino returns the schema list. If this query succeeds, credentials are correctly configured end-to-end via service accounts.
+
+```bash
+kubectl exec -n trino deploy/trino-coordinator -- \
+  trino --execute "SHOW SCHEMAS FROM lakehouse"
+```
+
+A successful response (list of schemas) means IRSA is working and all three services — Trino, HMS, and lakehouse-connector — are accessing S3 through their service account roles.
+
+:::note
+- When upgrading to release 2.1.7, use version 2.0.3 of enterprise-automation/obsrv-scripts-infy.
+- For upgrades from **v2.1.x to v2.1.7**, upgrade only the **hudi** bundle.
+- Static S3 credentials (`s3_access_key`, `s3_secret_key`) are no longer used by Trino, HMS, or lakehouse-connector. Remove them from your environment config if present.
+:::

@@ -1,0 +1,255 @@
+---
+title: "AWS Installation – Helm Charts"
+description: "Deploy Obsrv on an existing AWS EKS cluster using Helm charts: prerequisites, Helm configuration, execution, and verification."
+sidebar:
+  order: 3
+---
+
+## Installation Steps
+
+### 1. Prerequisites
+
+#### 1. Clone the Obsrv Automation and Enterprise Repositories
+
+1. Clone the below repository and checkout the desired branch or release tag:
+
+```bash
+git clone git@github.com:Sanketika-Obsrv/obsrv-automation.git
+cd obsrv-automation
+git checkout <latest_release_tag>  # or use 'main' for the latest code
+```
+
+2. Optional (if the product is enterprise) — clone the below repository and checkout the desired branch or release tag:
+
+```bash
+git clone git@github.com:Sanketika-Obsrv/enterprise-automation.git
+cd enterprise-automation
+git checkout <latest_release_tag>  # or use 'main' for the latest code
+```
+
+#### 2. Install Dependencies
+
+An existing EKS cluster with `kubectl` and `helm` already installed. For detailed prerequisites, refer to [Prerequisites to Install Obsrv](#1-prerequisites-to-install-obsrv).
+
+#### 3. Configure Cluster Access
+
+Set the kubeconfig path in your environment:
+
+```bash
+export KUBE_CONFIG_PATH="$HOME/.kube/config"
+```
+
+```bash
+export KUBECONFIG="$HOME/.kube/obsrv-kube-config.yaml"
+```
+
+#### 4. Verify the Cluster
+
+Once the installation completes, verify that your Kubernetes cluster is up and running:
+
+```bash
+kubectl get nodes
+```
+
+:::note
+The result of the above command should show the nodes in your Kubernetes cluster.
+:::
+
+***
+
+### 2. Helm Configurations
+
+#### 1. Navigate to the Helm Chart Directory
+
+```bash
+cd ./obsrv-automation/helmcharts/
+```
+
+#### 2. Update AWS Cloud Configuration
+
+Modify `global-cloud-values-aws.yaml` with the appropriate values for your environment:
+
+```yaml
+global:
+  cloud_storage_provider: "aws"
+  cloud_store_provider: "s3"
+  cloud_storage_region: "<region>"
+  dataset_api_cloud_bucket: "<dataset_bucket_name>"
+  config_api_cloud_bucket: "<config_bucket_name>"
+  postgresql_backup_cloud_bucket: "<backup_bucket_name>"
+  velero_backup_cloud_bucket: "<velero_backup_bucket_name>"
+  cloud_storage_bucket: "<storage_bucket_name>"
+  hudi_metadata_bucket: "s3a://<hudi_bucket_name>/hudi"
+  cloud_storage_config: |
+    '{"identity":"<access-key>","credential":"<secret-key>","region":"<region-name>"}'
+
+  storage_class_name: "<storage-class-name>"  # Name of the Kubernetes StorageClass to use for PVCs
+  checkpoint_bucket: "s3://<checkpoint-bucket-name>"
+  s3_access_key: "<aws-access-key>"
+  s3_secret_key: "<aws-secret-key>"
+
+# Update only if the Kong service type is LoadBalancer
+kong_annotations:
+  service.beta.kubernetes.io/aws-load-balancer-type: nlb
+  service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+  service.beta.kubernetes.io/aws-load-balancer-eip-allocations: "<elastic-ip>"
+  service.beta.kubernetes.io/aws-load-balancer-subnets: "<subnet-id>"
+
+service_accounts:
+  enabled: true
+  secor: eks.amazonaws.com/role-arn: "<role-arn>"  # arn:aws:iam::<account-id>:role/<role-name>
+  dataset_api: eks.amazonaws.com/role-arn: "<role-arn>"  # arn:aws:iam::<account-id>:role/<role-name>
+  config_api: eks.amazonaws.com/role-arn: "<role-arn>"  # arn:aws:iam::<account-id>:role/<role-name>
+  druid_raw: eks.amazonaws.com/role-arn: "<role-arn>"  # arn:aws:iam::<account-id>:role/<role-name>
+  flink: eks.amazonaws.com/role-arn: "<role-arn>"  # arn:aws:iam::<account-id>:role/<role-name>
+  postgresql_backup: eks.amazonaws.com/role-arn: "<role-arn>"  # arn:aws:iam::<account-id>:role/<role-name>
+  s3_exporter: eks.amazonaws.com/role-arn: "<role-arn>"  # arn:aws:iam::<account-id>:role/<role-name>
+  spark: eks.amazonaws.com/role-arn: "<role-arn>"  # arn:aws:iam::<account-id>:role/<role-name>
+  velero: eks.amazonaws.com/role-arn: "<role-arn>"  # arn:aws:iam::<account-id>:role/<role-name>
+
+trino:
+  additionalCatalogs:
+    lakehouse: |-
+      connector.name=hudi
+      hive.metastore.uri=thrift://hudi-hms.hms.svc:9083
+      hive.s3.aws-access-key=<aws-access-key>
+      hive.s3.aws-secret-key=<aws-secret-key>
+      hive.s3.ssl.enabled=false
+
+kong:
+  proxy:
+    type: NodePort  # Update the Kong service to NodePort and configure an external ingress service using the NodePort IP. Otherwise, use LoadBalancer.
+```
+
+#### 3. Configure Domain
+
+Update the `global-values.yaml` file and replace `<domain>` with your actual access endpoint — either your domain, Elastic IP, or NodePort external IP (depending on the Kong service type). This domain will be used to access the Obsrv Console UI.
+
+### 3. Helm Execution
+
+Make the script executable, set the environment variables, and run the installation.
+
+The file `install.sh` is located in `obsrv-automation/helmcharts/kitchen`.
+
+```bash
+export cloud_env=aws
+export AWS_ACCESS_KEY_ID=<aws-access-key>
+export AWS_SECRET_ACCESS_KEY=<aws-secret-key>
+export AWS_DEFAULT_REGION=<aws-region>
+export KUBE_CONFIG_PATH="$HOME/.kube/obsrv-kube-config.yaml"
+export KUBECONFIG="$HOME/.kube/obsrv-kube-config.yaml"
+
+chmod +x ./kitchen/install.sh
+./kitchen/install.sh all
+```
+
+***
+
+### 4. Post-Installation Verification
+
+After completing the installation, follow these steps to verify that all components are running correctly:
+
+#### 1. Check Kubernetes Components
+
+1. **Verify all pods are running**:
+
+   ```bash
+   kubectl get pods -A
+   ```
+
+   All pods should be in `Running` state. Common namespaces to check:
+
+   * `flink`: Core Pipeline
+   * `monitoring`: Monitoring stack
+   * `dataset-api`: Dataset APIs
+   * `web-console`: Dataset Management console
+2. **Check Services**:
+
+   ```bash
+   kubectl get svc -A
+   ```
+
+   Verify that essential services have external IPs assigned, particularly the Kong service.
+
+If any component fails these checks, refer to the component-specific logs:
+
+```bash
+kubectl logs -f <pod-name> -n <namespace>
+```
+
+***
+
+By following these steps, you will ensure a successful installation and configuration of Obsrv on AWS.
+
+### HOW TO's
+
+#### 1. Prerequisites To Install Obsrv
+
+| Requirement Category                  | Details                                                                                                                                                                       |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Kubernetes Cluster                    | Existing AWS EKS cluster                                                                                                                                                       |
+| kubectl Access                        | kubectl configured and connected to the cluster                                                                                                                               |
+| Helm                                  | Helm installed on your local machine                                                                                                                                          |
+| Cluster Capacity                      | Minimum 24 vCPU & 96 GB RAM                                                                                                                                                    |
+| Node Architecture                     | Nodes should be amd64 (recommended & tested)                                                                                                                                   |
+| Storage Add-on                        | AWS EBS CSI Driver must be installed and active (Required for Persistent Volumes)                                                                                             |
+| IAM Roles for Service Accounts (IRSA) | Service accounts must be manually created and mapped since the cluster already exists. For the required ServiceAccounts, refer to [IAM Role Requirements (IRSA)](#2-iam-role-requirements-irsa) |
+| AWS Access                            | AWS credentials / IAM permissions to manage roles, S3, EBS, etc.                                                                                                              |
+| S3 Buckets                            | At least one bucket is required for backups and storage (three separate buckets recommended). For details, refer to [S3 Bucket Requirements](#3-s3-bucket-requirements)        |
+
+***
+
+#### 2. IAM Role Requirements (IRSA)
+
+Obsrv components require access to AWS services (primarily S3).
+
+⚠️ Since the cluster already exists, **IAM roles are NOT created automatically**.
+You must **create IAM roles** and annotate Kubernetes ServiceAccounts before installing Obsrv.
+
+**Required Namespaces / ServiceAccounts:**
+
+```
+secor, dataset-api, config-api, druid-raw, flink, postgresql-backup, s3-exporter, spark, velero
+```
+
+**ServiceAccount Options**
+
+You have two ways to configure ServiceAccounts for Obsrv components:
+
+1. **Single ServiceAccount for all components**
+   * Use **one ServiceAccount** across all Obsrv components.
+   * Ensure that **all required namespaces exist** and reference this ServiceAccount.
+2. **Separate ServiceAccounts per namespace**
+   * Create individual ServiceAccounts in each required namespace listed above.
+   * Annotate each ServiceAccount with its corresponding IAM role.
+
+**Referencing IAM Roles**
+
+You can use our Terraform module as a guide for **role naming patterns** and **permissions**: [obsrv-iam-roles example](https://github.com/Sanketika-Obsrv/obsrv-automation/blob/main/terraform/modules/aws/eks/main.tf#L217)
+
+* Create IAM roles according to the examples
+* Annotate service accounts with correct `eks.amazonaws.com/role-arn`
+
+See also: [AWS IAM Policy](/guides/installation/aws-installation-guide/aws-iam-policy/).
+
+***
+
+#### 3. S3 Bucket Requirements
+
+* Used for backups & cloud storage operations
+* Either **a single bucket** or **three separate buckets** (recommended for clean separation)
+
+**CORS configuration required:**
+
+```hcl
+cors_rule {
+  allowed_headers = ["*"]
+  allowed_methods = ["GET", "POST", "PUT", "DELETE"]
+  allowed_origins = ["*"]
+  expose_headers  = ["ETag"]
+  max_age_seconds = 3000
+}
+```
+
+**After installation, you must perform sanity testing to validate the deployment.**
+👉 Please refer to the [Sanity Checklist](/how-tos/sanity-checklist/).

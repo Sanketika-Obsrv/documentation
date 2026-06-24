@@ -164,8 +164,24 @@ export default defineConfig({
               label: 'Installation Guide',
               collapsed: true,
               items: [
-                { label: 'AWS', slug: 'guides/installation/aws-installation-guide' },
-                { label: 'Azure', slug: 'guides/installation/azure-installation-guide' },
+                {
+                  label: 'AWS Installation Guide',
+                  collapsed: true,
+                  items: [
+                    { label: 'AWS Installation Guide', slug: 'guides/installation/aws-installation-guide' },
+                    { label: 'AWS IAM Policy', slug: 'guides/installation/aws-installation-guide/aws-iam-policy' },
+                    { label: 'AWS Cloud Networking Architecture', slug: 'guides/installation/aws-installation-guide/aws-cloud-networking-architecture' },
+                    { label: 'AWS Installation – Helm Charts', slug: 'guides/installation/aws-installation-guide/aws-installation-helm-charts' },
+                  ],
+                },
+                {
+                  label: 'Azure',
+                  collapsed: true,
+                  items: [
+                    { label: 'Azure', slug: 'guides/installation/azure-installation-guide' },
+                    { label: 'Azure Installation – Helm Charts', slug: 'guides/installation/azure-installation-guide/azure-installation-helm-charts' },
+                  ],
+                },
                 { label: 'GCP', slug: 'guides/installation/gcp-installation-guide' },
                 { label: 'Data Center', slug: 'guides/installation/data-center-installation-guide' },
               ],
