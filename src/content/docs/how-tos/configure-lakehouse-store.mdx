@@ -7,25 +7,27 @@ sidebar:
 
 ## Enable the Lakehouse Store
 
-Lakehouse storage is configurable but disabled by default. It must be enabled at the web console and API service level.
+Lakehouse storage is configurable but disabled by default. It must be enabled at the infrastructure level and the web console/API service level.
 
 **Follow these steps:**
 
-1. Update the management-console/web-console Helm chart's `values.yaml` file by setting `lake_house: true` under the `STORAGE_TYPES` configuration:
+1. The Hudi bundle is disabled by default in a default installation from [obsrv-automation](https://github.com/Sanketika-Obsrv/obsrv-automation). Install it separately by running: `bash install.sh hudi`.
+
+2. Update the management-console/web-console Helm chart's `values.yaml` file by setting `lake_house: true` under the `STORAGE_TYPES` configuration:
 
    ```yaml
    STORAGE_TYPES: '{"lake_house":true,"realtime_store":true}'
    ```
 
-2. Update the dataset-api Helm chart's `values.yaml` file by setting `lake_house: true` under the `storage_types` configuration:
+3. Update the dataset-api Helm chart's `values.yaml` file by setting `lake_house: true` under the `storage_types` configuration:
 
    ```yaml
    storage_types: '{"lake_house":true,"realtime_store":true}'
    ```
 
-3. Upgrade both the management-console/web-console and dataset-api Helm charts for the changes to take effect.
+4. Upgrade both the management-console/web-console and dataset-api Helm charts for the changes to take effect.
 
-4. Access the Obsrv console and configure the **lakehouse store** to your dataset.
+5. Access the Obsrv console and configure the **lakehouse store** to your dataset.
 
 ---
 
