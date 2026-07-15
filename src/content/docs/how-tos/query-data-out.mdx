@@ -18,6 +18,47 @@ POST /v2/data/query?table1=<value>&table2=<value>...
 - The **parameter key** must exactly match the table name used in the SQL (`table1`, `table2`, ...).
 - The **parameter value** is the datasource to query — passed either as an **alias** (default) or as a raw **datasource_ref** (`alias=false`).
 
+## Authentication
+
+The examples below hit `localhost:3000` with no auth header — fine for local/unsecured setups. On a secured deployment with **RBAC enabled**, the API requires a bearer token:
+
+```
+Authorization: Bearer <user_access_token>
+```
+
+The caller's token must grant the `api.data.out` permission. Missing/invalid tokens return `401`; a token without the required permission returns `403`. If RBAC is disabled, no token is required.
+
+To obtain a token, follow **How-Tos → Troubleshoot → [Obsrv Troubleshooting Guide → Dataset APIs access issue (Unauthorised Access error)](/how-tos/troubleshoot/obsrv-troubleshooting-guide/#dataset-apis-access-issue-unauthorised-access-error)**, which has the exact token-fetch `curl` and how to pass the token in the request header.
+
+## Request body
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `id` | yes | Fixed API id: `api.data.out`. |
+| `ver` | yes | API version, e.g. `v2`. |
+| `ts` | yes | Request timestamp (ISO-8601). |
+| `params.msgid` | yes | Client-supplied message id (echoed back in the response). |
+| `query` | yes | The SQL query string. Table names in it are the placeholders mapped by the `?table1=...` query params. |
+
+The datasource mapping is supplied via the **URL query params** (`?table1=...`), not in the body.
+
+## Example success response
+
+```json
+{
+  "id": "api.data.out",
+  "ver": "v2",
+  "ts": "2026-07-15T12:00:00+05:30",
+  "params": { "status": "SUCCESS", "msgid": "single", "resmsgid": "<generated>" },
+  "responseCode": "OK",
+  "result": [
+    { "count": 1234 }
+  ]
+}
+```
+
+`result` holds the Druid query output (array of rows). Error responses use the same envelope with `params.status = "FAILED"` and an error `code`/`message`.
+
 ## What to pass as the parameter value
 
 The optional `alias` query parameter decides how each value is interpreted.
@@ -28,6 +69,8 @@ Each parameter value is the datasource **alias** (the dataset alias, or a tables
 
 - To query a dataset's main data, pass the **dataset alias**.
 - To query a tables[rollups], pass that **tables[rollups] alias**.
+
+> **Alias vs datasource_ref — how to tell them apart.** The **alias** is the stable, human-facing name returned by the read APIs (e.g. `<dataset>_druid`, or `<dataset>_druid_master` for a master dataset). The **datasource_ref** is the physical Druid datasource name, which may carry a date suffix (e.g. `<dataset>_druid-20260715`). In the default mode you pass the alias; with `alias=false` you pass the exact `datasource_ref`. Always take both values from the read APIs rather than constructing them by hand — the suffix scheme is an internal detail.
 
 ```
 POST /v2/data/query?table1=<dataset-or-tables[rollups]-alias>
@@ -118,8 +161,10 @@ curl --location 'localhost:3000/v2/data/query?table1=progress-details_druid&tabl
 curl --location 'localhost:3000/v2/data/query?table1=progress-details_druid&table2=user-details_druid_master' \
 --header 'Content-Type: application/json' \
 --data '{"id":"api.data.out","ver":"v2","ts":"2026-07-14T00:00:00+05:30","params":{"msgid":"subquery-join"},
-"query":"SELECT COUNT(*) FROM (SELECT * FROM \"table1\" WHERE LOWER(\"root_org\") = LOWER('\''Infosys'\'')) AS \"table1\" INNER JOIN (SELECT * FROM \"table2\" WHERE LOWER(\"root_org\") = LOWER('\''Infosys'\'')) AS \"table2\" ON \"table1\".\"user_id\" = \"table2\".\"user_id\""}'
+"query":"SELECT COUNT(*) FROM \"table1\" INNER JOIN (SELECT * FROM \"table2\" WHERE LOWER(\"root_org\") = LOWER('\''Infosys'\'')) AS \"table2\" ON \"table1\".\"user_id\" = \"table2\".\"user_id\""}'
 ```
+
+> Column filters must reference columns that actually exist on that datasource. Here `root_org` is filtered on `table2` only; filtering a column on a datasource that does not have it will error. Adjust column names to match your datasources.
 
 ### Deep-nested FROM
 
@@ -192,6 +237,10 @@ All of the above return `200` with the query result in the response body.
 | A mapped datasource does not exist | `404` | `DATASOURCE_NOT_FOUND` |
 | Datasource exists but segments not yet published in Druid | `404` | `DATASOURCE_NOT_AVAILABLE` |
 | Datasource still loading (load status < 100%) | `416` | `DATASOURCE_NOT_FULLY_AVAILABLE` |
+| Missing/invalid bearer token (RBAC enabled) | `401` | — |
+| Token lacks `api.data.out` permission | `403` | — |
+
+> The `416` for "still loading" is what the API currently returns (mapped from `RANGE_NOT_SATISFIABLE`). It signals "data not ready yet, retry later" rather than a standard range error — treat it as a transient/retryable condition.
 
 ## Notes and limits
 
