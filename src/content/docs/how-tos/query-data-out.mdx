@@ -1,0 +1,200 @@
+---
+title: "Query Data with the Data Out API"
+description: "Run SQL queries (including joins and tables[rollups]) against Druid using the Data Out API"
+sidebar:
+  order: 11
+---
+
+## What this is
+
+The **Data Out API** runs a SQL query against Obsrv's realtime store (Druid) and returns the result over HTTP.
+
+You write the query using **placeholder table names** (`table1`, `table2`, ...) and map each placeholder to an actual datasource using **query parameters** on the request URL:
+
+```
+POST /v2/data/query?table1=<value>&table2=<value>...
+```
+
+- The **parameter key** must exactly match the table name used in the SQL (`table1`, `table2`, ...).
+- The **parameter value** is the datasource to query — passed either as an **alias** (default) or as a raw **datasource_ref** (`alias=false`).
+
+## What to pass as the parameter value
+
+The optional `alias` query parameter decides how each value is interpreted.
+
+### Default — `alias=true` (or omitted): pass the alias name
+
+Each parameter value is the datasource **alias** (the dataset alias, or a tables[rollups] alias).
+
+- To query a dataset's main data, pass the **dataset alias**.
+- To query a tables[rollups], pass that **tables[rollups] alias**.
+
+```
+POST /v2/data/query?table1=<dataset-or-tables[rollups]-alias>
+```
+
+**Where to find the alias:**
+
+- **Dataset alias** — from the dataset read API: `GET /v2/datasets/read/:dataset_id` returns the `alias` field for the dataset's primary datasource.
+- **tables[rollups] alias** — from the tables read APIs (management API): `POST /dataset/table/list` (all tables of a dataset) or `GET /dataset/table/read/:id` (a single table) return the `datasource` (alias) and `datasource_ref` for each table.
+
+Use the alias value returned by these APIs as the parameter value.
+
+This is the recommended mode. Aliases are stable, human-friendly names and keep pointing to the correct underlying datasource even when the physical `datasource_ref` changes.
+
+### `alias=false`: pass the datasource_ref
+
+Each parameter value must be the exact **datasource_ref** of the datasource you want — the primary datasource's ref, or a specific tables[rollups] datasource's ref (both are returned by the read APIs above).
+
+```
+POST /v2/data/query?alias=false&table1=<primary-or-tables[rollups]-datasource_ref>
+```
+
+Use this only when you need to pin an exact `datasource_ref` (for example a specific tables[rollups] or a dated snapshot).
+
+## Querying tables[rollups]
+
+A dataset can expose more than one queryable table in the realtime store:
+
+- the **primary** datasource (raw/base granularity), and
+- one or more **tables[rollups]** datasources (pre-aggregated at a given granularity, e.g. day / week / month).
+
+Each tables[rollups] is an independent datasource with its **own alias** and its **own datasource_ref** (fetch them from the tables read APIs above). You query a tables[rollups] exactly like any other table — just pass its alias (default) or its `datasource_ref` (`alias=false`) as the parameter value.
+
+Query a tables[rollups] by alias (default):
+
+```bash
+curl --location 'localhost:3000/v2/data/query?table1=<tables[rollups]-alias>' \
+--header 'Content-Type: application/json' \
+--data '{"id":"api.data.out","ver":"v2","ts":"2026-07-14T00:00:00+05:30","params":{"msgid":"rollup-by-alias"},
+"query":"SELECT COUNT(*) FROM \"table1\""}'
+```
+
+Query a tables[rollups] by its datasource_ref:
+
+```bash
+curl --location 'localhost:3000/v2/data/query?alias=false&table1=<tables[rollups]-datasource_ref>' \
+--header 'Content-Type: application/json' \
+--data '{"id":"api.data.out","ver":"v2","ts":"2026-07-14T00:00:00+05:30","params":{"msgid":"rollup-by-ref"},
+"query":"SELECT COUNT(*) FROM \"table1\""}'
+```
+
+Join a tables[rollups] with another datasource (mix as needed — each `tableN` param is resolved independently):
+
+```bash
+curl --location 'localhost:3000/v2/data/query?table1=<tables[rollups]-alias>&table2=<dataset-alias>' \
+--header 'Content-Type: application/json' \
+--data '{"id":"api.data.out","ver":"v2","ts":"2026-07-14T00:00:00+05:30","params":{"msgid":"rollup-join"},
+"query":"SELECT table1.user_id, table2.root_org FROM \"table1\" INNER JOIN \"table2\" ON table1.user_id = table2.user_id LIMIT 10"}'
+```
+
+---
+
+## Query API Example CURLs
+
+> Replace the example values with real aliases / refs from your deployment.
+
+### Single table
+
+```bash
+curl --location 'localhost:3000/v2/data/query?table1=progress-details_druid' \
+--header 'Content-Type: application/json' \
+--data '{"id":"api.data.out","ver":"v2","ts":"2026-07-14T00:00:00+05:30","params":{"msgid":"single"},
+"query":"SELECT COUNT(*) FROM \"table1\""}'
+```
+
+### Two-table join
+
+```bash
+curl --location 'localhost:3000/v2/data/query?table1=progress-details_druid&table2=user-details_druid_master' \
+--header 'Content-Type: application/json' \
+--data '{"id":"api.data.out","ver":"v2","ts":"2026-07-14T00:00:00+05:30","params":{"msgid":"join"},
+"query":"SELECT table1.user_id, table2.root_org FROM \"table1\" INNER JOIN \"table2\" ON table1.user_id = table2.user_id LIMIT 10"}'
+```
+
+### Subquery-join
+
+```bash
+curl --location 'localhost:3000/v2/data/query?table1=progress-details_druid&table2=user-details_druid_master' \
+--header 'Content-Type: application/json' \
+--data '{"id":"api.data.out","ver":"v2","ts":"2026-07-14T00:00:00+05:30","params":{"msgid":"subquery-join"},
+"query":"SELECT COUNT(*) FROM (SELECT * FROM \"table1\" WHERE LOWER(\"root_org\") = LOWER('\''Infosys'\'')) AS \"table1\" INNER JOIN (SELECT * FROM \"table2\" WHERE LOWER(\"root_org\") = LOWER('\''Infosys'\'')) AS \"table2\" ON \"table1\".\"user_id\" = \"table2\".\"user_id\""}'
+```
+
+### Deep-nested FROM
+
+```bash
+curl --location 'localhost:3000/v2/data/query?table1=progress-details_druid' \
+--header 'Content-Type: application/json' \
+--data '{"id":"api.data.out","ver":"v2","ts":"2026-07-14T00:00:00+05:30","params":{"msgid":"deep-nested"},
+"query":"SELECT * FROM (SELECT * FROM (SELECT * FROM \"table1\") a) b LIMIT 5"}'
+```
+
+### CTE (`WITH`)
+
+The CTE name (`c`) is a local alias, not a datasource — it needs no parameter. Only `table1` does.
+
+```bash
+curl --location 'localhost:3000/v2/data/query?table1=progress-details_druid' \
+--header 'Content-Type: application/json' \
+--data '{"id":"api.data.out","ver":"v2","ts":"2026-07-14T00:00:00+05:30","params":{"msgid":"cte"},
+"query":"WITH c AS (SELECT * FROM \"table1\") SELECT COUNT(*) FROM c"}'
+```
+
+### UNION
+
+```bash
+curl --location 'localhost:3000/v2/data/query?table1=progress-details_druid&table2=user-details_druid_master' \
+--header 'Content-Type: application/json' \
+--data '{"id":"api.data.out","ver":"v2","ts":"2026-07-14T00:00:00+05:30","params":{"msgid":"union"},
+"query":"SELECT user_id FROM \"table1\" UNION SELECT user_id FROM \"table2\""}'
+```
+
+### WHERE subquery
+
+```bash
+curl --location 'localhost:3000/v2/data/query?table1=progress-details_druid&table2=user-details_druid_master' \
+--header 'Content-Type: application/json' \
+--data '{"id":"api.data.out","ver":"v2","ts":"2026-07-14T00:00:00+05:30","params":{"msgid":"where-subquery"},
+"query":"SELECT * FROM \"table1\" WHERE user_id IN (SELECT user_id FROM \"table2\") LIMIT 10"}'
+```
+
+### Scalar subquery in SELECT
+
+```bash
+curl --location 'localhost:3000/v2/data/query?table1=progress-details_druid&table2=user-details_druid_master' \
+--header 'Content-Type: application/json' \
+--data '{"id":"api.data.out","ver":"v2","ts":"2026-07-14T00:00:00+05:30","params":{"msgid":"scalar-subquery"},
+"query":"SELECT (SELECT COUNT(*) FROM \"table2\") AS user_count FROM \"table1\" LIMIT 1"}'
+```
+
+### Direct datasource_ref (`alias=false`)
+
+```bash
+curl --location 'localhost:3000/v2/data/query?alias=false&table1=progress-details_druid-2026-07-14' \
+--header 'Content-Type: application/json' \
+--data '{"id":"api.data.out","ver":"v2","ts":"2026-07-14T00:00:00+05:30","params":{"msgid":"direct-ref"},
+"query":"SELECT COUNT(*) FROM \"table1\""}'
+```
+
+All of the above return `200` with the query result in the response body.
+
+---
+
+## Response codes
+
+| Scenario | Status | Error code |
+|----------|--------|------------|
+| Query executed | `200` | — |
+| A referenced table has no matching parameter | `400` | `DATA_OUT_MISSING_TABLE_PARAM` |
+| SQL fails to parse / more than one statement | `400` | `DATA_OUT_INVALID_QUERY` |
+| Request body fails schema validation | `400` | `DATA_OUT_INVALID_INPUT` |
+| A mapped datasource does not exist | `404` | `DATASOURCE_NOT_FOUND` |
+| Datasource exists but segments not yet published in Druid | `404` | `DATASOURCE_NOT_AVAILABLE` |
+| Datasource still loading (load status < 100%) | `416` | `DATASOURCE_NOT_FULLY_AVAILABLE` |
+
+## Notes and limits
+
+- Parameter keys **must** match the table identifiers in the SQL exactly (`table1`, `table2`, ...).
+- Default mode expects **aliases** (dataset alias or tables[rollups] alias); `alias=false` expects exact **datasource_ref** values (primary or tables[rollups]).
+- The same table name cannot map to two different datasources within one query (one parameter per name).
