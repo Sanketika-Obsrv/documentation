@@ -237,6 +237,7 @@ export default defineConfig({
             { label: 'Data Backup and Restoration', slug: 'how-tos/data-backup-and-restoration' },
             { label: 'Create a Dataset', slug: 'how-tos/create-a-dataset' },
             { label: 'Register a Connector', slug: 'how-tos/register-a-connector' },
+            { label: 'Extending Obsrv with Custom Processing Logic', slug: 'how-tos/custom-code-injection' },
             {
               label: 'Troubleshoot',
               collapsed: true,
