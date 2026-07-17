@@ -272,6 +272,7 @@ export default defineConfig({
             { label: 'Integration with Managed Kafka Services', slug: 'how-tos/managed-kafka-integration' },
             { label: 'Sanity Checklist', slug: 'how-tos/sanity-checklist' },
             { label: 'Configure Lakehouse Store', slug: 'how-tos/configure-lakehouse-store' },
+            { label: 'Query Data with the Data Out API', slug: 'how-tos/query-data-out' },
           ],
         },
         {
