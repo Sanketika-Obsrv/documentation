@@ -1,0 +1,47 @@
+---
+title: "2.1.11 [latest]"
+description: "Obsrv 2.1.11 release notes."
+sidebar:
+  order: 11
+  badge:
+    text: latest
+    variant: tip
+---
+
+**Release Date:** 2026-07-20
+
+**Release Type:** Minor
+
+**Objective:** Add SQL query support with datasource aliases (including multi-table joins) in the Data Out API, and register master dataset datasources in Postgres so master data is queryable.
+
+## What's New
+
+### Data Out API — SQL queries with alias names
+
+The Data Out API now runs SQL queries against Druid where table names in the query are mapped to datasources via **query parameters**, using either the datasource **alias** (default) or the raw **datasource_ref** (`alias=false`).
+
+- Supports **multi-table joins**, subqueries, CTEs, `UNION`, and `WHERE`/`SELECT` subqueries.
+- Query datasets and **tables[rollups]** by their alias, resolved automatically to the current `datasource_ref`.
+- Full usage, request/response format, authentication, and example cURLs are documented in the how-to guide:
+  **[How-Tos → Query Data with the Data Out API](/how-tos/query-data-out/)**.
+
+## Migration Steps
+
+### Enable the master data indexer 2.0.0 job (optional)
+
+The `masterdata-indexer-cron` chart adds a newer (v2) master data indexer cronjob (`spark-masterdata-indexer-2-0-0`), **disabled by default**. To enable it, upgrade the **additional** bundle and set the following in `global-cloud-values-aws.yaml` under `masterdata-indexer-cron`:
+
+```yaml
+masterdata-indexer-cron:
+  dataproductsJarV2: "s3a://<bucket>/data-products/data-products-2.1.0.jar"
+  cronjobV2:
+    enabled: true
+    cronSchedule: "0 7 * * *" # daily 7 AM
+```
+
+For the data-products JAR, refer **[data-products-2.1.0.jar](https://github.com/Sanketika-Obsrv/obsrv-core/releases/download/2.1.0/data-products-2.1.0.jar)** — upload it to your cloud storage and reference it via `dataproductsJarV2`.
+
+:::note
+- For upgrades from **v2.1.x to v2.1.11**, upgrade only the **obsrvapis** bundle.
+- When upgrading to release 2.1.11, use version **2.0.3** of **enterprise-automation/obsrv-scripts-infy**.
+:::
