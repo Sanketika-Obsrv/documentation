@@ -284,13 +284,6 @@ keycloak:
     existingSecret: ""
 ```
 
-Then delete the StatefulSet and redeploy:
-
-```bash
-kubectl delete statefulset keycloak -n keycloak
-export cloud_env=aws
-bash install.sh oauth
-```
 
 **9. Open ALB security group for internal pod access**
 
