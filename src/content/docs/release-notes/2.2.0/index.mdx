@@ -1,0 +1,221 @@
+---
+title: "Obsrv 2.2.0"
+description: "Obsrv 2.2.0 major release — Docker Hardened Images (DHI) migration."
+sidebar:
+  order: 0
+  label: "2.2.0"
+---
+
+**Release Date:** 2026-08-07
+
+**Release Type:** Major
+
+**Focus:** Migration of the entire Obsrv container image supply chain to **Docker Hardened Images (DHI)** — minimal, non-root, low/zero-CVE base images — along with the major-version upgrades that accompanied the hardened bases.
+
+---
+
+## 1. Overview
+
+The **Obsrv 2.2.0** release migrates every Obsrv container image to **Docker Hardened Images (DHI)**. Open-source dependencies are pulled directly from the hardened `dhi.io` registry, and every Obsrv-built service is rebuilt on a DHI base and re-tagged to a single unified version, **`2.2.0`**.
+
+Goals of the migration:
+
+- **Supply-chain security** — minimal, distroless-style, non-root images with a drastically reduced CVE surface.
+- **Centralization** — all images (open-source and Obsrv-built) are declared in one place: `helmcharts/images.yaml` (and `helmcharts/en-images.yaml` for enterprise), using YAML anchors so a version is defined once and reused everywhere.
+
+Because DHI variants ship newer upstreams, several components also receive **major version upgrades** in this release (see §4).
+
+---
+
+## 2. Image Migration
+
+Images fall into two groups.
+
+### 2.1 Open-source dependencies → `dhi.io/*` (direct, no re-tag)
+
+Pulled straight from the hardened registry via the Docker Hub DHI entitlement:
+
+| Component | Migrated Image |
+|---|---|
+| PostgreSQL | `dhi.io/postgres` |
+| PostgreSQL Exporter | `dhi.io/postgres-exporter` |
+| Valkey (dedup + denorm) | `dhi.io/valkey` |
+| Redis Exporter | `dhi.io/redis-exporter` |
+| Loki | `dhi.io/loki` |
+| Loki Gateway | `dhi.io/nginx` |
+| Promtail | `dhi.io/promtail` |
+| Grafana | `dhi.io/grafana` |
+| Prometheus | `dhi.io/prometheus` |
+| Alertmanager | `dhi.io/alertmanager` |
+| Prometheus Operator / config-reloader / webhook | `dhi.io/prometheus-operator`, `dhi.io/prometheus-config-reloader`, `dhi.io/kube-webhook-certgen` |
+| Node Exporter / Kube-State-Metrics | `dhi.io/node-exporter`, `dhi.io/kube-state-metrics` |
+| JMX Exporter | `dhi.io/jmx-exporter` |
+| Keycloak | `dhi.io/keycloak` |
+| Trino | `dhi.io/trino` (compat variant) |
+| cert-manager (controller / webhook / cainjector / startupapicheck / acmesolver) | `dhi.io/cert-manager-controller`, `dhi.io/cert-manager-webhook`, `dhi.io/cert-manager-cainjector`, `dhi.io/cert-manager-startupapicheck`, `dhi.io/cert-manager-acmesolver` |
+| Kong | `dhi.io/kong` |
+| Velero | `dhi.io/velero` (+ `dhi.io/velero-plugin-for-aws`) |
+| Pushgateway | `dhi.io/pushgateway` |
+| Kafka Exporter | `dhi.io/kafka-exporter` |
+| Shared init/sidecars | `dhi.io/busybox` (os-shell / volume-permissions), `dhi.io/alpine-base`, `dhi.io/memcached`, `dhi.io/k8s-sidecar`, `dhi.io/thanos`, `dhi.io/kube-rbac-proxy`, `dhi.io/curl`, `dhi.io/bats` |
+
+
+### 2.2 Obsrv-built services → `sanketikahub/<service>:2.2.0` (rebuilt on DHI bases)
+
+| Service | Image | DHI Build Base |
+|---|---|---|
+| dataset-api (api-service) | `sanketikahub/obsrv-api-service:2.2.0` | `dhi.io/node:24-alpine-dev` (ts-node runtime) |
+| command-api (command-service) | `sanketikahub/obsrv-command-service:2.2.0` | `dhi.io/python:3.12-alpine-dev` |
+| management-api | `sanketikahub/management-api-service:2.2.0` | `dhi.io/python:3.12-alpine-dev` |
+| web-console | `sanketikahub/obsrv-web-console:2.2.0` | `dhi.io/node:24-debian13-dev` |
+| management-console | `sanketikahub/obsrv-management-console-ext:2.2.0` | `dhi.io/node:24-debian13-dev` |
+| unified-pipeline | `sanketikahub/unified-pipeline:2.2.0` | `dhi.io/eclipse-temurin:11-jdk-debian13-dev` (Flink 1.20 dist) |
+| cache-indexer | `sanketikahub/cache-indexer:2.2.0` | `dhi.io/eclipse-temurin:11-jdk-debian13-dev` |
+| flink-connectors | `sanketikahub/flink-connectors:2.2.0` | `dhi.io/eclipse-temurin:11-jdk-debian13-dev` |
+| lakehouse-connector | `sanketikahub/lakehouse-connector:2.2.0` | `dhi.io/eclipse-temurin:11-jdk-debian13-dev` (Flink 1.20 + Hudi) |
+| superset | `sanketikahub/superset:2.2.0` | `dhi.io/superset:6-debian13-dev` (drivers in venv) |
+| spark + Apache Livy | `sanketikahub/spark:2.2.0` | `dhi.io/spark:3.5` + `dhi.io/python:3.12-debian13-dev` (Apache layout, python injected) |
+| secor | `sanketikahub/secor:2.2.0` | `dhi.io/eclipse-temurin:11-jdk-debian13-dev` |
+| Hive Metastore (hms) | `sanketikahub/hms:2.2.0` | `dhi.io/eclipse-temurin:jre-17-alpine3.24` |
+| system-rules-ingestor | `sanketikahub/system-rules-ingestor:2.2.0` | `dhi.io/node:22-alpine-dev` |
+| postgresql-backup | `sanketikahub/postgresql-backup:2.2.0` | `dhi.io/python:3.12-alpine-dev` |
+| kafka-message-exporter | `sanketikahub/kafka-message-exporter:2.2.0` | `dhi.io/node:22-alpine-dev` |
+| **kubectl (custom multi-tool)** | `sanketikahub/kubectl:2.2.0` | `dhi.io/kubectl:1.32-debian13-dev` + `curl`/`jq`/`openssl`/`postgresql-client` |
+
+---
+
+## 3. Pending / Not Yet Migrated
+
+| Component | Current Image | Status |
+|---|---|---|
+| Kong Kubernetes Ingress Controller | `kong/kubernetes-ingress-controller` | No DHI equivalent published |
+| MinIO / MinIO Client | `sanketikahub/minio` (bitnami), `sanketikahub/minio-client` | No DHI equivalent published |
+| Kubernetes Reflector | `emberstack/kubernetes-reflector` | No DHI equivalent published |
+| Volume Autoscaler | `devopsnirvana/kubernetes-volume-autoscaler` | No DHI equivalent published |
+| S3 Exporter | `ribbybibby/s3-exporter` | No DHI equivalent published |
+| Statsd Exporter (secor sidecar) | `prom/statsd-exporter` | No DHI equivalent published |
+| Loki Memcached Exporter | `prom/memcached-exporter` | No DHI equivalent published |
+| Promtail Config-Reloader | `jimmidyson/configmap-reload` | No DHI equivalent published |
+| Druid Operator | `druidio/druid-operator` | No DHI equivalent published |
+| Druid Exporter | `sanketikahub/druid-exporter` | No DHI equivalent published |
+| keycloak-config-cli | `sanketikahub/keycloak-config-cli:2.2.0` | Non-DHI base (config-cli 6.5.1 + admin-client 26.0.4 for Keycloak 26.3 support) |
+| **Infosys Transformer** | `sanketikahub/infosys-transformer:1.0.8` (`flink:1.15.2-scala_2.12-jdk-11`) | DHI `eclipse-temurin`/Flink 1.15.2 not supported |
+| **Druid ZooKeeper** (bundled in `druid-raw-cluster` chart) | `sanketikahub/zookeeper:3.8.0-debian-11-r6` (bitnami) | Bundled bitnami subchart, separate from the top-level DHI `zookeeper` image used for Kafka coordination — not yet migrated |
+| **Grafana Test Framework / Download Dashboards** | `bats` (via `grafana-test-framework` / `grafana-download-dashboards`) | Job/init images used by the Grafana chart's test hooks and dashboard sidecar — not yet on a DHI base |
+| **Apache Druid** | `apache/druid:32.0.1` | DHI candidate `dhi.io/druid:36-debian13` has a router/broker discovery bug (router announces `services{}` without `brokerService`, broker never found) — stays on 32.0.1 |
+| **Flyway** (postgresql-migration) | `flyway/flyway:10.12.0` | DHI candidate `dhi.io/flyway:11-debian13` is distroless, no shell — breaks existing `migrate.sh` entrypoint |
+| **Kafka** | Managed **AWS MSK** | Not a self-hosted image — no image to migrate |
+
+> **Note**: These currently don't support DHI (or don't have a working DHI cutover yet). DHI versions for these will be shared in upcoming releases.
+
+---
+
+## 4. Major Version Upgrades (bundled with DHI)
+
+DHI variants track current upstreams, so the migration brings the following version bumps:
+
+| Component | Previous | New |
+|---|---|---|
+| **Prometheus** | v2.44 | **3.5** (major v2 → v3) |
+| **Grafana** | 11.4 | 12.3 |
+| **Keycloak** | 26.0.5 | 26.3 |
+| **Trino** | 476 | 483 (`-compat` variant, bundles hudi/hive/iceberg/delta) |
+| **Apache Spark** | 3.5.1 (bitnami) | 3.5.8 (Apache upstream) |
+| **Apache Flink** | 1.20.0 | 1.20.5 |
+| **PostgreSQL** | 17.5 (bitnami) | 17 (DHI upstream) |
+| **ZooKeeper** | 3.6 | 3.9 (DHI upstream Apache) |
+| **Loki / Promtail** | 3.3 / 3.2 | 3.4 / 3.6 |
+| **cert-manager** | v1.12.2 | 1.20.3 (chart re-vendored) |
+| **Node.js** | 20 / 23 | 22 / 24 (per service) |
+| **JMX Exporter** | 0.17.2 | 1.3 |
+| **keycloak-config-cli** | 6.2.0 | 6.5.1 (admin-client 26.0.4) |
+
+---
+
+## 5. Prerequisites & How to Deploy
+
+### 5.1 Prerequisites
+
+1. **A Docker Hub subscription with the Docker Hardened Images (DHI) entitlement.** Every `dhi.io/*` image is pulled through this entitlement.
+2. Add a `dhi.io` auth entry to the registry secret so the cluster can pull the hardened bases. In `helmcharts/images.yaml` (and `en-images.yaml`) `global.image.dockerConfigJson`, alongside your existing registry entry, add:
+   ```json
+   {"auths":{"https://index.docker.io/v1/":{"auth":"<base64 user:token>"},"dhi.io":{"auth":"<base64 user:token>"}}}
+   ```
+   The same DHI-entitled Docker Hub credentials are used for both `docker.io` and `dhi.io`.
+
+### 5.2 Deploy / Upgrade
+
+All image versions are centralized in `helmcharts/images.yaml` (open-source → `dhi.io/*`, Obsrv-built → `sanketikahub/*:2.2.0`) and `helmcharts/en-images.yaml` for enterprise services. Do **not** hardcode tags in individual chart `values.yaml` — they inherit from these anchor files.
+
+Deploy with the automation as usual.
+```bash
+bash enterprise.sh all            # or individual stages: coredb / coreinfra / obsrvapis / additional / monitoring / en-bundles ...
+```
+
+> **Note:** PostgreSQL and Valkey (dedup/denorm) run as single-replica StatefulSets, so their pod restart during this rollout causes a brief downtime window — plan accordingly.
+
+### 5.3 Flink connectors on the DHI base
+
+`flink-connectors` (the Debezium/Kafka source connectors that run inside the Flink cluster) and `lakehouse-connector` are both rebuilt on `dhi.io/eclipse-temurin:11-jdk-debian13-dev` in this release, same Flink 1.20 distribution as before — no connector-facing config or API changed.
+
+Already-running connector jobs are **not** automatically rolled by this upgrade — restart the connector job or republish the dataset so it picks up the new DHI `flink-connectors` image.
+
+---
+
+## 6. How to Test the Flow After the DHI Migration
+
+Run this sanity checklist after upgrading. Every step below was validated against the DHI `2.2.0` images.
+
+### 6.1 General pod health
+
+Before checking individual flows, confirm every migrated workload actually came up on its new DHI image:
+
+- No pod stuck in `CrashLoopBackOff`, `Init:Error`, `ImagePullBackOff`, or restarting in a loop.
+- Every image tag matches `2.2.0` (or the `dhi.io/*` tag from §2.1) — catches nodes that skipped the pull on a reused tag (see §9).
+- Spot-check the ones with no dedicated flow test below: PostgreSQL, Valkey (dedup/denorm), ZooKeeper, Kong, cert-manager, Velero, Loki/Promtail, node-exporter/kube-state-metrics.
+
+This is a pod-up sweep, not a functional check — §6.2–§6.6 verify the services actually work, not just that they started.
+
+### 6.2 Core data flow (connector → ingest → pipeline → Druid)
+
+Check if the events from the source topics flow from connectors and reach the obsrv system.
+
+Use [Query Data with the Data Out API](/how-tos/query-data-out) to verify.
+
+### 6.3 Query, UI & auth
+
+- **Superset** — pods on `superset:2.2.0` and `1/1 Running`; UI loads; DB/druid/trino drivers present.
+- **Prometheus** — all targets `UP` (Status → Targets), metrics actually being scraped (not just the pod running).
+- **Grafana** — access the Grafana console and fetch alert rules in the Alerts section (not just that Grafana loads).
+- **Alertmanager** — alert rules loaded (system-rules-ingestor Job completes with rules published).
+- **Loki** — logs are queryable via Grafana Explore / LogQL for a known pod; validate recent log lines actually show up, not just that the Loki pod is `Running`.
+- **Keycloak** — login via `/auth`; tokens issued; console/API auth works.
+
+### 6.4 Storage & backups
+
+- **Secor** — all backup StatefulSets `1/1 Running` as uid `9999`, consuming Kafka and resuming at committed offsets; `.json.gz` objects appear under the backup bucket (e.g. `backups-obsrv-local/telemetry-data/<topic>/...`). Upload flushes on `100MB` **or** `4h` (`max.file.age.seconds=14400`).
+- **Lakehouse connector** — the Hudi job reaches `RUNNING`; verify a **deltacommit** in `s3a://.../<table>/.hoodie/timeline/` and a **Hive metadata sync** to HMS.
+
+### 6.5 Compute & pipelines
+
+- **Flink connectors, unified-pipeline, cache-indexer, lakehouse-connector, Spark connectors** — all jobs must run successfully and **checkpoint successfully** (no repeated checkpoint failures/timeouts in the Flink UI or job logs).
+- Verify the data actually lands: query through **Trino or Superset** for Hudi (lakehouse) tables, and through **Druid** for the OLAP store.
+
+### 6.6 Control plane
+
+- **Publish a dataset** from the console and confirm the command routes through `command-api`/`management-api` to the pipeline; verify the dataset goes Live and data flows through §6.2.
+
+---
+
+## 7. Bug Fix
+
+- **Secor `system-events-backup` / `system-telemetry-backup`** — both jobs were on the default `base_config`, which didn't match either topic's event shape and caused parse/partitioning failures. Fixed by setting the correct `message_channel_identifier`/`message_parser` and `timestamp_key` for each.
+
+---
+
+## 8. Migration & Upgrade Notes
+
+- This release requires the **DHI entitlement** on the Docker Hub account used for image pulls. Without it, `dhi.io/*` pulls return `unauthorized`.
+- While upgrading to **2.2.0**, use the **2.2.0 version** of **`obsrv-scripts-infy` / `enterprise-automation`** automation aligned to this release.
+- While upgrading from release **2.1.x to 2.2.0**, please upgrade all the bundles for DHI image reflection.
+- All Obsrv-built `2.2.0` images and the custom `sanketikahub/kubectl:2.2.0` are **multi-arch (linux/amd64 + linux/arm64)**. Deploy on either architecture.
