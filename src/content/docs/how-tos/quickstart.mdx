@@ -63,7 +63,11 @@ cp .env.example .env
 
 Do not skip this step. Every variable in `.env` except `COMPOSE_PROFILES` has a default baked into `docker-compose.yaml`, but `COMPOSE_PROFILES` is read by the Compose CLI itself. Without `.env` it is unset, `docker compose up` brings up the control plane alone — no Druid, no Flink — and publishing a dataset then fails in ways that do not point at the cause.
 
-Change `HTTP_PORT` here if `8080` is taken. It is a single variable because it feeds the nginx binding, the Keycloak redirect URI, and the console's own base URL together.
+Change `HTTP_PORT` here if `8080` is taken. It is a single variable because it feeds the published port, the Keycloak redirect URI, and the console's own base URL together.
+
+:::caution
+Changing `HTTP_PORT` is not enough on its own. `config/nginx.conf` has a second `listen 8080;` directive alongside `listen 80;`, because web-console's keycloak-connect makes server-to-server token calls at the same `localhost:<HTTP_PORT>` URL it uses for browser redirects — so nginx has to answer on the published port number itself. If you change `HTTP_PORT`, update that `listen` directive to match, or login will fail. The rest of this page assumes the `8080` default.
+:::
 
 **3. Generate the token keypair**
 
