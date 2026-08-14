@@ -1,0 +1,213 @@
+---
+title: "Quickstart"
+description: "Run the full Obsrv stack on a single machine with Docker Compose — create a dataset, ingest events, and query them back, without Kubernetes."
+sidebar:
+  order: 12
+---
+
+## Introduction
+
+Obsrv normally runs on Kubernetes through the Helm charts. For local development, demos, and evaluation there is a **Docker Compose** stack that brings the same components up on a single machine: [`local-compose`](https://github.com/Sanketika-Obsrv/obsrv-automation/tree/main/local-compose) in the `obsrv-automation` repository.
+
+Every value in that stack is derived from the Helm charts, so local behaviour matches a deployed cluster closely enough to develop against — with the exceptions listed under **What Is Not Available Locally**.
+
+- **Use it for:** local development, connector and pipeline work, evaluating Obsrv, reproducing bugs.
+- **Do not use it for:** production, sizing a cluster, or anything requiring cloud object storage.
+
+:::note
+This documentation is based on the `local-compose` setup in the `main` branch of [obsrv-automation](https://github.com/Sanketika-Obsrv/obsrv-automation).
+:::
+
+---
+
+## Prerequisites
+
+| Requirement | Value | Why |
+|---|---|---|
+| Docker Desktop, or Docker Engine + Compose v2 | Any recent version | The stack uses `docker compose` v2 syntax |
+| Memory allocated to Docker | **10 GB minimum** | The default stack measures ~7 GB; the rest is headroom for ingestion |
+| CPU allocated to Docker | **4 cores minimum** | Fewer starves the Flink pipeline during startup |
+| Free disk | ~15 GB | The images are large |
+| Platform | arm64 (Apple Silicon) or amd64 | Five images are amd64-only and run under emulation on arm64 |
+| Free ports | `3000`, `5432`, `6379`, `6380`, `8000`, `8080`, `8081`, `8181`, `8182`, `8888`, `9090`, `29092` | A host Postgres or Redis on `5432`/`6379` is the usual clash |
+
+Check what Docker has been given, and that the ports are free:
+
+```bash
+docker info --format 'mem={{.MemTotal}} cpus={{.NCPU}}'
+
+lsof -i :3000 -i :5432 -i :6379 -i :6380 -i :8000 -i :8080 -i :8081 \
+     -i :8181 -i :8182 -i :8888 -i :9090 -i :29092 -sTCP:LISTEN
+```
+
+:::caution
+The 10 GB / 4-core figures are a floor, not a suggestion. Below them the stack typically fails **during startup**, before any data flows, as a Flink crashloop that takes Kafka and the APIs down with it. If your machine cannot spare 10 GB, trim `COMPOSE_PROFILES` rather than ignoring the floor — the [`local-compose` README](https://github.com/Sanketika-Obsrv/obsrv-automation/blob/main/local-compose/README.md) lists the measured memory for each selection.
+:::
+
+---
+
+## Bringing the Stack Up
+
+**1. Clone the automation repository**
+
+```bash
+git clone https://github.com/Sanketika-Obsrv/obsrv-automation.git
+cd obsrv-automation/local-compose
+```
+
+**2. Create your `.env`**
+
+```bash
+cp .env.example .env
+```
+
+Do not skip this step. Every variable in `.env` except `COMPOSE_PROFILES` has a default baked into `docker-compose.yaml`, but `COMPOSE_PROFILES` is read by the Compose CLI itself. Without `.env` it is unset, `docker compose up` brings up the control plane alone — no Druid, no Flink — and publishing a dataset then fails in ways that do not point at the cause.
+
+Change `HTTP_PORT` here if `8080` is taken. It is a single variable because it feeds the nginx binding, the Keycloak redirect URI, and the console's own base URL together.
+
+**3. Generate the token keypair**
+
+The stack signs API tokens with an RSA keypair that you create once. The script converts the keys into an env file; it does not generate them, and fails with `missing secrets/private.pem` if they are absent.
+
+```bash
+mkdir -p secrets
+openssl genrsa -out secrets/private.pem 2048
+openssl rsa -in secrets/private.pem -pubout -out secrets/public.pem
+
+./scripts/gen-token-env.sh          # writes secrets/tokens.env
+```
+
+**4. Start the stack**
+
+```bash
+docker compose up -d
+```
+
+**5. Watch the bootstrap containers finish**
+
+Five containers run once and exit. Everything else waits on them, so this is where a bad start shows up first:
+
+```bash
+docker compose logs -f flyway keycloak-init oauth-admin-sync kafka-topics-init submit-ingestion
+```
+
+| Container | What it does |
+|---|---|
+| `flyway` | Renders and applies the repository's Postgres migrations |
+| `keycloak-init` | Creates realm `obsrv`, client `obsrv-console`, and one user |
+| `oauth-admin-sync` | Points the `oauth_users` admin row at the Keycloak user ID |
+| `kafka-topics-init` | Creates all 23 Kafka topics explicitly |
+| `submit-ingestion` | Submits the `system-events` Druid supervisor that feeds the console's counters |
+
+All five should exit `0`. Allow 5–15 minutes for a first start — the images are large and the JVMs are slow to settle.
+
+**6. Log in to the console**
+
+Open `http://localhost:8080/console` and sign in as `obsrv_admin` / `enDoPvTAxFSd`.
+
+---
+
+## Verifying the Pipeline End to End
+
+The console being reachable proves the control plane works, not that data flows. `scripts/sample-dataset.sh` creates a dataset, publishes it, pushes events, and **asserts on reading them back** — which is the part that can silently fail while publishing succeeds.
+
+Run the three modes in this order:
+
+```bash
+./scripts/sample-dataset.sh event  demo_events  1000   # 1000 rows in Druid
+./scripts/sample-dataset.sh master demo_master    50   # 50 keys in Valkey
+./scripts/sample-dataset.sh denorm demo_joined   200   # 200 joined rows
+```
+
+- `event` — flows through `unified-pipeline` into Druid, verified with a Druid SQL count.
+- `master` — flows through `cache-indexer` into Valkey, where it exists only to be joined against.
+- `denorm` — an event dataset joined against a live master dataset (`demo_master` by default, override with `MASTER_DS`). This is the only mode that exercises both Flink jobs at once.
+
+:::note
+Read the script before writing your own producer. The event envelope differs by dataset type — event datasets need a `{"dataset": "...", "event": {...}}` wrapper, master datasets take the record bare — and getting it wrong fails every record with an error that points elsewhere.
+:::
+
+---
+
+## Endpoints
+
+| Service | URL / Address |
+|---|---|
+| Management console | `http://localhost:8080/console` |
+| Keycloak | `http://localhost:8080/auth` |
+| dataset-api | `http://localhost:3000` |
+| command-api | `http://localhost:8000` |
+| Druid console | `http://localhost:8888` |
+| Flink UI — unified-pipeline | `http://localhost:8181` |
+| Flink UI — cache-indexer | `http://localhost:8182` |
+| Prometheus | `http://localhost:9090` |
+| Kafka (from the host) | `localhost:29092` |
+| Postgres | `localhost:5432` |
+
+---
+
+## Credentials
+
+These come from `helmcharts/global-values.yaml`.
+
+| What | Value |
+|---|---|
+| Console / realm user | `obsrv_admin` / `enDoPvTAxFSd` (email `admin@obsrv.in`) |
+| Keycloak master admin | `admin` / `admin123` |
+| Druid basic auth | `admin` / `admin123` |
+| Postgres superuser | `postgres` / `postgres` |
+| Postgres `obsrv` | `obsrv` / `obsrv123` |
+| Postgres `keycloak` | `keycloak` / `keycloak123` |
+
+`obsrv_admin` and `admin@obsrv.in` are two ways into the same account — the realm has `loginWithEmailAllowed`, so there is one user, not two.
+
+:::caution
+These are local-only development defaults. Do not reuse them in any shared or deployed environment.
+:::
+
+---
+
+## Resetting and Shutting Down
+
+```bash
+docker compose down          # stop, keep data
+docker compose down -v       # stop and drop volumes — flyway reruns on next start
+```
+
+`-v` also removes the Druid segments and the Postgres schema, so use it whenever the stack is in a state you cannot explain.
+
+---
+
+## Fresh Data Is Not Queryable Through the API
+
+Direct Druid SQL returns new rows immediately, while the Obsrv query API answers `DATASOURCE_NOT_AVAILABLE`. The API gates on the coordinator's `/loadstatus`, which lists only datasources with segments published to the metadata store, and the supervisor's default `taskDuration` is `PT14400S` — four hours. Force a handoff:
+
+```bash
+curl -u admin:admin123 -X POST \
+  http://localhost:8888/druid/indexer/v1/supervisor/<datasource>/suspend
+
+curl -u admin:admin123 -X POST \
+  http://localhost:8888/druid/indexer/v1/supervisor/<datasource>/resume
+```
+
+Resume it afterwards, or the next ingest piles up in Kafka.
+
+---
+
+## What Is Not Available Locally
+
+| Not available | Detail |
+|---|---|
+| `config-api` | It is `config-service-ext`, an enterprise image. `CONFIG_API_EXT_URL` points at `dataset-api` so calls fail fast rather than hang |
+| Grafana, Superset, Alertmanager | Out of scope. Console panels and dataset-api endpoints that read them error or stay blank |
+| Anything touching cloud storage | Connector-registry upload, data-exhaust download, telemetry archival. The `cloud_storage_*` variables keep the config shape but point at nothing real |
+| Lakehouse (Trino / Hudi) | `storage_types` is `{"lake_house": false, "realtime_store": true}`, unlike the chart default |
+| Deploying Flink jobs or connectors from command-api | In Kubernetes it scales Deployments through the API server. Locally the Flink jobs are started by Compose and stay up, and `START_PIPELINE_JOBS` and `DEPLOY_CONNECTORS` are dropped from the `PUBLISH_DATASET` workflow. Publishing still writes the schema and creates the Druid supervisor |
+
+---
+
+## Conclusion
+
+The Compose stack gives you the full Obsrv create → publish → ingest → query path on one machine, with the same configuration values as the Helm charts. Once it is up and `sample-dataset.sh` passes, the console workflows documented elsewhere — [Create a Dataset](/how-tos/create-a-dataset/) and [Query Data with the Data Out API](/how-tos/query-data-out/) — work locally exactly as they do on a cluster.
+
+For deeper detail — profile-by-profile memory figures, how each component maps back to its Helm chart, the benchmark harness, and a fuller list of failure modes — see the [`local-compose` README](https://github.com/Sanketika-Obsrv/obsrv-automation/blob/main/local-compose/README.md).

@@ -234,6 +234,7 @@ export default defineConfig({
           collapsed: true,
           items: [
             { label: 'How-Tos', slug: 'how-tos' },
+            { label: 'Quickstart', slug: 'how-tos/quickstart' },
             { label: 'Data Backup and Restoration', slug: 'how-tos/data-backup-and-restoration' },
             { label: 'Create a Dataset', slug: 'how-tos/create-a-dataset' },
             { label: 'Register a Connector', slug: 'how-tos/register-a-connector' },
