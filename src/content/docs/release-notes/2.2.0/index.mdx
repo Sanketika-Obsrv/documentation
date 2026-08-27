@@ -43,7 +43,6 @@ Pulled straight from the hardened registry via the Docker Hub DHI entitlement:
 | Redis Exporter | `dhi.io/redis-exporter` |
 | Loki | `dhi.io/loki` |
 | Loki Gateway | `dhi.io/nginx` |
-| Promtail | `dhi.io/promtail` |
 | Grafana | `dhi.io/grafana` |
 | Prometheus | `dhi.io/prometheus` |
 | Alertmanager | `dhi.io/alertmanager` |
@@ -95,7 +94,6 @@ Pulled straight from the hardened registry via the Docker Hub DHI entitlement:
 | S3 Exporter | `ribbybibby/s3-exporter` | No DHI equivalent published |
 | Statsd Exporter (secor sidecar) | `prom/statsd-exporter` | No DHI equivalent published |
 | Loki Memcached Exporter | `prom/memcached-exporter` | No DHI equivalent published |
-| Promtail Config-Reloader | `jimmidyson/configmap-reload` | No DHI equivalent published |
 | Druid Operator | `druidio/druid-operator` | No DHI equivalent published |
 | Druid Exporter | `sanketikahub/druid-exporter` | No DHI equivalent published |
 | keycloak-config-cli | `sanketikahub/keycloak-config-cli:2.2.0` | Non-DHI base (config-cli 6.5.1 + admin-client 26.0.4 for Keycloak 26.3 support) |
@@ -122,7 +120,7 @@ DHI variants track current upstreams, so the migration brings the following vers
 | **Apache Flink** | 1.20.0 | 1.20.5 |
 | **PostgreSQL** | 17.5 (bitnami) | 17 (DHI upstream) |
 | **ZooKeeper** | 3.6 | 3.9 (DHI upstream Apache) |
-| **Loki / Promtail** | 3.3 / 3.2 | 3.4 / 3.6 |
+| **Loki** | 3.3 | 3.4 |
 | **cert-manager** | v1.12.2 | 1.20.3 (chart re-vendored) |
 | **Node.js** | 20 / 23 | 22 / 24 (per service) |
 | **JMX Exporter** | 0.17.2 | 1.3 |
@@ -175,7 +173,7 @@ Before checking individual flows, confirm every migrated workload actually came 
 
 - No pod stuck in `CrashLoopBackOff`, `Init:Error`, `ImagePullBackOff`, or restarting in a loop.
 - Every image tag matches `2.2.0` (or the `dhi.io/*` tag from §2.1) — catches nodes that skipped the pull on a reused tag (see §11).
-- Spot-check the ones with no dedicated flow test below: PostgreSQL, Valkey (dedup/denorm), ZooKeeper, Kong, cert-manager, Velero, Loki/Promtail, node-exporter/kube-state-metrics.
+- Spot-check the ones with no dedicated flow test below: PostgreSQL, Valkey (dedup/denorm), ZooKeeper, Kong, cert-manager, Velero, Loki/Alloy, node-exporter/kube-state-metrics.
 
 This is a pod-up sweep, not a functional check — §7.2–§7.6 verify the services actually work, not just that they started.
 
