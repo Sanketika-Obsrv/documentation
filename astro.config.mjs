@@ -214,6 +214,7 @@ export default defineConfig({
           collapsed: true,
           items: [
             { label: 'Releases', slug: 'release-notes' },
+            { label: '2.2.0', slug: 'release-notes/220' },
             { label: '2.1.0', collapsed: true, items: [{ autogenerate: { directory: 'release-notes/2.1.0' } }] },
             { label: '2.0.0', slug: 'release-notes/200' },
             { label: '1.9.0', collapsed: true, items: [{ autogenerate: { directory: 'release-notes/1.9.0' } }] },
