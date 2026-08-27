@@ -99,12 +99,10 @@ Pulled straight from the hardened registry via the Docker Hub DHI entitlement:
 | Druid Operator | `druidio/druid-operator` | No DHI equivalent published |
 | Druid Exporter | `sanketikahub/druid-exporter` | No DHI equivalent published |
 | keycloak-config-cli | `sanketikahub/keycloak-config-cli:2.2.0` | Non-DHI base (config-cli 6.5.1 + admin-client 26.0.4 for Keycloak 26.3 support) |
-| **Infosys Transformer** | `sanketikahub/infosys-transformer:1.0.8` (`flink:1.15.2-scala_2.12-jdk-11`) | DHI `eclipse-temurin`/Flink 1.15.2 not supported |
 | **Druid ZooKeeper** (bundled in `druid-raw-cluster` chart) | `sanketikahub/zookeeper:3.8.0-debian-11-r6` (bitnami) | Bundled bitnami subchart, separate from the top-level DHI `zookeeper` image used for Kafka coordination — not yet migrated |
 | **Grafana Test Framework / Download Dashboards** | `bats` (via `grafana-test-framework` / `grafana-download-dashboards`) | Job/init images used by the Grafana chart's test hooks and dashboard sidecar — not yet on a DHI base |
 | **Apache Druid** | `apache/druid:32.0.1` | DHI candidate `dhi.io/druid:36-debian13` has a router/broker discovery bug (router announces `services{}` without `brokerService`, broker never found) — stays on 32.0.1 |
 | **Flyway** (postgresql-migration) | `flyway/flyway:10.12.0` | DHI candidate `dhi.io/flyway:11-debian13` is distroless, no shell — breaks existing `migrate.sh` entrypoint |
-| **Kafka** | Managed **AWS MSK** | Not a self-hosted image — no image to migrate |
 
 > **Note**: These currently don't support DHI (or don't have a working DHI cutover yet). DHI versions for these will be shared in upcoming releases.
 
@@ -149,14 +147,13 @@ All image versions are centralized in `helmcharts/images.yaml` (open-source → 
 
 Deploy with the automation as usual.
 ```bash
+bash enterprise.sh core-setup
 bash enterprise.sh all            # or individual stages: coredb / coreinfra / obsrvapis / additional / monitoring / en-bundles ...
 ```
 
 > **Note:** PostgreSQL and Valkey (dedup/denorm) run as single-replica StatefulSets, so their pod restart during this rollout causes a brief downtime window — plan accordingly.
 
 ### 5.3 Flink connectors on the DHI base
-
-`flink-connectors` (the Debezium/Kafka source connectors that run inside the Flink cluster) and `lakehouse-connector` are both rebuilt on `dhi.io/eclipse-temurin:11-jdk-debian13-dev` in this release, same Flink 1.20 distribution as before — no connector-facing config or API changed.
 
 Already-running connector jobs are **not** automatically rolled by this upgrade — restart the connector job or republish the dataset so it picks up the new DHI `flink-connectors` image.
 
@@ -171,7 +168,7 @@ Run this sanity checklist after upgrading. Every step below was validated agains
 Before checking individual flows, confirm every migrated workload actually came up on its new DHI image:
 
 - No pod stuck in `CrashLoopBackOff`, `Init:Error`, `ImagePullBackOff`, or restarting in a loop.
-- Every image tag matches `2.2.0` (or the `dhi.io/*` tag from §2.1) — catches nodes that skipped the pull on a reused tag (see §9).
+- Every image tag matches `2.2.0` (or the `dhi.io/*` tag from §2.1) — catches nodes that skipped the pull on a reused tag (see §10).
 - Spot-check the ones with no dedicated flow test below: PostgreSQL, Valkey (dedup/denorm), ZooKeeper, Kong, cert-manager, Velero, Loki/Promtail, node-exporter/kube-state-metrics.
 
 This is a pod-up sweep, not a functional check — §6.2–§6.6 verify the services actually work, not just that they started.
@@ -207,13 +204,59 @@ Use [Query Data with the Data Out API](/how-tos/query-data-out) to verify.
 
 ---
 
-## 7. Bug Fix
+## 7. Vulnerability Fixes
+
+Beyond the base-image swap itself, every Obsrv-built service, SDK, and connector went through a dedicated vulnerability remediation pass — Trivy scans (image and filesystem/dependency-tree) plus language-specific audits (`npm audit`, `pip-audit`) — comparing the pre-2.2.0 build against the DHI-based rebuild. **Before** = the count from the scan run prior to that component's fix; **After** = the count from the same scan re-run once the fix was applied. Where a component was scanned at both the source (`pom.xml`/`package.json`/etc.) and the built-image level, only the **image-level** count is shown below — that's what's actually deployed. Components with no image of their own (SDKs/libraries consumed by other images, e.g. the connector SDKs feeding into `flink-connectors`) show their source-level scan instead.
+
+To verify these fixes hold up after deploying, run the [Sanity Checklist](/how-tos/sanity-checklist).
+
+| Component | Findings Before | Findings After |
+|---|---|---|
+| unified-pipeline | 153 (148 unfixable OS + 5 Medium log4j jar) | 148 (0 fixable; identical unfixable OS baseline confirmed on every image) |
+| cache-indexer | 153 (148 unfixable OS + 5 Medium log4j jar) | 148 (0 fixable; identical unfixable OS baseline confirmed on every image) |
+| lakehouse-connector | 244 | 244 |
+| master-data-indexer (data-products module, source-level) | 64 (7 Critical, 25 High, 31 Medium, 1 Low) | 0 |
+| flink-connectors | 215 (3 Critical, 26 High, 86 Medium, 79 Low) | 207 (3 Critical, 24 High, 80 Medium, 79 Low) |
+| kubectl (custom multi-tool image) | 427 (19 Critical, 108 High, 175 Medium, 125 Low) | 2 (0 Critical, 2 High) |
+| kafka-message-exporter | 2 (1 Medium, 1 Low) | 0 |
+| postgresql-backup | 129 (78 High, 34 Medium, 17 Low) | 1 (1 Low) |
+| Hive Metastore (HMS) | 176 (4 Critical, 16 High, 67 Medium, 68 Low, 21 unscored) | 202 (4 Critical, 20 High, 80 Medium, 95 Low, 3 unscored) |
+| Spark | 645 (35 Critical, 261 High, 271 Medium, 78 Low) | 340 (2 Critical, 120 High, 156 Medium, 59 Low) |
+| Superset | 63 (0 Critical, 7 High, 15 Medium, 36 Low, 6 Unknown) | 59 (0 Critical, 5 High, 14 Medium, 34 Low, 6 Unknown) |
+| dataset-api (api-service) | 55 (0 Critical, 19 High, 34 Medium, 2 Low) | 0 |
+| system-rules-ingestor | 39 (1 Critical, 16 High, 21 Medium, 1 Low) | 0 |
+| command-api (command-service) | 98 (1 Critical, 49 High, 44 Medium, 4 Low) | 0 |
+| management-api (helm binary) | 127 (4 Critical, 53 High) | 0 (switched to `dhi.io/helm`) |
+| management-api (kubectl in spark-connector-cron chart) | 24 (16 High) | 4 High (current `dhi.io` alpine-dev tier) |
+| management-api (poetry.lock deps, source-level) | 13 (0 Critical, 6 High, 4 Medium, 3 Low) | 0 |
+| web-console | 18 (0 Critical, 0 High, 10 Medium, 8 Low; 1 fixable — `uuid` CVE-2026-41907) | 17 (0 Critical, 0 High, 9 Medium, 8 Low; 0 fixable) |
+| management-console | not measured (deployed image is in a private `sanketikahub` repo; pull denied) | 17 (0 fixable, 0 High/Critical; 16 unfixable OS + 1 `elliptic`, same profile as web-console) |
+| secor | 379 (11 Critical, 101 High, 160 Medium, 79 Low, 28 unknown) | 19 (0 Critical, 0 High, 13 Medium, 6 Low) |
+| connector-sdk-scala (source-level) | 246 (8 Critical, 92 High, 138 Medium, 8 Low) | 2 |
+| job-sdk-scala (source-level) | 232 (8 Critical, 86 High, 130 Medium, 8 Low) | 2 |
+| knowlg-connector (source-level) | 8 | 2 |
+| debezium-connector (source-level) | 13 (2 Critical, 3 High, 8 Medium) | 0 |
+| kafka-connector (source-level) | 23 (2 Critical, 8 High, 13 Medium) | 2 (no fix published) |
+
+---
+
+## 8. Promtail → Grafana Alloy Migration
+
+Alongside the DHI migration, the Loki log-shipping agent was replaced: **Promtail is retired in favor of Grafana Alloy**.
+
+- Same role, same deployment shape — a **DaemonSet** shipping node/pod logs to the same Loki instance — just on `dhi.io/alloy:1.18.1-debian13` instead of Promtail.
+- Config moves from Promtail's `scrape_configs`/`pipeline_stages` YAML to Alloy's component-based pipeline language, with an added `PodLogs` CRD and correspondingly wider RBAC.
+- `helmcharts/kitchen/install.sh` and the `monitoring` bundle now reference the `alloy` chart instead of `promtail`.
+
+---
+
+## 9. Bug Fix
 
 - **Secor `system-events-backup` / `system-telemetry-backup`** — both jobs were on the default `base_config`, which didn't match either topic's event shape and caused parse/partitioning failures. Fixed by setting the correct `message_channel_identifier`/`message_parser` and `timestamp_key` for each.
 
 ---
 
-## 8. Migration & Upgrade Notes
+## 10. Migration & Upgrade Notes
 
 - This release requires the **DHI entitlement** on the Docker Hub account used for image pulls. Without it, `dhi.io/*` pulls return `unauthorized`.
 - While upgrading to **2.2.0**, use the **2.2.0 version** of **`obsrv-scripts-infy` / `enterprise-automation`** automation aligned to this release.
