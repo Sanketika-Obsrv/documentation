@@ -172,6 +172,18 @@ const entryRestoreIndices = sublist.map((entry) => {
     padding-inline-start: 1.1rem;
   }
 
+  /* Top-level group headers (e.g. "Explore") render a section icon (18px)
+     plus a gap (0.375rem) before their label — roughly 24px that nested
+     labels don't have. The plain 1.1rem indent above isn't enough to cover
+     that, so a first-tier child (e.g. "Roadmap") ends up starting at nearly
+     the same x-position as its icon'd parent, reading as a sibling instead
+     of a child. Only the first nested tier needs the extra compensation —
+     deeper tiers don't have an icon'd sibling to visually collide with, so
+     their normal compounding indent (via the rule above) is already clear. */
+  .top-level > li > details > ul {
+    padding-inline-start: calc(1.1rem + 18px + 0.375rem);
+  }
+
   ul ul li {
     /* neutralize any inherited nested-list tree line */
     border-inline-start: none;

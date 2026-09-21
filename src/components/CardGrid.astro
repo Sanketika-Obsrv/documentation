@@ -15,6 +15,7 @@ interface Card {
   gradient?: string;   // CSS gradient string (optional — auto-assigned if omitted)
   icon?: IconKey;      // icon key for the SVG
   image?: string;      // fallback: photo URL
+  badge?: string;      // e.g. "Latest" — small pill in the card's top-right corner
 }
 
 interface Props {
@@ -98,6 +99,24 @@ const ICONS: Record<IconKey, string> = {
             ? `background-image: url(${card.image}); background-size: cover; background-position: center`
             : `background: ${GRADIENTS[i % GRADIENTS.length]}`}
       >
+        {card.badge && (
+          <span class="gradient-card__badge">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              set:html={ICONS.sparkles}
+            />
+            {card.badge}
+          </span>
+        )}
         {card.icon && (
           <span class="gradient-card__icon">
             <svg
@@ -169,12 +188,31 @@ const ICONS: Record<IconKey, string> = {
   }
 
   .gradient-card__visual {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 120px;
     padding: 1.5rem;
     flex-shrink: 0;
+  }
+
+  .gradient-card__badge {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+    color: #fff;
+    background: #0f172a;
+    backdrop-filter: blur(4px);
   }
 
   .gradient-card__icon {

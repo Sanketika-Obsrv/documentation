@@ -208,20 +208,31 @@ nav.sidebar {
   }
 }
 
-/* Desktop: wrap the nav in a rounded, bordered card (reference parity) */
+/* Desktop: wrap the nav in a rounded, bordered card (reference parity).
+   The card visuals live on .sidebar-pane (the scroll container), not on
+   .sidebar-content (the scrolled child), because .sidebar-content's height
+   is derived from content one boundary past Starlight's
+   <sl-sidebar-state-persist style="display:contents"> wrapper, which
+   restores each <details>'s open state via `details.open = ...` in a
+   custom element callback. Safari does not reliably propagate that
+   programmatic change to an ancestor's auto/content-based height through a
+   display:contents boundary, so a card sized off .sidebar-content's own
+   box could visually stop short of the full expanded item list. .sidebar-pane
+   sizes itself purely from `inset-block` (nav height to viewport bottom),
+   never from content, so it cannot under-size regardless of what happens
+   inside the display:contents descendant. */
 @media (min-width: 50rem) {
   .sidebar-pane {
-    border-inline-end: none !important;
+    margin: 0.75rem;
+    padding: 0.85rem;
+    border: 1px solid var(--obsrv-sidebar-border) !important;
+    border-radius: 12px;
+    background: var(--obsrv-sidebar-card-bg) !important;
+    box-shadow: var(--obsrv-elevation-sm) !important;
   }
 
   .sidebar-content {
-    height: auto;
-    margin: 0.75rem;
-    padding: 0.85rem;
-    border: 1px solid var(--obsrv-sidebar-border);
-    border-radius: 12px;
-    background: var(--obsrv-sidebar-card-bg);
-    box-shadow: var(--obsrv-elevation-sm);
+    padding: 0;
   }
 }
 

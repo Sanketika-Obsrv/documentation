@@ -52,6 +52,7 @@ export default defineConfig({
     '/how-tos/scale-infrastructure': '/scale-infrastructure',
     '/how-tos/scale-infrastructure/autoscaling-components': '/scale-infrastructure/autoscaling-components',
     '/how-tos/scale-infrastructure/autoscaling-volumes': '/scale-infrastructure/autoscaling-volumes',
+    '/how-tos/quickstart': '/guides/installation/quickstart',
   },
   integrations: [
     starlight({
@@ -139,6 +140,14 @@ export default defineConfig({
               label: 'Roadmap',
               collapsed: true,
               items: [
+                {
+                  label: 'FY2026-27',
+                  collapsed: true,
+                  items: [
+                    { label: 'FY2026-27', slug: 'explore/roadmap/fy2026-27' },
+                    { label: 'Feature Appendix', slug: 'explore/roadmap/fy2026-27/feature-appendix' },
+                  ],
+                },
                 { label: 'FY2025-26', slug: 'explore/roadmap/fy2025-26' },
                 { label: 'FY2024-25', slug: 'explore/roadmap/fy2024-25' },
               ],
@@ -164,6 +173,7 @@ export default defineConfig({
               label: 'Installation Guide',
               collapsed: true,
               items: [
+                { label: 'Quickstart', slug: 'guides/installation/quickstart' },
                 {
                   label: 'AWS Installation Guide',
                   collapsed: true,
@@ -214,7 +224,7 @@ export default defineConfig({
           collapsed: true,
           items: [
             { label: 'Releases', slug: 'release-notes' },
-            { label: '2.2.0', slug: 'release-notes/220' },
+            { label: '2.2.0', slug: 'release-notes/220', badge: { text: 'Latest', variant: 'tip' } },
             { label: '2.1.0', collapsed: true, items: [{ autogenerate: { directory: 'release-notes/2.1.0' } }] },
             { label: '2.0.0', slug: 'release-notes/200' },
             { label: '1.9.0', collapsed: true, items: [{ autogenerate: { directory: 'release-notes/1.9.0' } }] },
@@ -235,7 +245,6 @@ export default defineConfig({
           collapsed: true,
           items: [
             { label: 'How-Tos', slug: 'how-tos' },
-            { label: 'Quickstart', slug: 'how-tos/quickstart' },
             { label: 'Data Backup and Restoration', slug: 'how-tos/data-backup-and-restoration' },
             { label: 'Create a Dataset', slug: 'how-tos/create-a-dataset' },
             { label: 'Register a Connector', slug: 'how-tos/register-a-connector' },
