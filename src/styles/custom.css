@@ -208,35 +208,31 @@ nav.sidebar {
   }
 }
 
-/* Desktop: wrap the nav in a rounded, bordered card (reference parity) */
+/* Desktop: wrap the nav in a rounded, bordered card (reference parity).
+   The card visuals live on .sidebar-pane (the scroll container), not on
+   .sidebar-content (the scrolled child), because .sidebar-content's height
+   is derived from content one boundary past Starlight's
+   <sl-sidebar-state-persist style="display:contents"> wrapper, which
+   restores each <details>'s open state via `details.open = ...` in a
+   custom element callback. Safari does not reliably propagate that
+   programmatic change to an ancestor's auto/content-based height through a
+   display:contents boundary, so a card sized off .sidebar-content's own
+   box could visually stop short of the full expanded item list. .sidebar-pane
+   sizes itself purely from `inset-block` (nav height to viewport bottom),
+   never from content, so it cannot under-size regardless of what happens
+   inside the display:contents descendant. */
 @media (min-width: 50rem) {
   .sidebar-pane {
-    border-inline-end: none !important;
+    margin: 0.75rem;
+    padding: 0.85rem;
+    border: 1px solid var(--obsrv-sidebar-border) !important;
+    border-radius: 12px;
+    background: var(--obsrv-sidebar-card-bg) !important;
+    box-shadow: var(--obsrv-elevation-sm) !important;
   }
 
   .sidebar-content {
-    /* Safari fails to regrow this box when a <details> section is expanded
-       programmatically on load (sidebar scroll/open-state restoration) while
-       it stays display:flex — the card's background/border can freeze at the
-       pre-restore height and later items render past it. Plain block sizing
-       always recomputes from content, sidestepping that flex-relayout bug.
-       There is effectively one visible child (the nav <ul>), so this is a
-       no-op for layout in browsers that aren't affected. */
-    display: block !important;
-    height: auto;
-    min-height: 0;
-    margin: 0.75rem;
-    padding: 0.85rem;
-    border: 1px solid var(--obsrv-sidebar-border);
-    border-radius: 12px;
-    background: var(--obsrv-sidebar-card-bg);
-    box-shadow: var(--obsrv-elevation-sm);
-    /* Even with block sizing, WebKit can leave the painted border/background
-       stuck at a stale size after the <details> open-state restores off-screen
-       inside the scrolling sidebar — a repaint bug, not a layout bug. Forcing
-       a compositing layer makes Safari repaint this box from scratch. */
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
+    padding: 0;
   }
 }
 
