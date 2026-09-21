@@ -231,6 +231,12 @@ nav.sidebar {
     border-radius: 12px;
     background: var(--obsrv-sidebar-card-bg);
     box-shadow: var(--obsrv-elevation-sm);
+    /* Even with block sizing, WebKit can leave the painted border/background
+       stuck at a stale size after the <details> open-state restores off-screen
+       inside the scrolling sidebar — a repaint bug, not a layout bug. Forcing
+       a compositing layer makes Safari repaint this box from scratch. */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
 }
 
