@@ -215,6 +215,14 @@ nav.sidebar {
   }
 
   .sidebar-content {
+    /* Safari fails to regrow this box when a <details> section is expanded
+       programmatically on load (sidebar scroll/open-state restoration) while
+       it stays display:flex — the card's background/border can freeze at the
+       pre-restore height and later items render past it. Plain block sizing
+       always recomputes from content, sidestepping that flex-relayout bug.
+       There is effectively one visible child (the nav <ul>), so this is a
+       no-op for layout in browsers that aren't affected. */
+    display: block !important;
     height: auto;
     min-height: 0;
     margin: 0.75rem;
