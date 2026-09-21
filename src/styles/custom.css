@@ -216,6 +216,7 @@ nav.sidebar {
 
   .sidebar-content {
     height: auto;
+    min-height: 0;
     margin: 0.75rem;
     padding: 0.85rem;
     border: 1px solid var(--obsrv-sidebar-border);
