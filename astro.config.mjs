@@ -52,6 +52,7 @@ export default defineConfig({
     '/how-tos/scale-infrastructure': '/scale-infrastructure',
     '/how-tos/scale-infrastructure/autoscaling-components': '/scale-infrastructure/autoscaling-components',
     '/how-tos/scale-infrastructure/autoscaling-volumes': '/scale-infrastructure/autoscaling-volumes',
+    '/how-tos/quickstart': '/guides/installation/quickstart',
   },
   integrations: [
     starlight({
@@ -165,6 +166,7 @@ export default defineConfig({
               label: 'Installation Guide',
               collapsed: true,
               items: [
+                { label: 'Quickstart', slug: 'guides/installation/quickstart' },
                 {
                   label: 'AWS Installation Guide',
                   collapsed: true,
@@ -236,7 +238,6 @@ export default defineConfig({
           collapsed: true,
           items: [
             { label: 'How-Tos', slug: 'how-tos' },
-            { label: 'Quickstart', slug: 'how-tos/quickstart' },
             { label: 'Data Backup and Restoration', slug: 'how-tos/data-backup-and-restoration' },
             { label: 'Create a Dataset', slug: 'how-tos/create-a-dataset' },
             { label: 'Register a Connector', slug: 'how-tos/register-a-connector' },
