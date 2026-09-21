@@ -139,6 +139,7 @@ export default defineConfig({
               label: 'Roadmap',
               collapsed: true,
               items: [
+                { label: 'FY2026-27', slug: 'explore/roadmap/fy2026-27' },
                 { label: 'FY2025-26', slug: 'explore/roadmap/fy2025-26' },
                 { label: 'FY2024-25', slug: 'explore/roadmap/fy2024-25' },
               ],

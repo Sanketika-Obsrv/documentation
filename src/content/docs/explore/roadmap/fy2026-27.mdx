@@ -1,0 +1,400 @@
+---
+title: "FY2026-27"
+description: "Obsrv feature roadmap for 2026-27, covering Releases 2.3.0 through 2.6.0."
+sidebar:
+  order: 1
+---
+
+**Description**: Obsrv's planned capabilities for 2026-27, spanning Releases 2.3.0 through 2.6.0.
+
+Labels: **[New]** = New capability &nbsp;&nbsp; **[AI]** = AI-powered capability &nbsp;&nbsp; **[Standard]** = Maintenance & upgrades
+
+> Features and timelines are indicative and may be adjusted based on client feedback and engineering capacity.
+
+---
+
+## Release 2.3.0 — December 2026 (Next)
+
+| # | Capability | Category | Label |
+|---|------------|----------|-------|
+| 1 | Apache Iceberg as default lakehouse format via XTable | Architecture | **[New]** |
+| 2 | Iceberg REST Catalog for external engine access | Architecture | **[New]** |
+| 3 | Unified query engine: Trino as single query gateway | Architecture | **[New]** |
+| 4 | Configurable deployment profiles (real-time analytics on/off, monitoring stack bundled/external) | Architecture | **[New]** |
+| 5 | Universal monitoring integration via OpenTelemetry exporters | Observability | **[New]** |
+| 6 | End-to-end data lineage with impact analysis | Observability | **[New]** |
+| 7 | AI-assisted dataset creation and configuration via conversational interface | AI | **[AI]** |
+| 8 | MCP server for AI agent integration (optional add-on) | AI | **[New]** |
+| 9 | Software upgrades, bug fixes, vulnerability patches | Maintenance | **[Standard]** |
+
+## Release 2.4.0 — April 2027
+
+| # | Capability | Category | Label |
+|---|------------|----------|-------|
+| 1 | Dataset health monitoring: freshness, volume, schema consistency, error rates | Observability | **[New]** |
+| 2 | Data contracts: declarative SLA definitions via UI, enforced through alerting engine | Observability | **[New]** |
+| 3 | Pipeline diagnostics: unified error context across pipeline components | Observability | **[New]** |
+| 4 | Isolated testing environment for safe pre-production validation | Observability | **[New]** |
+| 5 | Dimension-level access filtering via OPA policy engine | Governance | **[New]** |
+| 6 | Immutable audit trails for compliance | Governance | **[New]** |
+| 7 | Natural language querying: unQuery engine bundled as core capability | AI | **[AI]** |
+| 8 | AI-assisted dataset management and operations via conversational interface | AI | **[AI]** |
+| 9 | Software upgrades, bug fixes, vulnerability patches | Maintenance | **[Standard]** |
+
+## Release 2.5.0 — August 2027
+
+| # | Capability | Category | Label |
+|---|------------|----------|-------|
+| 1 | Sink connectors to push data to downstream systems (CRMs, databases, APIs) | Platform | **[New]** |
+| 2 | Managed job framework: deploy, schedule, monitor custom Flink/Spark jobs | Platform | **[New]** |
+| 3 | Query optimization recommendations: routing, aggregation, unused dataset detection | Intelligence | **[New]** |
+| 4 | Product usage insights dashboard | Intelligence | **[New]** |
+| 5 | Automated infrastructure health reporting | Intelligence | **[New]** |
+| 6 | Obsrv CLI for operations, job management, dataset configuration | Developer Exp. | **[New]** |
+| 7 | Software upgrades, bug fixes, vulnerability patches | Maintenance | **[Standard]** |
+
+## Release 2.6.0 — December 2027
+
+| # | Capability | Category | Label |
+|---|------------|----------|-------|
+| 1 | Identity-based data deletion for GDPR / DPDP Act compliance | Governance | **[New]** |
+| 2 | Automated data lifecycle management: retention, archival, tiered storage | Governance | **[New]** |
+| 3 | Capacity forecasting and proactive scaling alerts based on usage trends | Intelligence | **[New]** |
+| 4 | Dataset utilization scoring to identify unused datasets and reduce cost | Intelligence | **[New]** |
+| 5 | Python / Java SDKs for programmatic integration | Developer Exp. | **[New]** |
+| 6 | Software upgrades, bug fixes, vulnerability patches | Maintenance | **[Standard]** |
+
+---
+
+## Feature Appendix
+
+Detailed descriptions, implementation scope, and benefits for each capability above.
+
+### Platform Architecture
+
+#### 1. Apache Iceberg via XTable `2.3.0`
+
+**Description**: Apache Iceberg has become the globally adopted standard for open lakehouse table formats. This release makes Iceberg the default lakehouse format in Obsrv using Apache XTable as the metadata translation layer. XTable converts Hudi metadata into Iceberg metadata without duplicating data. For append-heavy workloads like telemetry, data is written directly in Iceberg format. For upsert and transactional workloads, data continues to be written via Hudi with XTable making it accessible as Iceberg. An Iceberg REST Catalog is included for external tools like Spark, Presto, and dbt to access the data directly.
+
+**Details**:
+- Apache XTable as default metadata translation layer
+- Direct Iceberg writes for append and telemetry workloads
+- Hudi writes with XTable translation for upsert and transactional workloads
+- Iceberg REST Catalog for external engine access
+- Backward compatibility with existing Hudi configurations
+- Support for Spark, Presto, dbt, and other Iceberg-compatible tools
+
+**Benefit**: Obsrv becomes compatible with Iceberg, the industry standard. All Iceberg-compatible tools and cloud providers can query your data directly without custom integrations. Existing Hudi-based workloads continue to work without migration.
+
+#### 2. Unified Query Engine (Trino) `2.3.0`
+
+**Description**: Trino becomes the single query gateway for all data in Obsrv. It federates queries across Druid (for real-time OLAP) and the Iceberg lakehouse (for historical data). Applications and users interact with one SQL interface instead of choosing between different query engines depending on data type. The existing Druid API is retained as a direct endpoint for backward compatibility with Superset and Metabase integrations.
+
+**Details**:
+- Trino as the single SQL query gateway
+- Federation across Druid (real-time) and Iceberg lakehouse (historical)
+- Existing Druid API retained as direct/raw endpoint
+- Backward compatibility with Superset and Metabase integrations
+- Unified query patterns for applications
+
+**Benefit**: One SQL interface for all data. Applications do not need separate query logic for real-time vs. historical data. Reduces development complexity and avoids maintaining multiple query patterns.
+
+#### 3. Configurable Deployment Profiles `2.3.0`
+
+**Description**: Obsrv ships as a single product with two install-time configuration flags. The first flag controls whether the real-time analytics layer (Druid) is deployed. The second flag controls whether the monitoring stack (Grafana, Prometheus) is bundled or if the deployment integrates with an existing external monitoring system. There are no separate editions or SKUs.
+
+**Details**:
+- Single product with two configuration flags at install time
+- Real-time analytics flag: Druid on or off
+- Monitoring stack flag: bundled Grafana/Prometheus or external integration
+- No separate SKUs, editions, or packaging
+- Simplified deployment for teams with varying requirements
+
+**Benefit**: Teams deploy only what they need. Those without real-time OLAP requirements skip Druid and reduce infrastructure costs. Teams with existing monitoring skip the bundled stack and avoid running duplicate systems.
+
+#### 4. Managed Job Framework `2.5.0`
+
+**Description**: A framework that allows customers to bring their own Flink (streaming) or Spark (batch) jobs into Obsrv. Obsrv handles all operational aspects: deployment, scheduling, monitoring, retries, and lifecycle management. Customers write business logic only. This follows the same pattern as the existing connector framework where customers can create custom source and sink connectors.
+
+**Details**:
+- Support for custom Flink streaming jobs
+- Support for custom Spark batch jobs
+- Automated deployment and scheduling
+- Built-in monitoring, retry logic, and failure handling
+- Lifecycle management (start, stop, upgrade, rollback)
+- Same pattern as the existing connector framework
+
+**Benefit**: Customers can extend Obsrv with custom data processing without managing the underlying infrastructure. Reduces time to deploy custom ETL, ML feature pipelines, and business-specific transformations.
+
+### Governance & Compliance
+
+#### 5. Dimension-Level Access Filtering (OPA) `2.4.0`
+
+**Description**: Integration with Open Policy Agent (OPA) for row and dimension-level filtering at query time. Access control is applied uniformly via the read APIs. Policies are defined declaratively and evaluated dynamically per request based on the user's identity and role.
+
+**Details**:
+- OPA integration for policy-based access control
+- Row and dimension-level filtering at query time
+- Policies applied uniformly across all read APIs
+- Declarative policy definitions
+- Dynamic evaluation per request based on user identity and role
+
+**Benefit**: Different teams or tenants see only the data dimensions they are authorized to access, all through the same API. No need to create separate datasets per team for access control purposes.
+
+#### 6. Immutable Audit Trails `2.4.0`
+
+**Description**: Tamper-proof audit logging of all data operations. Captures who accessed what data, when, through which API, and what configuration changes were made to datasets. Audit logs are stored in an immutable format.
+
+**Details**:
+- Comprehensive logging of all data access operations
+- Logging of dataset configuration changes
+- Immutable, tamper-proof storage format
+- API-level access tracking (who, what, when, how)
+- Exportable audit logs for external compliance systems
+
+**Benefit**: Provides auditable evidence for regulatory requirements like SOC 2, HIPAA, and DPDP Act. Simplifies compliance audits and enables investigation of data access incidents.
+
+#### 7. Identity-Based Data Deletion `2.6.0`
+
+**Description**: Automated deletion of all data associated with a specific identity across all datasets. Supports GDPR right-to-erasure, India's DPDP Act, and similar data protection regulations. The system tracks deletion requests and generates compliance certificates upon completion.
+
+**Details**:
+- Delete all data for a specific identity across all datasets
+- Support for GDPR right-to-erasure requests
+- Support for India's DPDP Act requirements
+- Deletion request tracking and status monitoring
+- Compliance certificate generation upon completion
+
+**Benefit**: Respond to data subject deletion requests within regulatory timelines without manually searching across datasets. Automated tracking and certification reduce operational effort.
+
+#### 8. Automated Data Lifecycle Management `2.6.0`
+
+**Description**: Policy-driven rules for data retention, archival, and deletion per dataset. Supports tiered storage where data automatically moves from hot to warm to cold storage based on age, access patterns, or compliance requirements.
+
+**Details**:
+- Per-dataset retention and deletion policies
+- Tiered storage support (hot, warm, cold)
+- Automatic data movement based on configurable rules
+- Age-based, access-pattern-based, and compliance-based triggers
+- Policy enforcement without manual intervention
+
+**Benefit**: Reduces storage costs by automatically moving older data to cheaper tiers. Retention policies are enforced consistently without manual tracking of data expiry dates.
+
+### Observability & Reliability
+
+#### 9. Universal Monitoring Integration `2.3.0`
+
+**Description**: OpenTelemetry-based exporters that push Obsrv metrics, traces, and logs to any external monitoring system such as Datadog, New Relic, Splunk, or an existing Prometheus setup. This decouples Obsrv observability from the bundled Grafana stack.
+
+**Details**:
+- OpenTelemetry-based metric, trace, and log exporters
+- Support for Datadog, New Relic, Splunk, and Prometheus
+- Decoupled from bundled Grafana monitoring stack
+- Standard OpenTelemetry format for broad compatibility
+
+**Benefit**: Obsrv monitoring integrates into whatever monitoring system the operations team already uses. No need to maintain a separate monitoring stack for Obsrv.
+
+#### 10. End-to-End Data Lineage `2.3.0`
+
+**Description**: Visual lineage tracking from source connectors through processing stages to final datasets and downstream consumers. Includes impact analysis that shows what downstream datasets and reports are affected when a source changes.
+
+**Details**:
+- Visual lineage graph from source to destination
+- Tracking across connectors, processing stages, and datasets
+- Impact analysis for schema and source changes
+- Downstream dependency mapping
+
+**Benefit**: When a source changes or has quality issues, teams can quickly see which downstream datasets and reports are affected before the impact cascades.
+
+#### 11. Dataset Health Monitoring `2.4.0`
+
+**Description**: Continuous monitoring of dataset health signals including data freshness (whether data is arriving on time), volume anomalies (unexpected spikes or drops), schema consistency (unexpected field changes), and error rates per dataset.
+
+**Details**:
+- Data freshness monitoring with configurable thresholds
+- Volume anomaly detection (spikes and drops)
+- Schema consistency checks for unexpected field changes
+- Per-dataset error rate tracking
+- Configurable alerting thresholds per dataset
+
+**Benefit**: Teams know when a dataset is unhealthy before downstream consumers are affected. Issues are caught in minutes instead of being discovered hours or days later through broken reports.
+
+#### 12. Data Contracts `2.4.0`
+
+**Description**: Declarative definitions of dataset guarantees including schema requirements, freshness SLAs, volume thresholds, and quality rules. Contracts are defined through the UI and internally enforced through the existing Grafana-based alerting engine. They serve as both documentation and automated enforcement.
+
+**Details**:
+- UI-based contract definition per dataset
+- Schema requirement specifications
+- Freshness SLA definitions
+- Volume threshold rules
+- Data quality rule definitions
+- Enforcement via existing Grafana alerting engine
+
+**Benefit**: Data producers and consumers have a clear, documented agreement on what to expect from a dataset. Alerts fire automatically when those guarantees are breached.
+
+#### 13. Pipeline Diagnostics `2.4.0`
+
+**Description**: Correlated diagnostic context across the data pipeline. When an error occurs, the system presents related logs, metrics, processing stage, and data sample in a single view instead of requiring manual correlation across Kafka, Flink, and storage systems.
+
+**Details**:
+- Correlated view of logs, metrics, and data samples per error
+- Processing stage identification for failures
+- Single-view diagnostics across pipeline components
+- Reduced context-switching during troubleshooting
+
+**Benefit**: Faster troubleshooting. Instead of manually correlating logs across multiple systems, the operations team gets a unified view of what went wrong, where, and why.
+
+#### 14. Automated Infrastructure Health Reporting `2.5.0`
+
+**Description**: Periodic automated reports on infrastructure health covering cluster utilization, storage growth trends, component health, and capacity headroom. Reports are delivered on a schedule or available on-demand.
+
+**Details**:
+- Cluster utilization reports
+- Storage growth trend analysis
+- Component health status
+- Capacity headroom calculations
+- Scheduled delivery or on-demand generation
+
+**Benefit**: Operations teams get advance warning of capacity issues and can plan scaling decisions based on data. Removes the need for manual infrastructure health checks.
+
+### AI & Intelligence
+
+#### 15. Conversational Analytics Endpoint `2.4.0`
+
+**Description**: The unQuery conversational engine is bundled as a core Obsrv capability. It provides a natural language endpoint that translates questions into SQL queries against the unified Trino gateway. Supports follow-up questions and query refinement through conversational interaction.
+
+**Details**:
+- unQuery engine bundled as core Obsrv capability
+- Natural language to SQL translation
+- Queries executed against unified Trino gateway
+- Follow-up questions and query refinement
+- Conversational context maintained across queries
+
+**Benefit**: Non-technical users can query data by asking questions in plain language without writing SQL. Business users, executives, and field teams get answers directly.
+
+#### 16. AI-Assisted Dataset Creation & Configuration `2.3.0`
+
+**Description**: Users create and configure datasets through a conversational interface. They describe data requirements in natural language and the system generates schema definitions, validation rules, and processing configurations. The user reviews and approves before the dataset is created.
+
+**Details**:
+- Conversational interface for dataset creation
+- Natural language to schema generation
+- Automatic validation rule suggestions
+- Processing configuration generation
+- Review and approval workflow before creation
+
+**Benefit**: Reduces dataset setup time from hours to minutes. Users without deep knowledge of schema design or processing configurations can set up data pipelines through conversation.
+
+#### 17. AI-Assisted Dataset Management & Operations `2.4.0`
+
+**Description**: Extends the conversational interface to cover dataset management and day-to-day operations. Users can modify pipelines, troubleshoot processing issues, adjust configurations, and manage dataset lifecycle through natural language commands.
+
+**Details**:
+- Pipeline modification through natural language
+- Conversational troubleshooting of processing issues
+- Configuration adjustments via chat
+- Dataset lifecycle management commands
+- Operational status queries and diagnostics
+
+**Benefit**: Operations teams manage and troubleshoot datasets without navigating complex UIs. Faster issue resolution and configuration changes through conversational interaction.
+
+#### 18. MCP Server (Optional Add-On) `2.3.0`
+
+**Description**: A Model Context Protocol (MCP) server that exposes Obsrv capabilities to AI agents. Supports dataset querying, metadata browsing, and pipeline status checks. Installed as an optional add-on for teams exploring agentic AI workflows.
+
+**Details**:
+- MCP server exposing Obsrv capabilities
+- Dataset querying via MCP protocol
+- Metadata browsing for AI agents
+- Pipeline status and health checks
+- Optional add-on installation
+
+**Benefit**: AI agents can query data, check pipeline status, and retrieve metadata from Obsrv using the MCP standard. Enables integration with the growing ecosystem of AI agent tools.
+
+### Infrastructure & Operations
+
+#### 19. Isolated Testing Environment `2.4.0`
+
+**Description**: A sandbox environment for safe pre-production testing of dataset configurations, processing rules, and pipeline changes. Customers bring their own test data. The sandbox is isolated from production workloads.
+
+**Details**:
+- Isolated sandbox for pre-production testing
+- Test dataset configurations before going live
+- Test processing rule changes safely
+- Test pipeline modifications without production risk
+- Customer-provided test data
+
+**Benefit**: Changes are validated safely before they affect production pipelines. Reduces the risk of schema modifications, processing rule changes, or connector configuration errors impacting live data.
+
+#### 20. Reverse Data Activation (Sink Connectors) `2.5.0`
+
+**Description**: A sink connector framework to push processed and aggregated data from Obsrv to downstream systems such as CRMs, marketing platforms, operational databases, and APIs. Follows the same connector pattern as source connectors.
+
+**Details**:
+- Sink connector framework for downstream data push
+- Support for CRMs, marketing platforms, databases, and APIs
+- Same connector pattern as existing source connectors
+- Processed and aggregated data delivery
+- Configurable push schedules and triggers
+
+**Benefit**: Insights and aggregations computed in Obsrv can flow directly into downstream tools where action is taken. No need to build custom ETL pipelines to move data out of Obsrv.
+
+### Customer Efficiency
+
+#### 21. Query Intelligence & Optimization `2.5.0`
+
+**Description**: Analyzes query patterns to provide recommendations. Identifies when queries should be routed to raw vs. aggregated datasets for better performance. Suggests creating new aggregated datasets for frequently repeated heavy queries. Flags unused or underutilized datasets.
+
+**Details**:
+- Query pattern analysis across datasets
+- Routing recommendations: raw vs. aggregated datasets
+- Suggestions for new aggregated datasets based on query frequency
+- Identification of unused or underutilized datasets
+- Performance optimization recommendations
+
+**Benefit**: Helps teams reduce query costs and improve performance based on actual usage patterns. Identifies waste from datasets that nobody queries and opportunities for aggregation that would reduce compute.
+
+#### 22. Developer & Operations Tooling `2.5.0`
+
+**Description**: An Obsrv CLI for command-line operations covering dataset management, job control, and configuration export/import. Also includes a product usage insights dashboard showing platform adoption patterns. Lays the foundation for future Python and Java SDKs.
+
+**Details**:
+- Obsrv CLI for command-line dataset management
+- Job control and monitoring via CLI
+- Configuration export and import
+- Product usage insights dashboard
+- Platform adoption pattern tracking
+- Foundation for Python and Java SDKs
+
+**Benefit**: Provides an automation-friendly interface for DevOps workflows. Teams can script dataset provisioning, integrate with CI/CD pipelines, and monitor platform adoption from the command line.
+
+#### 23. Capacity Forecasting `2.6.0`
+
+**Description**: Growth projection based on current data volumes, ingestion rates, and storage trends. Generates proactive scaling alerts when projected usage will exceed current capacity within a configurable time horizon.
+
+**Details**:
+- Growth projection based on current usage patterns
+- Data volume, ingestion rate, and storage trend analysis
+- Configurable forecast horizon
+- Proactive scaling alerts before capacity is reached
+- Over-provisioning identification
+
+**Benefit**: Teams can plan infrastructure budgets with data-backed projections. Provides advance notice when scaling is needed and highlights when resources are over-provisioned.
+
+#### 24. Dataset Utilization Scoring `2.6.0`
+
+**Description**: Scores each dataset based on actual usage: query frequency, consumer count, freshness of last access, and downstream dependencies. Flags datasets with low utilization for review.
+
+**Details**:
+- Per-dataset utilization scoring
+- Query frequency and consumer count tracking
+- Last access freshness monitoring
+- Downstream dependency mapping
+- Low-utilization flagging for review
+
+**Benefit**: Identifies datasets that are costing resources but not being used. Helps teams clean up unused datasets and reduce unnecessary storage and processing costs.
+
+---
+
+*Features, descriptions, and timelines in this document are indicative and may be adjusted based on client feedback, market conditions, and engineering capacity.*
