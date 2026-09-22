@@ -53,6 +53,11 @@ export default defineConfig({
     '/how-tos/scale-infrastructure/autoscaling-components': '/scale-infrastructure/autoscaling-components',
     '/how-tos/scale-infrastructure/autoscaling-volumes': '/scale-infrastructure/autoscaling-volumes',
     '/how-tos/quickstart': '/guides/installation/quickstart',
+    // Roadmap pages were renamed from fiscal-year (FYxxxx-xx) to calendar-year slugs.
+    '/explore/roadmap/fy2026-27': '/explore/roadmap/2026-27',
+    '/explore/roadmap/fy2026-27/feature-appendix': '/explore/roadmap/2026-27/feature-appendix',
+    '/explore/roadmap/fy2025-26': '/explore/roadmap/2025-26',
+    '/explore/roadmap/fy2024-25': '/explore/roadmap/2024-25',
   },
   integrations: [
     starlight({
@@ -141,15 +146,15 @@ export default defineConfig({
               collapsed: true,
               items: [
                 {
-                  label: 'FY2026-27',
+                  label: '2026–27',
                   collapsed: true,
                   items: [
-                    { label: 'FY2026-27', slug: 'explore/roadmap/fy2026-27' },
-                    { label: 'Feature Appendix', slug: 'explore/roadmap/fy2026-27/feature-appendix' },
+                    { label: '2026–27', slug: 'explore/roadmap/2026-27' },
+                    { label: 'Feature Appendix', slug: 'explore/roadmap/2026-27/feature-appendix' },
                   ],
                 },
-                { label: 'FY2025-26', slug: 'explore/roadmap/fy2025-26' },
-                { label: 'FY2024-25', slug: 'explore/roadmap/fy2024-25' },
+                { label: '2025–26', slug: 'explore/roadmap/2025-26' },
+                { label: '2024–25', slug: 'explore/roadmap/2024-25' },
               ],
             },
             {
