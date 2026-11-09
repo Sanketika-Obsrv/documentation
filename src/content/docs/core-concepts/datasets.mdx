@@ -9,6 +9,29 @@ sidebar:
 
 Datasets along with connectors form the core constructs of Obsrv. Anything and everything we do in Obsrv is related to managing a dataset. A dataset can be created with one ore more sources and a dataset can result in creation of one or more tables.
 
+### Dataset Lifecycle
+
+Every dataset in Obsrv follows the same path. Setting one up is a short sequence you walk once; after it goes live, the work shifts to using it and watching it.
+
+![The lifecycle of a dataset in Obsrv](/assets/dataset-lifecycle.png)
+
+**Set up - once**
+
+1. **Connect:** Point Obsrv at a database, a stream or an object store using a [connector](/core-concepts/connectors/), or push events in directly.
+2. **Define:** Confirm the schema inferred from your sample data, set validation, de-duplication and transformation rules, and choose where the data lands.
+3. **Publish:** Review the configuration and publish. The dataset goes live and the pipeline starts on its own.
+
+**Runs - continuously**
+
+4. **Consume:** The query layer spans both the real-time store and the lakehouse, so the same live dataset is reachable over query APIs, from BI tools, or through [unQuery](https://sanketika.in/products/unquery) for questions asked in plain language.
+5. **Monitor:** Metrics, dashboards and alerts answer two questions - is the data healthy, and is the system healthy. See [Monitoring](/core-concepts/monitoring/).
+
+**When needed**
+
+6. **Evolve:** Edit and republish whenever requirements change. An edit creates a new version and the change is applied to the existing dataset on publish, so the live dataset keeps serving in the meantime. Datasets that are no longer in use can be retired.
+
+The sections below cover the same lifecycle from the dataset management APIs.
+
 ### What does Dataset do?
 
 Most of the time as Engineers, we tend to focus more on technology and current use-cases that we have and the design would be bounded. Hence with data platforms, we try to solve by thinking about the technologies and designs that can enable ingestion, processing, querying and storage and the use-cases at hand that we have. But as a open-source and future proof product - How do we design for evolving needs?
