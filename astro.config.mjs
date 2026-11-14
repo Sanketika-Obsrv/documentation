@@ -174,6 +174,7 @@ export default defineConfig({
           collapsed: true,
           items: [
             { label: 'Guides', slug: 'guides' },
+            { label: 'Product Walkthrough', slug: 'guides/product-walkthrough' },
             {
               label: 'Installation Guide',
               collapsed: true,
