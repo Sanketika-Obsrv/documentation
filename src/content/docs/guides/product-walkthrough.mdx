@@ -1,0 +1,66 @@
+---
+title: "Product Walkthrough"
+description: "Watch Obsrv take data from a Kafka topic to a live, monitored dataset in under two minutes: connect, ingest, mask personal data, publish and monitor."
+---
+
+This walkthrough shows the complete Obsrv workflow in the console, from connecting a data source to monitoring a live dataset. It follows one dataset, `mandi_prices`, which holds daily APMC mandi (agricultural market) prices: state, district, market, commodity, variety, min, max and modal price, and arrivals in tonnes. The demo data is synthetic.
+
+<video
+  controls
+  preload="metadata"
+  playsinline
+  poster="/assets/product-walkthrough-poster.jpg"
+  style="width: 100%; border-radius: 8px;"
+>
+  <source src="/assets/product-walkthrough.mp4" type="video/mp4" />
+  Your browser does not support embedded video.
+</video>
+
+The video runs for about 1 minute 50 seconds and has no narration. Each step is captioned on screen.
+
+## What the video covers
+
+| Time | Step | What happens |
+| ---- | ---- | ------------ |
+| 0:03 | 1. Connect | Sign in to the console, start a new dataset and pick the **Kafka** connector. Enter the broker address and the source topic. |
+| 0:28 | 2. Ingest | Name the dataset and upload a small sample file. Obsrv infers the schema (11 fields and their types) and flags a type conflict in `arrivals_tonnes`, recommending `double`. Accept the recommendation. |
+| 0:45 | 3. Protect and transform | Obsrv detects `market_contact_no` as personal data. Mask it, with the record skipped if masking fails so the raw value is never stored. Add a derived field, price per kg, using a JSONata expression, and test it on a sample record. |
+| 1:15 | 4. Publish | Save the dataset and publish it with one click. |
+| 1:25 | 5. Live | The connector starts streaming the topic. Records start arriving after about two minutes, and the dataset shows as live and healthy. |
+| 1:33 | 6. Monitor | Check cluster, ingestion and processing health from the console dashboards. |
+
+## The dataset
+
+Each event in the source topic is a flat JSON record like this:
+
+```json
+{
+  "date": "2026-05-10T00:00:00Z",
+  "state": "Maharashtra",
+  "district": "Nashik",
+  "market": "Lasalgaon",
+  "market_contact_no": "+91 98895 75552",
+  "commodity": "Onion",
+  "variety": "Red",
+  "min_price": 1967,
+  "max_price": 2552,
+  "modal_price": 2289,
+  "arrivals_tonnes": 94.9
+}
+```
+
+## Processing rules used
+
+| Rule | Field | Configuration |
+| ---- | ----- | ------------- |
+| Mask (PII) | `market_contact_no` | Action **Mask**. Skip the record on transformation failure: **Yes**. |
+| Derived field | price per kg | JSONata expression `$round(modal_price / 100, 2)`. A modal price of 2289 per quintal becomes 22.89 per kg. |
+
+Both rules run in real time as events stream through the pipeline.
+
+## Related guides
+
+- [Create a Dataset](/how-tos/create-a-dataset/) gives the full step-by-step reference for the dataset wizard.
+- [Connectors](/core-concepts/connectors/) lists the available connectors, including Kafka.
+- [Dataset Management Console](/guides/management-console-guide/) describes the console features shown here.
+- [Monitoring](/core-concepts/monitoring/) explains the metrics and dashboards from the final step.
