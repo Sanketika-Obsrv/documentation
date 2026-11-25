@@ -1,0 +1,105 @@
+---
+title: "2.2.1 [latest]"
+description: "Obsrv 2.2.1 release notes — Java runtime patches for CVE-2026-114938 (Java4Shell)."
+sidebar:
+  order: 1
+  badge:
+    text: latest
+    variant: tip
+---
+
+**Release Date:** 2026-11-25
+
+**Release Type:** Patch (security)
+
+**Objective:** Patch the Java runtime in every affected Obsrv 2.2.0 container image for **CVE-2026-114938 ("Java4Shell")**, and fix lakehouse connector checkpointing on MinIO / static-credential installs.
+
+## About the vulnerability
+
+CVE-2026-114938 is a memory-corruption flaw in the OpenJDK Base64 decoder (`java.util.Base64.Decoder`). On x86-64 CPUs with AVX-512 VBMI, a crafted Base64 string can crash the JVM, leak process memory, or lead to remote code execution — in some applications (Keycloak, Kafka brokers) before authentication.
+
+- **Affected:** OpenJDK 17.0.6 and later, 21, 23 and 25 on x86-64. ARM64 (e.g. AWS Graviton) is not affected.
+- **Fixed in:** 17.0.21.1, 21.0.13.1 and 25.0.5.1.
+- **Not affected:** Java 11.
+
+## What's Changed
+
+### Java runtime replaced (same application version)
+
+Where no upstream image with the fix exists for the version Obsrv ships, the bundled Java runtime is replaced with the patched Eclipse Temurin build. Application versions, users and file layouts are unchanged.
+
+| Component | Previous image | Updated image | Java |
+|---|---|---|---|
+| Kafka | `sanketikahub/kafka:4.0.0` | `sanketikahub/kafka:2.2.1` | 17.0.16 → 17.0.21.1 |
+| Druid | `sanketikahub/druid:32.0.1` | `sanketikahub/druid:2.2.1` | 17.0.14 → 17.0.21.1 |
+| Spark | `sanketikahub/spark:2.2.0` | `sanketikahub/spark:2.2.1` | 17.0.18 → 17.0.21.1 |
+| Postgres migrations (Flyway) | `flyway/flyway:10.12.0` | `sanketikahub/flyway:2.2.1` | 17.0.11 → 17.0.21.1 |
+| Hive Metastore (HMS) | `sanketikahub/hms:2.2.0` | `sanketikahub/hms:2.2.1` | 17.0.20 → 17.0.21.1 (rebuilt on the patched `dhi.io/eclipse-temurin:17` base) |
+
+### Version upgrades (patched upstream images)
+
+| Component | Previous image | Updated image | Java |
+|---|---|---|---|
+| Keycloak | `dhi.io/keycloak:26.3-debian13` | `dhi.io/keycloak:26.8.2-debian13` | 21.0.8 → 21.0.13.1 |
+| Keycloak Config CLI | `sanketikahub/keycloak-config-cli:2.2.0` | `sanketikahub/keycloak-config-cli:2.2.1` (upstream 6.6.0-26.8.1) | 21.0.11 → 21.0.13.1 |
+| Trino | `dhi.io/trino:483-debian13-compat` | `dhi.io/trino:484-debian13-compat` | 25.0.5 → 25.0.5.1 |
+| JMX exporter | `dhi.io/jmx-exporter:1.3-debian13` | `dhi.io/jmx-exporter:1.7.0-debian13` | 23.0.2 (EOL) → 21.0.13.1 |
+| ZooKeeper (`images.yaml` entry) | `dhi.io/zookeeper:3.9-jre23-debian13` | `dhi.io/zookeeper:3.9.7-jre25-debian13` | 23.0.2 (EOL) → 25.0.5.1 |
+
+:::caution[Keycloak database migration]
+On first start, Keycloak 26.8.2 migrates its database schema and realms automatically. The migration is one-way — **back up the Keycloak database before upgrading**. To roll back, restore the backup and redeploy the previous image.
+:::
+
+:::note
+- The Druid ZooKeeper (`sanketikahub/zookeeper:3.6`) runs Java 11 and is not affected. The `zookeeper` entry in `images.yaml` is updated so it is safe if used later.
+- The JMX exporter is only used when Kafka JMX metrics are enabled.
+:::
+
+### Lakehouse connector checkpointing fix
+
+The `lakehouse-connector` chart read its checkpoint storage settings from `global.*`, while the values define them under `lakehouse-connector.*`. On MinIO / static-credential installs the S3 settings were never passed to Flink, so the job failed with *"Failed to create checkpoint storage"*. The chart now reads `checkpoint_store_type`, `s3_access_key`, `s3_secret_key`, `s3_endpoint` and `s3_path_style_access` from its own values (as the `flink` chart does) and passes them to both the jobmanager and the taskmanager. Installs using IRSA (`s3_auth_type: serviceAccount`) are unchanged.
+
+### Not affected (Java 11, no change)
+
+`unified-pipeline`, `cache-indexer`, `flink-connectors`, `secor`, `lakehouse-connector` and the Druid `zookeeper:3.6`.
+
+## Migration Steps
+
+1. Back up the Keycloak database (see the caution above).
+2. Pull the updated `helmcharts/images.yaml` and `lakehouse-connector` chart.
+3. Upgrade the bundles that use the changed images:
+
+| Bundle | Components |
+|---|---|
+| `kafka40` | Kafka, JMX exporter |
+| `coreinfra` | Druid |
+| `additional` | Spark |
+| `oauth` | Keycloak, Keycloak Config CLI |
+| `migrations` | Flyway |
+| `hudi` | HMS, Trino, lakehouse connector (only if the lakehouse stack is installed) |
+
+```bash
+cd helmcharts/kitchen
+bash install.sh <bundle>
+```
+
+Upgrading `kafka40` restarts the Kafka brokers one at a time; topics and data are unaffected.
+
+### Verify
+
+Check the Java version inside any upgraded pod:
+
+```bash
+kubectl -n <namespace> exec <pod> -- java -version
+```
+
+Expected: `17.0.21.1`, `21.0.13.1` or `25.0.5.1`, depending on the component.
+
+### Interim mitigation
+
+If an image cannot be upgraded immediately, start the JVM with `-XX:-UseBASE64Intrinsics` (for example through `JAVA_OPTS` or `KAFKA_OPTS`). This disables the vulnerable code path on x86-64. It is a temporary measure only — scanners will still report the image until it is upgraded.
+
+:::note
+- For upgrades from **v2.2.0 to v2.2.1**, upgrade only the bundles listed above.
+- Enterprise installs: the `en-migrations` job also uses Flyway — point it at `sanketikahub/flyway:2.2.1`.
+:::
