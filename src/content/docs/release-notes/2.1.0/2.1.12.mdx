@@ -1,0 +1,83 @@
+---
+title: "2.1.12"
+description: "Obsrv 2.1.12 release notes — Java runtime patches for CVE-2026-114938 (Java4Shell)."
+sidebar:
+  order: 12
+---
+
+**Release Date:** 2026-11-25
+
+**Release Type:** Patch (security)
+
+**Objective:** Patch the Java runtime in every affected Obsrv 2.1.x container image for **CVE-2026-114938 ("Java4Shell")**, without changing any application versions or Helm charts.
+
+## About the vulnerability
+
+CVE-2026-114938 is a memory-corruption flaw in the OpenJDK Base64 decoder (`java.util.Base64.Decoder`). On x86-64 CPUs with AVX-512 VBMI, a crafted Base64 string can crash the JVM, leak process memory, or lead to remote code execution — in some applications (Keycloak, Kafka brokers) before authentication.
+
+- **Affected:** OpenJDK 17.0.6 and later, 21, 24 and 25 on x86-64. ARM64 (e.g. AWS Graviton) is not affected.
+- **Fixed in:** 17.0.21.1, 21.0.13.1 and 25.0.5.1.
+- **Not affected:** Java 11.
+
+## What's Changed
+
+Each affected image keeps its application version, user and file layout. Only the bundled Java runtime is replaced with the patched Eclipse Temurin build, so the 2.1.x Helm charts work unchanged — **only the image tags change**.
+
+| Component | Previous image | Updated image | Java |
+|---|---|---|---|
+| Kafka | `sanketikahub/kafka:4.0.0` | `sanketikahub/kafka:2.1.12` | 17.0.16 → 17.0.21.1 |
+| Druid | `sanketikahub/druid:32.0.1` | `sanketikahub/druid:2.1.12` | 17.0.14 → 17.0.21.1 |
+| Spark | `sanketikahub/spark:3.5.1-debian-12-r6` | `sanketikahub/spark:2.1.12` | 17.0.11 → 17.0.21.1 |
+| Keycloak | `sanketikahub/keycloak:26.0.5-debian-12-r2` | `sanketikahub/keycloak:2.1.12` | 21.0.5 → 21.0.13.1 |
+| Keycloak Config CLI | `sanketikahub/keycloak-config-cli:6.2.0-debian-12-r0` | `sanketikahub/keycloak-config-cli:2.1.12` | 21.0.5 → 21.0.13.1 |
+| Hive Metastore (HMS) | `sanketikahub/hms:1.0.5` | `sanketikahub/hms:2.1.12` | 17.0.19 → 17.0.21.1 |
+| Trino | `trinodb/trino:476` | `sanketikahub/trino:2.1.12` | 24.0.1 (EOL) → 25.0.5.1 |
+| Postgres migrations (Flyway) | `flyway/flyway:10.12.0` | `sanketikahub/flyway:2.1.12` | 17.0.11 → 17.0.21.1 |
+
+:::note
+- **Trino 476** shipped Java 24, which is end-of-life and will not receive the fix. The patched image runs Trino 476 on Java 25.0.5.1.
+- For the Bitnami-based images (Kafka, Spark, Keycloak, Keycloak Config CLI), the Bitnami component record is updated as well, so vulnerability scanners report the patched Java version.
+:::
+
+### Not affected (Java 11, no change)
+
+`unified-pipeline:2.0.1`, `cache-indexer:2.0.1`, `secor:0.29.2-kafka-4.0`, `lakehouse-connector:1.8.0`, `jmx-exporter:0.17.2-debian-11-r29` and `zookeeper:3.6`.
+
+## Migration Steps
+
+Update the image references in `helmcharts/images.yaml` to the values above (for Trino and Flyway the repository changes too, not just the tag), then upgrade the bundles that use them:
+
+| Bundle | Components |
+|---|---|
+| `kafka40` | Kafka |
+| `coreinfra` | Druid |
+| `additional` | Spark |
+| `oauth` | Keycloak, Keycloak Config CLI |
+| `migrations` | Flyway |
+| `hudi` | HMS, Trino (only if the lakehouse stack is installed) |
+
+```bash
+cd helmcharts/kitchen
+bash install.sh <bundle>
+```
+
+Upgrading `kafka40` restarts the Kafka brokers one at a time; topics and data are unaffected.
+
+### Verify
+
+Check the Java version inside any upgraded pod:
+
+```bash
+kubectl -n <namespace> exec <pod> -- java -version
+```
+
+Expected: `17.0.21.1`, `21.0.13.1` or `25.0.5.1`, depending on the component.
+
+### Interim mitigation
+
+If an image cannot be upgraded immediately, start the JVM with `-XX:-UseBASE64Intrinsics` (for example through `JAVA_OPTS` or `KAFKA_OPTS`). This disables the vulnerable code path on x86-64. It is a temporary measure only — scanners will still report the image until it is upgraded.
+
+:::note
+- For upgrades from **v2.1.11 to v2.1.12**, upgrade only the bundles listed above.
+- Images built on Java 11 are not affected and do not need to change.
+:::
