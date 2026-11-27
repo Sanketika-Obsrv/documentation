@@ -12,7 +12,7 @@ sidebar:
 
 **Release Type:** Patch (security)
 
-**Objective:** Patch the Java runtime in every affected Obsrv 2.2.0 container image for **CVE-2026-114938 ("Java4Shell")**, and fix lakehouse connector checkpointing on MinIO / static-credential installs.
+**Objective:** Patch the Java runtime in every affected Obsrv 2.2.0 container image for **CVE-2026-114938 ("Java4Shell")**.
 
 ## About the vulnerability
 
@@ -55,10 +55,6 @@ On first start, Keycloak 26.8.2 migrates its database schema and realms automati
 - The JMX exporter is only used when Kafka JMX metrics are enabled.
 :::
 
-### Lakehouse connector checkpointing fix
-
-The `lakehouse-connector` chart read its checkpoint storage settings from `global.*`, while the values define them under `lakehouse-connector.*`. On MinIO / static-credential installs the S3 settings were never passed to Flink, so the job failed with *"Failed to create checkpoint storage"*. The chart now reads `checkpoint_store_type`, `s3_access_key`, `s3_secret_key`, `s3_endpoint` and `s3_path_style_access` from its own values (as the `flink` chart does) and passes them to both the jobmanager and the taskmanager. Installs using IRSA (`s3_auth_type: serviceAccount`) are unchanged.
-
 ### Not affected (Java 11, no change)
 
 `unified-pipeline`, `cache-indexer`, `flink-connectors`, `secor`, `lakehouse-connector` and the Druid `zookeeper:3.6`.
@@ -66,7 +62,7 @@ The `lakehouse-connector` chart read its checkpoint storage settings from `globa
 ## Migration Steps
 
 1. Back up the Keycloak database (see the caution above).
-2. Pull the updated `helmcharts/images.yaml` and `lakehouse-connector` chart.
+2. Pull the updated `helmcharts/images.yaml`.
 3. Upgrade the bundles that use the changed images:
 
 | Bundle | Components |
@@ -76,7 +72,7 @@ The `lakehouse-connector` chart read its checkpoint storage settings from `globa
 | `additional` | Spark |
 | `oauth` | Keycloak, Keycloak Config CLI |
 | `migrations` | Flyway |
-| `hudi` | HMS, Trino, lakehouse connector (only if the lakehouse stack is installed) |
+| `hudi` | HMS, Trino (only if the lakehouse stack is installed) |
 
 ```bash
 cd helmcharts/kitchen
